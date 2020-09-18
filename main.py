@@ -19,7 +19,7 @@ from panda3d.core import PerspectiveLens
 from panda3d.core import CardMaker
 from panda3d.core import Light, Spotlight
 from panda3d.core import TextNode
-from panda3d.core import LPoint3, LVector3
+from panda3d.core import LPoint3, LVector3, LVecBase3f
 from panda3d.core import AmbientLight, PointLight
 from direct.task import Task
 from direct.actor.Actor import Actor
@@ -55,100 +55,27 @@ class FogDemo(ShowBase):
         base.win.requestProperties(props)
 
         self.sphere = self.loader.loadModel("models/icosphere")
-        self.sphere.setPos(0, 0, 0)
-        self.cubeSize: int = 10
-        self.splitBetween: float = 5
-        self.midPoint = (self.cubeSize * self.splitBetween) / 2
-
         self.noiseGen = PerlinNoise3()
         self.noiseScale: float = 1.5
-
-        # row = NodePath('row')
-        #         for x in range(self.cubeSize):
-        #             placeholder = row.attachNewNode("Sphere-Placeholder")
-        #             placeholder.setPos(x * self.splitBetween - self.midPoint, 0, 0)
-        #             self.sphere.instanceTo(placeholder)
-        #
-        #         square = NodePath('square')
-        #         for y in range(self.cubeSize):
-        #             placeholder = square.attachNewNode("Row-Placeholder")
-        #             placeholder.setPos(0, y * self.splitBetween - self.midPoint, 0)
-        #             row.copyTo(placeholder)
-        #
         self.cube = NodePath('cube')
 
-        #         for z in range(self.cubeSize):
-        #             placeholder = self.cube.attachNewNode("Square-Placeholder")
-        #             placeholder.setPos(0, 0, z * self.splitBetween - self.midPoint)
-        #             square.copyTo(placeholder)
-
-        origins = [
-            np.array([-1.0, -1.0, -1.0]),
-            np.array([1.0, -1.0, -1.0]),
-            np.array([1.0, -1.0, 1.0]),
-            np.array([-1.0, -1.0, 1.0]),
-            np.array([-1.0, 1.0, -1.0]),
-            np.array([-1.0, -1.0, 1.0])
-        ]
-
-        rights = [
-            np.array([2.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, 2.0]),
-            np.array([-2.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, -2.0]),
-            np.array([2.0, 0.0, 0.0]),
-            np.array([2.0, 0.0, 0.0])]
-
-        ups = [
-            np.array([0.0, 2.0, 0.0]),
-            np.array([0.0, 2.0, 0.0]),
-            np.array([0.0, 2.0, 0.0]),
-            np.array([0.0, 2.0, 0.0]),
-            np.array([0.0, 0.0, 2.0]),
-            np.array([0.0, 0.0, -2.0])]
-
-
-        vertex = []
-        div_count: int = 2
-
-        step = 1.0 / float(div_count)
-        step3 = np.array([step, step, step])
-
-        print(step3, step3*step3)
-
-        for f in range(6):
-            origin = origins[f]
-            right = rights[f]
-            up = ups[f]
-            for j in range(div_count):
-                for i in range(div_count):
-                    p = origin + 2.0 * (right * i + up * j) / div_count
-                    # p = origin * 2.0 / div_count - np.array([1, 1, 1])
-                    # p = origin + step3 * (right * i + up * j)
-                    p2 = p * p
-                    # rx = p[0] * math.sqrt(1.0 - 0.5 * (p2[1] + p2[2]) + p2[1] * p2[2] / 3.0)
-                    # ry = p[1] * math.sqrt(1.0 - 0.5 * (p2[2] + p2[0]) + p2[2] * p2[0] / 3.0)
-                    # rz = p[2] * math.sqrt(1.0 - 0.5 * (p2[0] + p2[1]) + p2[0] * p2[1] / 3.0)
-                    vertex.append(p)
-        print(len(vertex))
-
         placeholder = self.cube.attachNewNode("Square-Placeholder")
-        placeholder.setPos(0, 0, 0)
         self.sphere.instanceTo(placeholder)
 
-        r = 10
+        r = 5
         kage = 0
-        color = (0,0,0)
-        for v in vertex:
-            if (kage%4==0):
-                color = (random.random(), random.random(),random.random())
+        color = (0, 0, 0)
+        self.vertexes = self.CreateVertecies(4, 4, 4)
+        print(len(self.vertexes))
+        for v in self.vertexes:
+            if kage%(len(self.vertexes) / 6) == 0:
+                color = (random.random(), random.random(), random.random())
 
             kage += 1
             placeholder = self.cube.attachNewNode("Sphere-Placeholder")
+            print(v)
             placeholder.setPos(v[0]*r, v[1]*r, v[2]*r)
-            b = kage/len(vertex)
-
-
+            b = kage/len(self.vertexes)
 
             placeholder.setColor(color[0], color[1], color[2])
             self.sphere.copyTo(placeholder)
@@ -158,7 +85,65 @@ class FogDemo(ShowBase):
 
         taskMgr.setupTaskChain('cubegen', numThreads=2)
         taskMgr.add(self.spinCameraTask, "Move Cam")
-        #taskMgr.add(self.noisify, "Create noise on cube spheres", taskChain='cubegen')
+        # taskMgr.add(self.noisify, "Create noise on cube spheres", taskChain='cubegen')
+
+    def SetVertex(self, vertexes, i, x, y, z):
+        # p = origin + 2.0 * (right * i + up * j) / div_count
+        p = np.array([x, y, z]) * 2.0 / self.gridSize - np.array([1, 1, 1])
+        # p = origin + step3 * (right * i + up * j)
+
+        p2 = p * p
+        rx = p[0] * math.sqrt(1.0 - 0.5 * (p2[1] + p2[2]) + p2[1] * p2[2] / 3.0)
+        ry = p[1] * math.sqrt(1.0 - 0.5 * (p2[2] + p2[0]) + p2[2] * p2[0] / 3.0)
+        rz = p[2] * math.sqrt(1.0 - 0.5 * (p2[0] + p2[1]) + p2[0] * p2[1] / 3.0)
+        v = LVecBase3f(x, y, z)
+        # v = LVecBase3f(rx, ry, rz)
+        print(i, v)
+        vertexes[i] = v
+
+    def CreateVertecies(self, xSize, ySize, zSize):
+        self.gridSize = xSize
+        cornerVertices = 8
+        edgeVertices = (xSize + ySize + zSize - 6) * 4
+        faceVertices = (
+                               (xSize - 2) * (ySize - 2) +
+                               (xSize - 2) * (zSize - 2) +
+                               (ySize - 2) * (zSize - 2)) * 2
+        verticesCount = cornerVertices + edgeVertices + faceVertices
+        print(cornerVertices, edgeVertices,  faceVertices, verticesCount)
+        vertexes = np.ndarray([verticesCount], dtype=LVecBase3f)
+
+        v = 0
+        for y in range(ySize):
+            print(y)
+            for x in range(xSize):
+                self.SetVertex(vertexes, v, x, y, 0)
+                v += 1
+
+            for z in range(1, zSize):
+                self.SetVertex(vertexes, v, xSize, y, z)
+                v += 1
+
+            for x in range(xSize-1, 0, -1):
+                self.SetVertex(vertexes, v, x, y, zSize)
+                v += 1
+
+            for z in range(zSize-1, 1, -1):
+                self.SetVertex(vertexes, v, 0, y, z)
+                v += 1
+
+        for z in range(1, zSize-1):
+            for x in range(1, xSize-1):
+                self.SetVertex(vertexes, v, x, ySize, z)
+                v += 1
+
+        for z in range(1, zSize - 1):
+            for x in range(1, xSize - 1):
+                self.SetVertex(vertexes, v, x, 0, z)
+                v += 1
+
+        print(vertexes)
+        return vertexes
 
     def noisify(self, task):
         size = self.cubeSize * self.splitBetween
@@ -178,7 +163,7 @@ class FogDemo(ShowBase):
 
     # Define a procedure to move the camera.
     def spinCameraTask(self, task):
-        radius = 50
+        radius = 100
         angle_radians = task.time * 0.1
 
         self.camera.setPos(radius * sin(angle_radians), radius * cos(angle_radians), (sin(task.time) + 1) * 10)
