@@ -27,10 +27,12 @@ from direct.filter.CommonFilters import CommonFilters
 from panda3d.core import PerlinNoise3
 from panda3d.core import NodePath
 from panda3d.core import Thread
+from panda3d.core import TransparencyAttrib
 import math
 import sys
 import numpy as np
 import random
+
 
 import marchingcubes
 
@@ -47,7 +49,6 @@ class FogDemo(ShowBase):
         filters = CommonFilters(base.win, base.cam)
         self.win.setClearColor((0.2, 0.2, 0.6, 1))
         self.disableMouse()
-        self.camera.setPos(0, -10, 0)
 
         props = WindowProperties()
         props.setTitle('Marching Cubes')
@@ -57,16 +58,49 @@ class FogDemo(ShowBase):
         self.sphere = self.loader.loadModel("models/icosphere")
         self.noiseGen = PerlinNoise3()
         self.noiseScale: float = 1.5
-        self.cube = NodePath('cube')
 
-        placeholder = self.cube.attachNewNode("Square-Placeholder")
+
+        placeholder = self.render.attachNewNode("Square-Placeholder")
         self.sphere.instanceTo(placeholder)
 
-        color = (0, 0, 0)
         self.gridSize = 10
-        cubes = np.ndarray([self.gridSize],dtype=np.ndarray)
-        for i in range(1):
-            cubes[i] = self.CreateSpherizedCube(self.gridSize, 20-i*2)
+        self.innerAmount = 1
+        self.cube = NodePath('cube')
+        self.generateStuff()
+
+        self.accept("d", self.changeGridSize, [1])
+        self.accept("a", self.changeGridSize, [-1])
+        self.accept("space", self.generateStuff)
+        self.accept("w", self.changeInnerAmount, [1])
+        self.accept("s", self.changeInnerAmount, [-1])
+
+        taskMgr.setupTaskChain('cubegen', numThreads=2)
+        taskMgr.add(self.spinCameraTask, "Move Cam")
+        # taskMgr.add(self.noisify, "Create noise on cube spheres", taskChain='cubegen')
+
+    def genCubeNode(self):
+        self.cube = NodePath('cube')
+        self.cube.reparentTo(self.render)
+        self.cube.setTransparency(TransparencyAttrib.MAlpha)
+        self.cube.setAlphaScale(0.5)
+
+    def changeGridSize(self, amount):
+        self.gridSize += amount
+        print(self.gridSize)
+        self.generateStuff()
+
+    def changeInnerAmount(self, amount):
+        self.innerAmount += amount
+        print(self.innerAmount)
+        self.generateStuff()
+
+    def generateStuff(self):
+        color = (0, 0, 0)
+        self.cube.removeNode()
+        self.genCubeNode()
+        cubes = np.ndarray([self.gridSize], dtype=np.ndarray)
+        for i in range(self.innerAmount):
+            cubes[i] = self.CreateSpherizedCube(self.gridSize, 20 - i * 2)
             for v in range(len(cubes[i])):
                 if v % self.gridSize == 0:
                     color = (random.random(), random.random(), random.random())
@@ -78,13 +112,7 @@ class FogDemo(ShowBase):
                 # placeholder.setColor(b)
 
                 placeholder.setColor(color[0], color[1], color[2])
-                self.sphere.copyTo(placeholder)
-
-        self.cube.reparentTo(self.render)
-
-        taskMgr.setupTaskChain('cubegen', numThreads=2)
-        taskMgr.add(self.spinCameraTask, "Move Cam")
-        # taskMgr.add(self.noisify, "Create noise on cube spheres", taskChain='cubegen')
+                self.sphere.instanceTo(placeholder)
 
     # Spherification of a cube - thanks to this https://catlikecoding.com/unity/tutorials/cube-sphere/ amazing article
     def Spherize(self, x, y, z, gridSize):
@@ -104,7 +132,7 @@ class FogDemo(ShowBase):
         for i in range(len(cube)):
             v = cube[i]
             r = (radius*((2+self.noiseGen.noise(v*0.4))/3))
-            cube[i] = self.Spherize(v[0], v[1], v[2], gridSize)*radius
+            cube[i] = self.Spherize(v[0], v[1], v[2], gridSize)*r
 
         return cube
 
