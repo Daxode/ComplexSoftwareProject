@@ -86,6 +86,7 @@ class FogDemo(ShowBase):
         taskMgr.add(self.spinCameraTask, "Move Cam")
         # taskMgr.add(self.noisify, "Create noise on cube spheres", taskChain='cubegen')
 
+    # Spherification of a cube - thanks to this https://catlikecoding.com/unity/tutorials/cube-sphere/ amazing article
     def Spherize(self, x, y, z, gridSize):
         p = np.array([x, y, z]) * 2.0 / gridSize - np.array([1, 1, 1])
         p2 = p * p
