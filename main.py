@@ -62,24 +62,23 @@ class FogDemo(ShowBase):
         placeholder = self.cube.attachNewNode("Square-Placeholder")
         self.sphere.instanceTo(placeholder)
 
-        r = 5
-        kage = 0
         color = (0, 0, 0)
-        self.vertexes = self.CreateVertecies(4, 4, 4)
-        print(len(self.vertexes))
-        for v in self.vertexes:
-            if kage%(len(self.vertexes) / 6) == 0:
-                color = (random.random(), random.random(), random.random())
+        self.gridSize = 10
+        cubes = np.ndarray([self.gridSize],dtype=np.ndarray)
+        for i in range(1):
+            cubes[i] = self.CreateSpherizedCube(self.gridSize, 20-i*2)
+            for v in range(len(cubes[i])):
+                if v % self.gridSize == 0:
+                    color = (random.random(), random.random(), random.random())
 
-            kage += 1
-            placeholder = self.cube.attachNewNode("Sphere-Placeholder")
-            print(v)
-            placeholder.setPos(v[0]*r, v[1]*r, v[2]*r)
-            b = kage/len(self.vertexes)
+                ver = cubes[i][v]
+                placeholder = self.cube.attachNewNode("Sphere-Placeholder")
+                placeholder.setPos(ver[0], ver[1], ver[2])
+                # b = v/len(cubes[i])
+                # placeholder.setColor(b)
 
-            placeholder.setColor(color[0], color[1], color[2])
-            self.sphere.copyTo(placeholder)
-
+                placeholder.setColor(color[0], color[1], color[2])
+                self.sphere.copyTo(placeholder)
 
         self.cube.reparentTo(self.render)
 
@@ -87,66 +86,67 @@ class FogDemo(ShowBase):
         taskMgr.add(self.spinCameraTask, "Move Cam")
         # taskMgr.add(self.noisify, "Create noise on cube spheres", taskChain='cubegen')
 
-    def SetVertex(self, vertexes, i, x, y, z):
-        # p = origin + 2.0 * (right * i + up * j) / div_count
-        p = np.array([x, y, z]) * 2.0 / self.gridSize - np.array([1, 1, 1])
-        # p = origin + step3 * (right * i + up * j)
-
+    def Spherize(self, x, y, z, gridSize):
+        p = np.array([x, y, z]) * 2.0 / gridSize - np.array([1, 1, 1])
         p2 = p * p
         rx = p[0] * math.sqrt(1.0 - 0.5 * (p2[1] + p2[2]) + p2[1] * p2[2] / 3.0)
         ry = p[1] * math.sqrt(1.0 - 0.5 * (p2[2] + p2[0]) + p2[2] * p2[0] / 3.0)
         rz = p[2] * math.sqrt(1.0 - 0.5 * (p2[0] + p2[1]) + p2[0] * p2[1] / 3.0)
-        v = LVecBase3f(x, y, z)
-        # v = LVecBase3f(rx, ry, rz)
-        print(i, v)
-        vertexes[i] = v
+        return LVecBase3f(rx, ry, rz)
 
-    def CreateVertecies(self, xSize, ySize, zSize):
-        self.gridSize = xSize
+    def SetVertex(self, vertexes, i, x, y, z):
+        vertexes[i] = LVecBase3f(x, y, z)
+
+    def CreateSpherizedCube(self, gridSize, radius):
+        cube = self.CreateCube(gridSize, gridSize, gridSize)
+
+        for i in range(len(cube)):
+            v = cube[i]
+            r = (radius*((2+self.noiseGen.noise(v*0.4))/3))
+            cube[i] = self.Spherize(v[0], v[1], v[2], gridSize)*radius
+
+        return cube
+
+    def CreateCube(self, xSize, ySize, zSize):
         cornerVertices = 8
-        edgeVertices = (xSize + ySize + zSize - 6) * 4
+        edgeVertices = (xSize + ySize + zSize - 3) * 4
         faceVertices = (
-                               (xSize - 2) * (ySize - 2) +
-                               (xSize - 2) * (zSize - 2) +
-                               (ySize - 2) * (zSize - 2)) * 2
-        verticesCount = cornerVertices + edgeVertices + faceVertices
-        print(cornerVertices, edgeVertices,  faceVertices, verticesCount)
-        vertexes = np.ndarray([verticesCount], dtype=LVecBase3f)
+                               (xSize - 1) * (ySize - 1) +
+                               (xSize - 1) * (zSize - 1) +
+                               (ySize - 1) * (zSize - 1)) * 2
+        vertexes = np.ndarray([cornerVertices + edgeVertices + faceVertices], dtype=LVecBase3f)
 
         v = 0
-        for y in range(ySize):
-            print(y)
-            for x in range(xSize):
+        for y in range(ySize + 1):
+            for x in range(xSize + 1):
                 self.SetVertex(vertexes, v, x, y, 0)
                 v += 1
 
-            for z in range(1, zSize):
+            for z in range(1, zSize + 1):
                 self.SetVertex(vertexes, v, xSize, y, z)
                 v += 1
 
-            for x in range(xSize-1, 0, -1):
+            for x in range(xSize - 1, -1, -1):
                 self.SetVertex(vertexes, v, x, y, zSize)
                 v += 1
 
-            for z in range(zSize-1, 1, -1):
+            for z in range(zSize - 1, 0, -1):
                 self.SetVertex(vertexes, v, 0, y, z)
                 v += 1
 
-        for z in range(1, zSize-1):
-            for x in range(1, xSize-1):
+        for z in range(1, zSize):
+            for x in range(1, xSize):
                 self.SetVertex(vertexes, v, x, ySize, z)
                 v += 1
 
-        for z in range(1, zSize - 1):
-            for x in range(1, xSize - 1):
+        for z in range(1, zSize):
+            for x in range(1, xSize):
                 self.SetVertex(vertexes, v, x, 0, z)
                 v += 1
 
-        print(vertexes)
         return vertexes
 
     def noisify(self, task):
-        size = self.cubeSize * self.splitBetween
         mover = [self.base.mouseWatcherNode.getMouseX(),
                  self.base.mouseWatcherNode.getMouseY()] if self.base.mouseWatcherNode.hasMouse() else [0, 0]
 
@@ -154,9 +154,9 @@ class FogDemo(ShowBase):
             sphere = sphereHolder.children[0]
             spherePos = sphere.getNetTransform().getPos()
             brightness = (1 + self.noiseGen.noise(
-                ((spherePos[0] / self.midPoint) + mover[0]) * self.noiseScale,
-                ((spherePos[1] / self.midPoint) + mover[1]) * self.noiseScale,
-                ((spherePos[2] / self.midPoint)) * self.noiseScale)) / 2
+                ((spherePos[0] / self.gridSize) + mover[0]) * self.noiseScale,
+                ((spherePos[1] / self.gridSize) + mover[1]) * self.noiseScale,
+                ((spherePos[2] / self.gridSize)) * self.noiseScale)) / 2
             sphereHolder.setColor(brightness, 0, 1 - brightness, 1)
 
         return Task.cont
