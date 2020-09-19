@@ -229,17 +229,23 @@ class FogDemo(ShowBase):
         self.camera.setPos(radius * sin(angle_radians), radius * cos(angle_radians), (sin(task.time) + 1) * 10)
         self.camera.lookAt(0, 0, 0)
 
-        cube = self.CreateCube(5, 5, 5)
+        cube = self.CreateCube(2, 2, 2)
         print(self.sphereVectors)
+
+        texIn = Texture("procedural-normal-map")
+        texIn.setup_1d_texture(cube.size, Texture.T_float, Texture.F_rgba32)
+        texIn.setClearColor((1,0,1,1))
+
+        texOut = Texture("procedural-normal-map")
+        texOut.setup_1d_texture(cube.size, Texture.T_float, Texture.F_rgba32)
+        texIn.setClearColor((0, 0, 0.823, 1))
 
         self.dummy.set_shader_input("gridSize", self.gridSize)
         self.dummy.set_shader_input("radius", radius)
-        print(cube.tolist())
-        self.dummy.set_shader_input("fromVertexes", cube.tolist())
+        self.dummy.set_shader_input("fromVertexes", texIn)
         self.sphereVectors = [Vec3F()] * cube.size
-        self.dummy.set_shader_input("toVertexes", self.sphereVectors)
-        kage = 2
-        self.dummy.set_shader_input("kage", kage)
+        self.dummy.set_shader_input("toVertexes", texOut)
+        print(texOut)
 
         # Retrieve the underlying ShaderAttrib
         #self.sattr = self.dummy.get_attrib(ShaderAttrib)
