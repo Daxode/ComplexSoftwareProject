@@ -28,6 +28,8 @@ from panda3d.core import PerlinNoise3
 from panda3d.core import NodePath
 from panda3d.core import Thread
 from panda3d.core import TransparencyAttrib
+from panda3d.core import Shader
+from panda3d.core import Vec3F, ShaderAttrib, ComputeNode
 import math
 import sys
 import numpy as np
@@ -45,6 +47,15 @@ class FogDemo(ShowBase):
         self.base = base
         base.setFrameRateMeter(True)
 
+        # Load compute shader
+        shader = Shader.load_compute(Shader.SL_GLSL, "ComputeSpherizeCube.glsl")
+
+        # Create a dummy and apply compute shader to it
+        computeNode = ComputeNode("compute")
+        computeNode.add_dispatch(512, 1, 1)
+        self.dummy = self.render.attach_new_node(computeNode)
+        self.dummy.set_shader(shader)
+
         panda3d.core.load_prc_file_data('', 'framebuffer-srgb true')
         filters = CommonFilters(base.win, base.cam)
         self.win.setClearColor((0.2, 0.2, 0.6, 1))
@@ -59,6 +70,7 @@ class FogDemo(ShowBase):
         self.noiseGen = PerlinNoise3()
         self.noiseScale: float = 1.5
 
+        self.sphereVectors = []
 
         placeholder = self.render.attachNewNode("Square-Placeholder")
         self.sphere.instanceTo(placeholder)
@@ -98,9 +110,10 @@ class FogDemo(ShowBase):
         color = (0, 0, 0)
         self.cube.removeNode()
         self.genCubeNode()
+        self.noiseGen = PerlinNoise3()
         cubes = np.ndarray([self.gridSize], dtype=np.ndarray)
         for i in range(self.innerAmount):
-            cubes[i] = self.CreateSpherizedCube(self.gridSize, 20 - i * 2)
+            cubes[i] = self.CreateSpherizedCubeWithCompute(self.gridSize, 20 - i * 2)
             for v in range(len(cubes[i])):
                 if v % self.gridSize == 0:
                     color = (random.random(), random.random(), random.random())
@@ -124,7 +137,25 @@ class FogDemo(ShowBase):
         return LVecBase3f(rx, ry, rz)
 
     def SetVertex(self, vertexes, i, x, y, z):
-        vertexes[i] = LVecBase3f(x, y, z)
+        vertexes[i] = Vec3F(x, y, z)
+
+    def CreateSpherizedCubeWithCompute(self, gridSize, radius):
+        cube = self.CreateCube(gridSize, gridSize, gridSize)
+
+        self.dummy.set_shader_input("gridSize", self.gridSize)
+        self.dummy.set_shader_input("radius", radius)
+        self.dummy.set_shader_input("fromVertexes", cube.tolist())
+        sphere = [Vec3F()]*cube.size
+        self.dummy.set_shader_input("toVertexes", sphere)
+
+        # Retrieve the underlying ShaderAttrib
+        self.sattr = self.dummy.get_attrib(ShaderAttrib)
+        # Dispatch the compute shader, right now!
+        self.base.graphicsEngine.dispatch_compute((1024, 1, 1), self.sattr, self.base.win.get_gsg())
+
+        return sphere
+
+
 
     def CreateSpherizedCube(self, gridSize, radius):
         cube = self.CreateCube(gridSize, gridSize, gridSize)
@@ -143,7 +174,7 @@ class FogDemo(ShowBase):
                                (xSize - 1) * (ySize - 1) +
                                (xSize - 1) * (zSize - 1) +
                                (ySize - 1) * (zSize - 1)) * 2
-        vertexes = np.ndarray([cornerVertices + edgeVertices + faceVertices], dtype=LVecBase3f)
+        vertexes = np.ndarray([cornerVertices + edgeVertices + faceVertices], dtype=Vec3F)
 
         v = 0
         for y in range(ySize + 1):
@@ -197,6 +228,25 @@ class FogDemo(ShowBase):
 
         self.camera.setPos(radius * sin(angle_radians), radius * cos(angle_radians), (sin(task.time) + 1) * 10)
         self.camera.lookAt(0, 0, 0)
+
+        cube = self.CreateCube(5, 5, 5)
+        print(self.sphereVectors)
+
+        self.dummy.set_shader_input("gridSize", self.gridSize)
+        self.dummy.set_shader_input("radius", radius)
+        print(cube.tolist())
+        self.dummy.set_shader_input("fromVertexes", cube.tolist())
+        self.sphereVectors = [Vec3F()] * cube.size
+        self.dummy.set_shader_input("toVertexes", self.sphereVectors)
+        kage = 2
+        self.dummy.set_shader_input("kage", kage)
+
+        # Retrieve the underlying ShaderAttrib
+        #self.sattr = self.dummy.get_attrib(ShaderAttrib)
+        # Dispatch the compute shader, right now!
+        #self.base.graphicsEngine.dispatch_compute((1024, 1, 1), self.sattr, self.base.win.get_gsg())
+
+
         return Task.cont
 
 
