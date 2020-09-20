@@ -32,6 +32,7 @@ from panda3d.core import Shader
 from panda3d.core import Vec3F, PTAVecBase3f
 from panda3d.core import ShaderAttrib, ComputeNode
 from panda3d.core import GeomEnums
+from panda3d.core import CullBinManager
 import math
 import sys
 import numpy as np
@@ -63,9 +64,9 @@ class FogDemo(ShowBase):
         tex2.setup2dTexture(512, 512, Texture.T_unsigned_byte, Texture.F_rgba32)
 
         # Create a dummy and apply compute shader to it
-        computeNode = ComputeNode("compute")
-        computeNode.addDispatch(256, 1, 1)
-        self.dummy = self.render.attach_new_node(computeNode)
+        # computeNode = ComputeNode("compute")
+        # computeNode.addDispatch(1024, 1, 1)
+        self.dummy = NodePath("computeNode")
 
         # Load compute shader
         shader = Shader.load_compute(Shader.SL_GLSL, "simple.glsl")
@@ -100,17 +101,22 @@ class FogDemo(ShowBase):
     def updateColors(self, task):
         switcher = task.time / 10
         self.colors.setData(PTAVecBase3f([Vec3F(1 - switcher, 0, 0), Vec3F(switcher, 0, 0)]))
-        # self.base.graphicsEngine.extractTextureData(self.outputVertexes, base.win.gsg)
-        # idk = self.outputVertexes.getRamImage()
-        # idk = memoryview(idk).cast('f')
+
+        # Retrieve the underlying ShaderAttrib
+        self.sattr = self.dummy.get_attrib(ShaderAttrib)
+        # Dispatch the compute shader, right now!
+        self.base.graphicsEngine.dispatch_compute((1024, 1, 1), self.sattr, self.base.win.get_gsg())
+
+        self.base.graphicsEngine.extractTextureData(self.outputVertexes, base.win.gsg)
+        idk = self.outputVertexes.getRamImage()
+        idk = memoryview(idk).cast('f')
 
         i = 0
         amount = 4
-        # print("start")
-        # while i < len(idk):
-        #     print([idk[i+x] for x in range(amount)])
-        #     i+=4
-        # print([i for i in self.outputVertexes])
+        print("start")
+        while i < len(idk):
+            print([idk[i+x] for x in range(amount)])
+            i += 4
         return Task.cont
 
 demo = FogDemo()

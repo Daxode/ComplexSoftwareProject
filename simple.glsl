@@ -1,5 +1,5 @@
 #version 430
-layout (local_size_x = 1024, local_size_y = 1) in;
+layout (local_size_x = 512, local_size_y = 1) in;
 
 // Declare the texture inputs
 layout(rgba32f, binding=0) uniform readonly image2D fromTex;
@@ -27,7 +27,7 @@ void main() {
         }
     }
 
-    imageStore(someimg, texelCoords.y, vec4(texelCoords.xy, kage[0].x, 2));
+    imageStore(someimg, texelCoords.x, vec4(texelCoords.xy, kage[1].x, 2));
 
     // Now write the modified pixel to the second texture.
     imageStore(toTex, texelCoords, pixel);
