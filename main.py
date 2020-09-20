@@ -4,6 +4,7 @@ from direct.task import Task
 import math
 from panda3d.core import loadPrcFile
 from BaseData import ShowBaseData
+import sys
 
 # Description:
 # This is the main program, and should thus be kept clean,
@@ -16,40 +17,56 @@ from BaseData import ShowBaseData
 # https://github.com/Daxode/ComplexSoftwareProject
 
 
-loadPrcFile("config/Config.prc")
-
-
 class FogDemo(ShowBase):
     def __init__(self):
-        # Initialize the ShowBase class from which we inherit, which will
-        # create a window and set up everything we need for rendering into it.
-        ShowBase.__init__(self)
+        # Setup render pipeline
+        sys.path.insert(0, "assets/external_libs/render_pipeline")
+        from rpcore import RenderPipeline, PointLight
+        self.render_pipeline = RenderPipeline()
+        self.render_pipeline.create(self)
+
+        # Main setup
         self.base: ShowBase = base
         self.baseData: ShowBaseData = ShowBaseData(self.base)
         self.baseData.StartDebugRunner()
-
-        self.SetupWindow()
-
+        self.SetupWindow(isFullscreen=False)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
-    def SetupWindow(self):
+        # Test code
+        self.render_pipeline.daytime_mgr.time = "19:17"
+        model = self.loader.loadModel("assets/models/icosphere")
+        self.render_pipeline.set_effect(render, "assets/external_libs/render_pipeline/samples/02-Roaming-Ralph/scene-effect.yaml", {}, sort=250)
+        model.setColor(1, 0, 0)
+        model.reparentTo(self.render)
+
+        my_light = PointLight()
+        my_light.setPos(1, 1, 0)
+        my_light.color = (0.9, 0.6, 0.0)
+        my_light.energy = 100000.0
+
+        self.render_pipeline.add_light(my_light)
+
+    # Setup basic props on window
+    def SetupWindow(self, isFullscreen: bool):
         props = WindowProperties()
         props.setTitle('Marching Cubes')
-        props.setIconFilename("pandaIcon.ico")
-        # props.setFullscreen(1)
-        # props.setSize(1920, 1080)
-        self.base.openMainWindow()
-        self.base.win.requestProperties(props)
-        self.base.graphicsEngine.openWindows()
-        self.base.setFrameRateMeter(True)
+        props.setIconFilename("assets/pandaIcon.ico")
+        if isFullscreen:
+            props.setFullscreen(1)
+            props.setSize(1920, 1080)
 
-        self.win.setClearColor((0.2, 0.2, 0.6, 1))
+        #self.base.openMainWindow()
+        #self.base.win.requestProperties(props)
+        #self.base.graphicsEngine.openWindows()
+        #self.base.setFrameRateMeter(True)
+
+        #self.win.setClearColor((0.2, 0.2, 0.6, 1))
         self.disableMouse()
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
         radius: float = 100
-        angle_radians: float = task.time * 0.1
+        angle_radians: float = task.time * 5
 
         self.camera.setPos(
             radius * math.sin(angle_radians),
@@ -60,5 +77,6 @@ class FogDemo(ShowBase):
         return Task.cont
 
 
+loadPrcFile("config/Config.prc")
 demo = FogDemo()
 demo.run()

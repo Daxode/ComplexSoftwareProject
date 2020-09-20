@@ -1,11 +1,12 @@
 from direct.task import Task
 from BaseData import ShowBaseData
 
+
 class PlanetFormer:
     def __init__(self, baseData: ShowBaseData):
         self.base = baseData.base
         self.gridSize = 5
-        self.noiseScale =
+        self.noiseScale = 5
 
     def noisify(self, task):
         mover = [self.base.mouseWatcherNode.getMouseX(),
