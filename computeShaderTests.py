@@ -110,7 +110,7 @@ class FogDemo(ShowBase):
     def updateColors(self, task):
         if self.base.mouseWatcherNode.hasMouse():
             self.mousePos[0] = self.base.mouseWatcherNode.getMouseX()
-            self.mousePos[0] = self.base.mouseWatcherNode.getMouseY()
+            self.mousePos[1] = self.base.mouseWatcherNode.getMouseY()
 
 
         switcher = task.time / 10

@@ -35,10 +35,6 @@ import sys
 import numpy as np
 import random
 
-
-import marchingcubes
-
-
 class FogDemo(ShowBase):
     def __init__(self):
         # Initialize the ShowBase class from which we inherit, which will
