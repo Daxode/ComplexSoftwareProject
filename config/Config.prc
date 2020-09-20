@@ -22,6 +22,8 @@ load-display pandagl
 # A value of -2 for the origin means to center it on the screen,
 # while -1 lets the window manager choose the position.
 
+framebuffer-srgb #t
+
 win-origin -2 -2
 win-size 1600 900
 
