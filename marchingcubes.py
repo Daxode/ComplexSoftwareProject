@@ -29,7 +29,9 @@ from panda3d.core import NodePath
 from panda3d.core import Thread
 from panda3d.core import TransparencyAttrib
 from panda3d.core import Shader
-from panda3d.core import Vec3F, ShaderAttrib, ComputeNode
+from panda3d.core import Vec3F, PTAVecBase3f
+from panda3d.core import ShaderAttrib, ComputeNode
+from panda3d.core import GeomEnums
 import math
 import sys
 import numpy as np
@@ -40,95 +42,7 @@ from panda3d.core import ShaderBuffer, FrameBufferProperties, GraphicsPipe, Grap
 from panda3d.core import GraphicsBuffer
 from panda3d.core import BamWriter
 
-@dataclass
-class Vec3FBuffer:
-    output_data: List[Vec3F]
-
-# PT(WindowFramework)                window         = framebufferTextureArguments.window;
-# PT(GraphicsOutput)                 graphicsOutput = framebufferTextureArguments.graphicsOutput;
-# PT(GraphicsEngine)                 graphicsEngine = framebufferTextureArguments.graphicsEngine;
-# LVecBase4                          rgbaBits       = framebufferTextureArguments.rgbaBits;
-# GraphicsOutput::RenderTexturePlane bitplane       = framebufferTextureArguments.bitplane;
-# int                                aux_rgba       = framebufferTextureArguments.aux_rgba;
-# bool                               setFloatColor  = framebufferTextureArguments.setFloatColor;
-# bool                               setSrgbColor   = framebufferTextureArguments.setSrgbColor;
-# bool                               setRgbColor    = framebufferTextureArguments.setRgbColor;
-# bool                               useScene       = framebufferTextureArguments.useScene;
-# std::string                        name           = framebufferTextureArguments.name;
-# LColor                             clearColor     = framebufferTextureArguments.clearColor;
-#
-# NodePath   cameraNP = NodePath("");
-# PT(Camera) camera   = NULL;
-#
-# if (useScene) {
-#   cameraNP = window->make_camera();
-#   camera   = DCAST(Camera, cameraNP.node());
-#   camera->set_lens(window->get_camera(0)->get_lens());
-# } else {
-#   camera = new Camera(name + "Camera");
-#   PT(OrthographicLens) lens = new OrthographicLens();
-#   lens->set_film_size(2, 2);
-#   lens->set_film_offset(0, 0);
-#   lens->set_near_far(-1, 1);
-#   camera->set_lens(lens);
-#   cameraNP = NodePath(camera);
-# }
-#
-# PT(DisplayRegion) bufferRegion =
-#   buffer->make_display_region(0, 1, 0, 1);
-# bufferRegion->set_camera(cameraNP);
-#
-# NodePath shaderNP = NodePath(name + "Shader");
-#
-# if (!useScene) {
-#   NodePath renderNP = NodePath(name + "Render");
-#   renderNP.set_depth_test( false);
-#   renderNP.set_depth_write(false);
-#   cameraNP.reparent_to(renderNP);
-#   CardMaker card = CardMaker(name);
-#   card.set_frame_fullscreen_quad();
-#   card.set_has_uvs(true);
-#   NodePath cardNP = NodePath(card.generate());
-#   cardNP.reparent_to(renderNP);
-#   cardNP.set_pos(0, 0, 0);
-#   cardNP.set_hpr(0, 0, 0);
-#   cameraNP.look_at(cardNP);
-# }
-#
-# FramebufferTexture result;
-# result.buffer       = buffer;
-# result.bufferRegion = bufferRegion;
-# result.camera       = camera;
-# result.cameraNP     = cameraNP;
-# result.shaderNP     = shaderNP;
-# return result;
-# }
-
-
 class FogDemo(ShowBase):
-    def generateFramebufferTexture(self):
-        fbp = FrameBufferProperties()
-        fbp.setBackBuffers(0)
-        fbp.set_rgba_bits(32, 32, 32, 32)
-        fbp.set_aux_rgba(1)
-        fbp.set_float_color(True)
-        fbp.set_srgb_color(False)
-        fbp.set_rgb_color(True)
-
-        name = "test"
-        graphOut = self.base.win
-        buffer = self.base.graphicsEngine.makeOutput(self.base.pipe, name + "Buffer", 10 - 1,
-                                                     fbp, WindowProperties.size(0, 0),
-                                                     GraphicsPipe.BF_refuse_window |
-                                                     GraphicsPipe.BF_resizeable |
-                                                     GraphicsPipe.BF_can_bind_every|
-                                                     GraphicsPipe.BF_rtt_cumulative |
-                                                     GraphicsPipe.BF_size_track_host,
-                                                     graphOut.get_gsg(),
-                                                     graphOut.get_host())
-        #buffer.add_render_texture(None, GraphicsOutput.RTM_bind_or_copy, GraphicsOutput.RTP_color)
-        buffer.set_clear_color(LColor(0, 0, 0, 0))
-        return buffer
 
     def __init__(self):
         # Initialize the ShowBase class from which we inherit, which will
@@ -150,7 +64,7 @@ class FogDemo(ShowBase):
 
         # Create a dummy and apply compute shader to it
         computeNode = ComputeNode("compute")
-        computeNode.addDispatch(256, 2, 1)
+        computeNode.addDispatch(256, 1, 1)
         self.dummy = self.render.attach_new_node(computeNode)
 
         # Load compute shader
@@ -158,11 +72,13 @@ class FogDemo(ShowBase):
         self.dummy.set_shader(shader)
 
         self.taskMgr.add(self.updateColors, "update colors")
-        self.colors = [Vec3F(1, 0.8, 0), Vec3F(1, 0, 0)]
+        self.colors = PTAVecBase3f([Vec3F(1, 0.8, 0), Vec3F(1, 0, 0)])
         self.dummy.set_shader_input("kage", self.colors)
 
-        self.outputVertexes = self.generateFramebufferTexture()
-        self.dummy.set_shader_input("block2", self.outputVertexes)
+        self.outputVertexes = Texture("buffer")
+        self.outputVertexes.setupBufferTexture(512, Texture.T_float, Texture.F_rgba32, GeomEnums.UH_static)
+
+        self.dummy.set_shader_input("someimg", self.outputVertexes)
         self.dummy.set_shader_input("fromTex", tex)
         self.dummy.set_shader_input("toTex", tex2)
 
@@ -183,8 +99,18 @@ class FogDemo(ShowBase):
 
     def updateColors(self, task):
         switcher = task.time / 10
-        self.colors = [Vec3F(1 - switcher, 0, 0), Vec3F(switcher, 0, 0)]
-        self.dummy.set_shader_input("kage", self.colors)
+        self.colors.setData(PTAVecBase3f([Vec3F(1 - switcher, 0, 0), Vec3F(switcher, 0, 0)]))
+        # self.base.graphicsEngine.extractTextureData(self.outputVertexes, base.win.gsg)
+        # idk = self.outputVertexes.getRamImage()
+        # idk = memoryview(idk).cast('f')
+
+        i = 0
+        amount = 4
+        # print("start")
+        # while i < len(idk):
+        #     print([idk[i+x] for x in range(amount)])
+        #     i+=4
+        # print([i for i in self.outputVertexes])
         return Task.cont
 
 demo = FogDemo()
