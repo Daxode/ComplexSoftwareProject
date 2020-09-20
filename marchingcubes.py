@@ -19,7 +19,7 @@ from panda3d.core import PerspectiveLens
 from panda3d.core import CardMaker
 from panda3d.core import Light, Spotlight
 from panda3d.core import TextNode
-from panda3d.core import LPoint3, LVector3, LVecBase3f
+from panda3d.core import LPoint3, LVector3, LVecBase3f, LColor
 from panda3d.core import AmbientLight, PointLight
 from direct.task import Task
 from direct.actor.Actor import Actor
@@ -36,7 +36,7 @@ import numpy as np
 import random
 from dataclasses import dataclass
 from typing import Tuple, List
-from panda3d.core import ShaderBuffer, FrameBufferProperties
+from panda3d.core import ShaderBuffer, FrameBufferProperties, GraphicsPipe, GraphicsOutput
 from panda3d.core import GraphicsBuffer
 from panda3d.core import BamWriter
 
@@ -44,8 +44,92 @@ from panda3d.core import BamWriter
 class Vec3FBuffer:
     output_data: List[Vec3F]
 
+# PT(WindowFramework)                window         = framebufferTextureArguments.window;
+# PT(GraphicsOutput)                 graphicsOutput = framebufferTextureArguments.graphicsOutput;
+# PT(GraphicsEngine)                 graphicsEngine = framebufferTextureArguments.graphicsEngine;
+# LVecBase4                          rgbaBits       = framebufferTextureArguments.rgbaBits;
+# GraphicsOutput::RenderTexturePlane bitplane       = framebufferTextureArguments.bitplane;
+# int                                aux_rgba       = framebufferTextureArguments.aux_rgba;
+# bool                               setFloatColor  = framebufferTextureArguments.setFloatColor;
+# bool                               setSrgbColor   = framebufferTextureArguments.setSrgbColor;
+# bool                               setRgbColor    = framebufferTextureArguments.setRgbColor;
+# bool                               useScene       = framebufferTextureArguments.useScene;
+# std::string                        name           = framebufferTextureArguments.name;
+# LColor                             clearColor     = framebufferTextureArguments.clearColor;
+#
+# NodePath   cameraNP = NodePath("");
+# PT(Camera) camera   = NULL;
+#
+# if (useScene) {
+#   cameraNP = window->make_camera();
+#   camera   = DCAST(Camera, cameraNP.node());
+#   camera->set_lens(window->get_camera(0)->get_lens());
+# } else {
+#   camera = new Camera(name + "Camera");
+#   PT(OrthographicLens) lens = new OrthographicLens();
+#   lens->set_film_size(2, 2);
+#   lens->set_film_offset(0, 0);
+#   lens->set_near_far(-1, 1);
+#   camera->set_lens(lens);
+#   cameraNP = NodePath(camera);
+# }
+#
+# PT(DisplayRegion) bufferRegion =
+#   buffer->make_display_region(0, 1, 0, 1);
+# bufferRegion->set_camera(cameraNP);
+#
+# NodePath shaderNP = NodePath(name + "Shader");
+#
+# if (!useScene) {
+#   NodePath renderNP = NodePath(name + "Render");
+#   renderNP.set_depth_test( false);
+#   renderNP.set_depth_write(false);
+#   cameraNP.reparent_to(renderNP);
+#   CardMaker card = CardMaker(name);
+#   card.set_frame_fullscreen_quad();
+#   card.set_has_uvs(true);
+#   NodePath cardNP = NodePath(card.generate());
+#   cardNP.reparent_to(renderNP);
+#   cardNP.set_pos(0, 0, 0);
+#   cardNP.set_hpr(0, 0, 0);
+#   cameraNP.look_at(cardNP);
+# }
+#
+# FramebufferTexture result;
+# result.buffer       = buffer;
+# result.bufferRegion = bufferRegion;
+# result.camera       = camera;
+# result.cameraNP     = cameraNP;
+# result.shaderNP     = shaderNP;
+# return result;
+# }
+
 
 class FogDemo(ShowBase):
+    def generateFramebufferTexture(self):
+        fbp = FrameBufferProperties()
+        fbp.setBackBuffers(0)
+        fbp.set_rgba_bits(32, 32, 32, 32)
+        fbp.set_aux_rgba(1)
+        fbp.set_float_color(True)
+        fbp.set_srgb_color(False)
+        fbp.set_rgb_color(True)
+
+        name = "test"
+        graphOut = self.base.win
+        buffer = self.base.graphicsEngine.makeOutput(self.base.pipe, name + "Buffer", 10 - 1,
+                                                     fbp, WindowProperties.size(0, 0),
+                                                     GraphicsPipe.BF_refuse_window |
+                                                     GraphicsPipe.BF_resizeable |
+                                                     GraphicsPipe.BF_can_bind_every|
+                                                     GraphicsPipe.BF_rtt_cumulative |
+                                                     GraphicsPipe.BF_size_track_host,
+                                                     graphOut.get_gsg(),
+                                                     graphOut.get_host())
+        #buffer.add_render_texture(None, GraphicsOutput.RTM_bind_or_copy, GraphicsOutput.RTP_color)
+        buffer.set_clear_color(LColor(0, 0, 0, 0))
+        return buffer
+
     def __init__(self):
         # Initialize the ShowBase class from which we inherit, which will
         # create a window and set up everything we need for rendering into it.
@@ -77,8 +161,7 @@ class FogDemo(ShowBase):
         self.colors = [Vec3F(1, 0.8, 0), Vec3F(1, 0, 0)]
         self.dummy.set_shader_input("kage", self.colors)
 
-        fbp = FrameBufferProperties.getDefault()
-        self.outputVertexes = ShaderBuffer("buffer", 512*512, 2)
+        self.outputVertexes = self.generateFramebufferTexture()
         self.dummy.set_shader_input("block2", self.outputVertexes)
         self.dummy.set_shader_input("fromTex", tex)
         self.dummy.set_shader_input("toTex", tex2)
@@ -103,7 +186,6 @@ class FogDemo(ShowBase):
         self.colors = [Vec3F(1 - switcher, 0, 0), Vec3F(switcher, 0, 0)]
         self.dummy.set_shader_input("kage", self.colors)
         return Task.cont
-
 
 demo = FogDemo()
 demo.run()

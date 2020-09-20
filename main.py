@@ -29,7 +29,7 @@ from panda3d.core import NodePath
 from panda3d.core import Thread
 from panda3d.core import TransparencyAttrib
 from panda3d.core import Shader
-from panda3d.core import Vec3F, ShaderAttrib, ComputeNode
+from panda3d.core import Vec3F, ShaderAttrib, ComputeNode, GraphicsPipe
 import math
 import sys
 import numpy as np
