@@ -34,6 +34,16 @@ import math
 import sys
 import numpy as np
 import random
+from dataclasses import dataclass
+from typing import Tuple, List
+from panda3d.core import ShaderBuffer, FrameBufferProperties
+from panda3d.core import GraphicsBuffer
+from panda3d.core import BamWriter
+
+@dataclass
+class Vec3FBuffer:
+    output_data: List[Vec3F]
+
 
 class FogDemo(ShowBase):
     def __init__(self):
@@ -41,10 +51,10 @@ class FogDemo(ShowBase):
         # create a window and set up everything we need for rendering into it.
         ShowBase.__init__(self)
         self.base = base
-        base.setFrameRateMeter(True)
+        self.base.setFrameRateMeter(True)
 
-        #myTexture = self.loader.loadTexture("test.jpg")
-        #myTexture.set_format(Texture.F_rgba32)
+        # myTexture = self.loader.loadTexture("test.jpg")
+        # myTexture.set_format(Texture.F_rgba32)
 
         # Set up a texture for procedural generation.
         tex = Texture("procedural-normal-map")
@@ -53,17 +63,23 @@ class FogDemo(ShowBase):
 
         tex2 = Texture("procedural-normal")
         tex2.setup2dTexture(512, 512, Texture.T_unsigned_byte, Texture.F_rgba32)
-        tex2.set_clear_color((1.0, 0.5, 1.0, 0.0))
 
         # Create a dummy and apply compute shader to it
         computeNode = ComputeNode("compute")
-
-        computeNode.addDispatch(512, 1, 1)
+        computeNode.addDispatch(256, 2, 1)
         self.dummy = self.render.attach_new_node(computeNode)
 
         # Load compute shader
         shader = Shader.load_compute(Shader.SL_GLSL, "simple.glsl")
         self.dummy.set_shader(shader)
+
+        self.taskMgr.add(self.updateColors, "update colors")
+        self.colors = [Vec3F(1, 0.8, 0), Vec3F(1, 0, 0)]
+        self.dummy.set_shader_input("kage", self.colors)
+
+        fbp = FrameBufferProperties.getDefault()
+        self.outputVertexes = ShaderBuffer("buffer", 512*512, 2)
+        self.dummy.set_shader_input("block2", self.outputVertexes)
         self.dummy.set_shader_input("fromTex", tex)
         self.dummy.set_shader_input("toTex", tex2)
 
@@ -74,13 +90,19 @@ class FogDemo(ShowBase):
         card = self.render.attachNewNode(cm.generate())
         card.setPos(0, 4, 0)
         card.setTexture(tex2, 1)
-        #print(self.render.ls())
-        #self.camera.lookAt(card.getPos())
+        # print(self.render.ls())
+        # self.camera.lookAt(card.getPos())
 
         props = WindowProperties()
         props.setTitle('Marching Cubes')
         props.setIconFilename("pandaIcon.ico")
-        base.win.requestProperties(props)
+        self.base.win.requestProperties(props)
+
+    def updateColors(self, task):
+        switcher = task.time / 10
+        self.colors = [Vec3F(1 - switcher, 0, 0), Vec3F(switcher, 0, 0)]
+        self.dummy.set_shader_input("kage", self.colors)
+        return Task.cont
 
 
 demo = FogDemo()
