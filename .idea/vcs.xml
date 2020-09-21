@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/assets/external_libs/Panda3DBamBlenderExporter/Panda3D-Bam-Exporter" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/assets/external_libs/Panda3DBamBlenderExporter/Panda3D-Bam-Exporter/src/pybamwriter" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/assets/external_libs/render_pipeline" vcs="Git" />
   </component>
 </project>

@@ -135,9 +135,9 @@ void main() {
             pixel = vec4(kage[1], 1);
         }
     }
-
+    if (texelCoords == (mouse-1)*512) {
+        // Now write the modified pixel to the second texture.
+        imageStore(toTex, texelCoords, pixel);
+    }
     imageStore(someimg, texelCoords.x, vec4(texelCoords.xy, kage[1].x, 2));
-
-    // Now write the modified pixel to the second texture.
-    imageStore(toTex, texelCoords, pixel);
 }

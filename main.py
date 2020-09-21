@@ -33,13 +33,15 @@ class FogDemo(ShowBase):
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
 
-        model = self.loader.loadModel("assets/models/icosphere")
+        model = self.loader.loadModel("assets/models/rp_pbr_testing.bam")
         model.setColor(1, 0, 0)
         model.reparentTo(self.render)
         self.light: PointLight = PointLight()
         self.light.energy = 1000.0
         # set desired properties, see below
         self.render_pipeline.add_light(self.light)
+        self.render_pipeline.daytime_mgr.time = "20:00"
+
 
     def SetupWindow(self, isFullscreen: bool):
         props = WindowProperties()
@@ -55,11 +57,13 @@ class FogDemo(ShowBase):
         self.disableMouse()
 
         self.render_pipeline.create(self.base)
-        self.render_pipeline.set_effect(self.render, "assets/rp-effects/scene-effect.yaml", {}, sort=250)
+        # self.render_pipeline.set_effect(self.render, "assets/rp-effects/scene-effect.yaml", {}, sort=250)
+        # self.base.render2d.hide()
+        # self.base.aspect2d.hide()
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 5
+        radius: float = 10
         angle_radians: float = task.time * 0.1
 
         timeSine: float = (math.sin(task.time)+1)/2
