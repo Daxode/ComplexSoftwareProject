@@ -24,7 +24,7 @@ class WindowCreator:
         self.base = base
         self.baseData: ShowBaseData = ShowBaseData(self.base)
         self.baseData.StartDebugRunner()
-        self.UpdateWindow()
+        self.__UpdateWindow()
         self.__EnableDebugEventSystem()
         self.base.accept('escape', sys.exit)
 
@@ -37,7 +37,7 @@ class WindowCreator:
             self.isFullscreen = not self.isFullscreen
         if key == "p":
             self.enableRP = not self.enableRP
-        self.UpdateWindow()
+        self.__UpdateWindow()
 
     def __InitRp(self):
         sys.path.insert(0, "assets/external_libs/render_pipeline")
