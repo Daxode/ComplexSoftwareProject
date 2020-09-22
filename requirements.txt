@@ -1,0 +1,4 @@
+panda3d
+numpy
+setuptools~=50.3.0
+multipledispatch~=0.6.0

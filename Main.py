@@ -2,7 +2,7 @@ import struct
 
 from direct.task import Task
 import math
-from panda3d.core import loadPrcFile, OmniBoundingVolume, Texture, GeomEnums, Shader
+from panda3d.core import loadPrcFile, OmniBoundingVolume, Texture, GeomEnums, Shader, PTAFloat
 from direct.showbase.ShowBase import ShowBase
 from WindowCreator import WindowCreator
 from panda3d.core import NodePath
@@ -18,16 +18,16 @@ from panda3d.core import NodePath
 # https://github.com/Daxode/ComplexSoftwareProject
 
 
-class BlobtoryBase(ShowBase):
+class Main(ShowBase):
     def __init__(self):
         super().__init__()
-        self.winCreator = WindowCreator(self, enableRP=True, isFullscreen=False)
+        self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
         prefab = self.loader.loadModel("assets/models/icosphere")
         prefab.reparentTo(self.render)
-        size = 64
-        spacing = 1
+        size = 48
+        spacing = 4
 
         midPoint = size*spacing*0.5
 
@@ -64,15 +64,19 @@ class BlobtoryBase(ShowBase):
 
         # Load the effect
         # self.winCreator.render_pipeline.set_effect(prefab, "effects/basic_instancing.yaml", {})
-        myShader: Shader = Shader.load(Shader.SL_GLSL, vertex="assets/shaders/instancingShader.vert", fragment="assets/shaders/instancingShader.frag")
-        prefab.setShader(myShader, 1)
+        # myShader: Shader = Shader.load(Shader.SL_GLSL, vertex="assets/shaders/instancingShader.vert", fragment="assets/shaders/instancingShader.frag")
+        # prefab.setShader(myShader, 1)
 
         prefab.set_shader_input("InstancingData", buffer_texture)
         prefab.set_instance_count(len(matrices))
 
+        self.mouseTime = PTAFloat([0, 0, 0])
+        prefab.set_shader_input("mouseTime", self.mouseTime)
+
         # We have do disable culling, so that all instances stay visible
         prefab.node().set_bounds(OmniBoundingVolume())
         prefab.node().set_final(True)
+        self.x, self.y = 0, 0
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
@@ -82,12 +86,18 @@ class BlobtoryBase(ShowBase):
         self.camera.setPos(
             radius * math.sin(angle_radians),
             radius * math.cos(angle_radians),
-            (math.sin(task.time)) * 100)
+            (math.sin(task.time)) * 1)
         self.camera.lookAt(0, 0, 0)
+
+        if self.mouseWatcherNode.hasMouse():
+            self.x = self.mouseWatcherNode.getMouseX()
+            self.y = self.mouseWatcherNode.getMouseY()
+
+        self.mouseTime.setData(PTAFloat([self.x, self.y, task.time]))
 
         return Task.cont
 
 
 loadPrcFile("config/Config.prc")
-blobtoryBase = BlobtoryBase()
+blobtoryBase = Main()
 blobtoryBase.run()
