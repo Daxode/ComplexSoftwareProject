@@ -2,7 +2,7 @@ import struct
 
 from direct.task import Task
 import math
-from panda3d.core import loadPrcFile, OmniBoundingVolume, Texture, GeomEnums
+from panda3d.core import loadPrcFile, OmniBoundingVolume, Texture, GeomEnums, Shader
 from direct.showbase.ShowBase import ShowBase
 from WindowCreator import WindowCreator
 from panda3d.core import NodePath
@@ -21,13 +21,13 @@ from panda3d.core import NodePath
 class BlobtoryBase(ShowBase):
     def __init__(self):
         super().__init__()
-        self.winCreator = WindowCreator(self, enableRP=True, isFullscreen=True)
+        self.winCreator = WindowCreator(self, enableRP=True, isFullscreen=False)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
         prefab = self.loader.loadModel("assets/models/icosphere")
         prefab.reparentTo(self.render)
         size = 64
-        spacing = 2
+        spacing = 1
 
         midPoint = size*spacing*0.5
 
@@ -36,7 +36,7 @@ class BlobtoryBase(ShowBase):
         for x in range(size):
             for y in range(size):
                 for z in range(size):
-                    placeholder: NodePath = self.render.attach_new_node("icosphere-placeholder")
+                    placeholder: NodePath = NodePath("icosphere-placeholder")
                     placeholder.setPos(x*spacing-midPoint, y*spacing-midPoint, z*spacing-midPoint)
                     matrices.append(placeholder.get_mat(self.render))
                     placeholder.remove_node()
@@ -63,7 +63,9 @@ class BlobtoryBase(ShowBase):
         ram_image.set_subdata(0, len(data), data)
 
         # Load the effect
-        self.winCreator.render_pipeline.set_effect(prefab, "effects/basic_instancing.yaml", {})
+        # self.winCreator.render_pipeline.set_effect(prefab, "effects/basic_instancing.yaml", {})
+        myShader: Shader = Shader.load(Shader.SL_GLSL, vertex="assets/shaders/instancingShader.vert", fragment="assets/shaders/instancingShader.frag")
+        prefab.setShader(myShader, 1)
 
         prefab.set_shader_input("InstancingData", buffer_texture)
         prefab.set_instance_count(len(matrices))
