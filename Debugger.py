@@ -60,7 +60,6 @@ class Debugger:
 
     def Run(self):
         if len(self.queue) > 0:
-
             tmp: List[DebugMsgPacket] = []
             tmpPrinter: List[str] = []
 
