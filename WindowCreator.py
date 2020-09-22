@@ -25,27 +25,28 @@ class WindowCreator:
         self.baseData: ShowBaseData = ShowBaseData(self.base)
         self.baseData.StartDebugRunner()
         self.UpdateWindow()
-        self.EnableDebugEventSystem()
+        self.__EnableDebugEventSystem()
+        self.base.accept('escape', sys.exit)
 
-    def EnableDebugEventSystem(self):
-        self.base.accept("f", self.HandleKey, ["f"])
-        self.base.accept("p", self.HandleKey, ["p"])
+    def __EnableDebugEventSystem(self):
+        self.base.accept("f", self.__HandleDebugKeys, ["f"])
+        self.base.accept("p", self.__HandleDebugKeys, ["p"])
 
-    def HandleKey(self, key: str):
+    def __HandleDebugKeys(self, key: str):
         if key == "f":
             self.isFullscreen = not self.isFullscreen
         if key == "p":
             self.enableRP = not self.enableRP
         self.UpdateWindow()
 
-    def InitRp(self):
+    def __InitRp(self):
         sys.path.insert(0, "assets/external_libs/render_pipeline")
         from assets.external_libs.render_pipeline.rpcore import RenderPipeline
         self.render_pipeline = RenderPipeline()
         self.render_pipeline.pre_showbase_init()
 
     @dispatch()
-    def UpdateWindow(self):
+    def __UpdateWindow(self):
         self.UpdateWindow(self.isFullscreen, self.enableRP)
 
     @dispatch(bool, bool)
@@ -54,7 +55,7 @@ class WindowCreator:
         self.isFullscreen = isFullscreen
 
         props = WindowProperties()
-        props.setTitle('Marching Cubes')
+        props.setTitle('Blobtory')
         props.setIconFilename("assets/pandaIcon.ico")
         if self.isFullscreen:
             props.setFullscreen(1)
@@ -67,7 +68,7 @@ class WindowCreator:
 
         if self.enableRP:
             if self.render_pipeline is None:
-                self.InitRp()
+                self.__InitRp()
 
             self.render_pipeline.settings["pipeline.display_debugger"] = False
             self.render_pipeline.create(self.base)

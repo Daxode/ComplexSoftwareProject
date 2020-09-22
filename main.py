@@ -22,6 +22,7 @@ class BlobtoryBase(ShowBase):
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
         model = self.loader.loadModel("assets/models/icosphere")
+        model.setShaderAuto()
         model.reparentTo(self.render)
         test = model.copy_to(self.render)
         test.setPos(0, 0, 2)
