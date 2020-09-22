@@ -18,12 +18,16 @@ from WindowCreator import WindowCreator
 class BlobtoryBase(ShowBase):
     def __init__(self):
         super().__init__()
-        self.winCreator = WindowCreator(self, enableRP=True)
-        self.accept("space", self.winCreator.UpdateWindow, [False])
+        self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=True)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
         model = self.loader.loadModel("assets/models/icosphere")
         model.reparentTo(self.render)
+        test = model.copy_to(self.render)
+        test.setPos(0, 0, 2)
+
+        test = model.copy_to(self.render)
+        test.setPos(0, 2, 0)
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
