@@ -9,7 +9,7 @@ from WindowCreator import WindowCreator
 # so stuff doesn't get out of control
 #
 # Author:  Daniel Kierkegaard Andersen (dax@daxode.dk)
-# Version: 2020-09-20
+# Version: 2020-09-22
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
@@ -18,8 +18,12 @@ from WindowCreator import WindowCreator
 class BlobtoryBase(ShowBase):
     def __init__(self):
         super().__init__()
-        self.winCreator = WindowCreator(self, enableRP=False)
+        self.winCreator = WindowCreator(self, enableRP=True)
+        self.accept("space", self.winCreator.UpdateWindow, [False])
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
+
+        model = self.loader.loadModel("assets/models/icosphere")
+        model.reparentTo(self.render)
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):

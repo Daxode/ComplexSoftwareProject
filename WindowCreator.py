@@ -3,9 +3,20 @@ from panda3d.core import WindowProperties
 from BaseData import ShowBaseData
 import sys
 
+# Description:
+# This is the main window creator, made to easily switch between
+# using the render pipeline and using the default one
+#
+# Author:  Daniel Kierkegaard Andersen (dax@daxode.dk)
+# Version: 2020-09-22
+#
+# Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
+# https://github.com/Daxode/ComplexSoftwareProject
+
 
 class WindowCreator:
     render_pipeline = None
+    test: bool = False
 
     def __init__(self, base: ShowBase, enableRP: bool = False):
         self.enableRP = enableRP
@@ -20,9 +31,9 @@ class WindowCreator:
         self.base = base
         self.baseData: ShowBaseData = ShowBaseData(self.base)
         self.baseData.StartDebugRunner()
-        self.SetupWindow(isFullscreen=False)
+        self.UpdateWindow(isFullscreen=True)
 
-    def SetupWindow(self, isFullscreen: bool):
+    def UpdateWindow(self, isFullscreen: bool):
         props = WindowProperties()
         props.setTitle('Marching Cubes')
         props.setIconFilename("assets/pandaIcon.ico")
@@ -38,7 +49,9 @@ class WindowCreator:
         if self.enableRP:
             self.render_pipeline.settings["pipeline.display_debugger"] = False
             self.render_pipeline.create(self.base)
-            # self.render_pipeline.set_effect(self.render, "assets/rp-effects/scene-effect.yaml", {}, sort=250)
+            self.render_pipeline.set_effect(self.base.render, "assets/rp-effects/scene-effect.yaml", {}, sort=250)
+            self.render_pipeline.loading_screen.remove()
         else:
             self.base.setBackgroundColor(0, 0.2, 0.4)
+            self.base.render.setShaderAuto(True)
             self.base.setFrameRateMeter(True)

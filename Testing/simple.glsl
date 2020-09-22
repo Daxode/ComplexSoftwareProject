@@ -2,6 +2,15 @@
 
 #pragma include "three_d.glsl"
 
+// Description:
+// This is just a simple compute shader testing include, noise and buffers
+//
+// Author:  Daniel Kierkegaard Andersen (dax@daxode.dk)
+// Version: 2020-09-22
+//
+// Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
+// https://github.com/Daxode/ComplexSoftwareProject
+
 layout (local_size_x = 512, local_size_y = 1) in;
 
 // Declare the texture inputs
