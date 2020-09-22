@@ -70,7 +70,7 @@ class WindowCreator:
             if self.render_pipeline is None:
                 self.__InitRp()
 
-            self.render_pipeline.settings["pipeline.display_debugger"] = False
+            self.render_pipeline.settings["pipeline.display_debugger"] = True
             self.render_pipeline.create(self.base)
             self.render_pipeline.set_effect(self.base.render, "assets/rp-effects/scene-effect.yaml", {}, sort=250)
             self.render_pipeline.loading_screen.remove()

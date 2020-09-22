@@ -1,6 +1,8 @@
+import struct
+
 from direct.task import Task
 import math
-from panda3d.core import loadPrcFile
+from panda3d.core import loadPrcFile, OmniBoundingVolume, Texture, GeomEnums
 from direct.showbase.ShowBase import ShowBase
 from WindowCreator import WindowCreator
 from panda3d.core import NodePath
@@ -19,22 +21,56 @@ from panda3d.core import NodePath
 class BlobtoryBase(ShowBase):
     def __init__(self):
         super().__init__()
-        self.winCreator = WindowCreator(self, enableRP=True, isFullscreen=False)
+        self.winCreator = WindowCreator(self, enableRP=True, isFullscreen=True)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
-        model = self.loader.loadModel("assets/models/icosphere")
-        model.setShaderAuto()
-        model.reparentTo(self.render)
-        size = 16
-        spacing = 4
+        prefab = self.loader.loadModel("assets/models/icosphere")
+        prefab.reparentTo(self.render)
+        size = 64
+        spacing = 2
 
         midPoint = size*spacing*0.5
+
+        # Collect all instances
+        matrices = []
         for x in range(size):
             for y in range(size):
                 for z in range(size):
                     placeholder: NodePath = self.render.attach_new_node("icosphere-placeholder")
                     placeholder.setPos(x*spacing-midPoint, y*spacing-midPoint, z*spacing-midPoint)
-                    model.instance_to(placeholder)
+                    matrices.append(placeholder.get_mat(self.render))
+                    placeholder.remove_node()
+
+        print("Loaded", len(matrices), "instances!")
+
+        # Allocate storage for the matrices, each matrix has 16 elements,
+        # but because one pixel has four components, we need amount * 4 pixels.
+        buffer_texture = Texture()
+        buffer_texture.setup_buffer_texture(len(matrices) * 4, Texture.T_float, Texture.F_rgba32, GeomEnums.UH_static)
+
+        floats = []
+
+        # Serialize matrices to floats
+        ram_image = buffer_texture.modify_ram_image()
+
+        for idx, mat in enumerate(matrices):
+            for i in range(4):
+                for j in range(4):
+                    floats.append(mat.get_cell(i, j))
+
+        # Write the floats to the texture
+        data = struct.pack("f" * len(floats), *floats)
+        ram_image.set_subdata(0, len(data), data)
+
+        # Load the effect
+        self.winCreator.render_pipeline.set_effect(prefab, "effects/basic_instancing.yaml", {})
+
+        prefab.set_shader_input("InstancingData", buffer_texture)
+        prefab.set_instance_count(len(matrices))
+
+        # We have do disable culling, so that all instances stay visible
+        prefab.node().set_bounds(OmniBoundingVolume())
+        prefab.node().set_final(True)
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
