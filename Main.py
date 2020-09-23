@@ -27,7 +27,7 @@ class Main(ShowBase):
         prefab = self.loader.loadModel("assets/models/icosphere")
 
         size = 64
-        spacing = 8
+        spacing = 2
         midPoint = size*spacing*0.5
         self.mouseTime = PTAFloat([0, 0, 0])
 

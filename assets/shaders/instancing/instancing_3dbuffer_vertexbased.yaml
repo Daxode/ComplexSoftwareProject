@@ -4,13 +4,25 @@
 # it with your own texture-map generation code.
 
 vertex:
+    dependencies:
+        - assets/external_libs/glsl-noise/simplex/three_d.glsl
+
     inout: |
-        uniform samplerBuffer InstancingData;
+        uniform int gridSize;
+        layout(rgba32f, binding = 0) uniform readonly image3D InstancingData;
+        uniform vec3 mouseTime;
 
 
     transform: |
-        vec4 locationOffset = texelFetch(InstancingData, gl_InstanceID);
+        ivec3 texelCoords = ivec3(
+                 gl_InstanceID % gridSize,
+                (gl_InstanceID / gridSize)%gridSize,
+                 gl_InstanceID / (gridSize*gridSize));
+
+        vec4 locationOffset = imageLoad(InstancingData, texelCoords);
+        locationOffset = (locationOffset*(snoise(mouseTime.z*0.1+locationOffset.xyz*0.01*mouseTime.x)+1)*mouseTime.y + p3d_Vertex);
         vOutput.position = (locationOffset + p3d_Vertex).xyz;
 
 fragment:
-
+    material: |
+        m.basecolor = vOutput.normal  * 0.5 + 0.5;
