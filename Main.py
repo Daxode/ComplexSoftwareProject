@@ -16,6 +16,7 @@ from panda3d.core import NodePath, LVector3f
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
+from planet_former.CubeFormer import CubeFormer
 
 
 class Main(ShowBase):
@@ -26,39 +27,16 @@ class Main(ShowBase):
 
         prefab = self.loader.loadModel("assets/models/icosphere")
 
-        size = 64
-        spacing = 8
-        midPoint = size*spacing*0.5
-        self.mouseTime = PTAFloat([0, 0, 0])
-
-        vertexCount = pow(size, 3)
-        vertexBuffer = Texture("vertex buffer")
-        vertexBuffer.setup_3d_texture(size, size, size, Texture.T_float, Texture.F_rgba32)
-
-        vertexBuffer = Texture("marching cube vertex buffer")
-        vertexBuffer.setup_3d_texture(size, size, size, Texture.T_float, Texture.F_rgba32)
-
-        shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubebuffercreator.glsl")
-        dummy = NodePath("dummy")
-        dummy.set_shader(shader)
-        dummy.set_shader_input("vertexBuffer", vertexBuffer)
-        dummy.set_shader_input("spacing", spacing)
-        dummy.set_shader_input("midPoint", midPoint)
-
-        batchSize = int(size/8)
-        self.graphicsEngine.dispatch_compute(LVecBase3i(batchSize*2, batchSize, batchSize),
-                                             dummy.get_attrib(ShaderAttrib), self.win.get_gsg())
-
-        self.winCreator.baseData.debuggerMain.Inform(f"Loaded {vertexCount} instances!")
-        PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, vertexBuffer, vertexCount, self.winCreator)
-        prefab.set_shader_input("mouseTime", self.mouseTime)
-
-        self.x, self.y = 0, 0
+        cubeformer: CubeFormer = CubeFormer(self.winCreator, 32, 32, 32, 4)
+        cubeformer.GeneratePerlinCube()
+        self.winCreator.baseData.debuggerMain.Inform(f"Loaded {cubeformer.vertexCount} instances!")
+        PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, cubeformer.vertexBuffer,
+                                                                                    cubeformer.size, self.winCreator)
 
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 500
+        radius: float = 300
         angle_radians: float = task.time * 0.1
 
         self.camera.setPos(
@@ -66,12 +44,6 @@ class Main(ShowBase):
             radius * math.cos(angle_radians),
             (math.sin(task.time)) * 5)
         self.camera.lookAt(0, 0, 0)
-
-        if self.mouseWatcherNode.hasMouse():
-            self.x = self.mouseWatcherNode.getMouseX()
-            self.y = self.mouseWatcherNode.getMouseY()
-
-        self.mouseTime.setData(PTAFloat([self.x, self.y, task.time]))
 
         return Task.cont
 

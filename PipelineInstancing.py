@@ -3,7 +3,7 @@ from typing import *
 
 from panda3d.core import Texture, GeomEnums, LMatrix4f, NodePath, OmniBoundingVolume, LVector3f
 import WindowCreator
-from direct.showbase.Loader import Loader
+from direct.showbase.Loader import Loader, PTAInt
 from multipledispatch import dispatch
 
 class PipelineInstancing:
@@ -35,7 +35,7 @@ class PipelineInstancing:
     @staticmethod
     def RenderThisModelAtVertexesFrom3DBuffer(
             modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
-            buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator) -> Texture:
+            buffer: Texture, vertexCount: PTAInt, winCreator: WindowCreator.WindowCreator) -> Texture:
         PipelineInstancing.__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer, vertexCount, winCreator)
         PipelineInstancing.__DefineBoundingBox(modelToApplyOn)
         modelToApplyOn.reparentTo(winCreator.base.render)
@@ -104,12 +104,12 @@ class PipelineInstancing:
 
     @staticmethod
     def __AddVertexBasedInstance3DBufferShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
-                                       buffer_texture: Texture, instanceCount: int,
+                                       buffer_texture: Texture, instanceCount: PTAInt,
                                        winCreator: WindowCreator.WindowCreator):
         winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_3dbuffer_vertexbased")
         modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
-        modelToApplyOn.set_shader_input("gridSize", int(instanceCount ** (1. / 3)))
-        modelToApplyOn.set_instance_count(instanceCount)
+        modelToApplyOn.set_shader_input("size", instanceCount)
+        modelToApplyOn.set_instance_count(instanceCount[0]*instanceCount[1]*instanceCount[2])
 
 
     @staticmethod

@@ -4,10 +4,10 @@
 
 layout (local_size_x = 16, local_size_y = SIZE, local_size_z = SIZE) in;
 uniform float spacing;
-uniform float midPoint;
+uniform vec3 midPoint;
 
 uniform writeonly image3D vertexBuffer;
 void main() {
-    vec4 point = (vec4(gl_GlobalInvocationID.xyz, 0)*spacing-vec4(midPoint,midPoint,midPoint,0));
-    imageStore(vertexBuffer, ivec3(gl_GlobalInvocationID.xyz), point);
+    vec3 point = gl_GlobalInvocationID.xyz*spacing-midPoint;
+    imageStore(vertexBuffer, ivec3(gl_GlobalInvocationID.xyz), vec4(point, snoise(point*0.02)));
 }
