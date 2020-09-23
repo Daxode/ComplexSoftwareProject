@@ -63,9 +63,7 @@ class WindowCreator:
             props.setFullscreen(1)
             props.setSize(1920, 1080)
 
-        self.base.openMainWindow()
         self.base.win.requestProperties(props)
-        self.base.graphicsEngine.openWindows()
         self.base.disableMouse()
 
         if self.enableRP:

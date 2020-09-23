@@ -1,17 +1,42 @@
 import struct
 from typing import *
 
-from panda3d.core import Texture, GeomEnums, LMatrix4f, NodePath, OmniBoundingVolume
+from panda3d.core import Texture, GeomEnums, LMatrix4f, NodePath, OmniBoundingVolume, LVector3f
 import WindowCreator
 from direct.showbase.Loader import Loader
-
+from multipledispatch import dispatch
 
 class PipelineInstancing:
     @staticmethod
     def RenderThisModelAtMatrices(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
                                   matrices: List[LMatrix4f], winCreator: WindowCreator.WindowCreator) -> Texture:
         buffer = PipelineInstancing.__LoadBufferWithMatrices(matrices)
-        PipelineInstancing.__AddShader(modelToApplyOn, buffer, len(matrices), winCreator)
+        PipelineInstancing.__AddMatrixBasedInstanceShader(modelToApplyOn, buffer, len(matrices), winCreator)
+        PipelineInstancing.__DefineBoundingBox(modelToApplyOn)
+        modelToApplyOn.reparentTo(winCreator.base.render)
+
+        return buffer
+
+    @staticmethod
+    def RenderThisModelAtVertexes(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+                                  vertexes: List[LVector3f], winCreator: WindowCreator.WindowCreator) -> Texture:
+        buffer = PipelineInstancing.__LoadBufferWithVertexes(vertexes)
+        return PipelineInstancing.RenderThisModelAtVertexesFromBuffer(modelToApplyOn, buffer, len(vertexes), winCreator)
+
+    @staticmethod
+    def RenderThisModelAtVertexesFromBuffer(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+                                  buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator) -> Texture:
+        PipelineInstancing.__AddVertexBasedInstanceShader(modelToApplyOn, buffer, vertexCount, winCreator)
+        PipelineInstancing.__DefineBoundingBox(modelToApplyOn)
+        modelToApplyOn.reparentTo(winCreator.base.render)
+
+        return buffer
+
+    @staticmethod
+    def RenderThisModelAtVertexesFrom3DBuffer(
+            modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+            buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator) -> Texture:
+        PipelineInstancing.__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer, vertexCount, winCreator)
         PipelineInstancing.__DefineBoundingBox(modelToApplyOn)
         modelToApplyOn.reparentTo(winCreator.base.render)
 
@@ -41,10 +66,49 @@ class PipelineInstancing:
         return buffer_texture
 
     @staticmethod
-    def __AddShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+    def __LoadBufferWithVertexes(vertexes: List[LVector3f]) -> Texture:
+        # Allocate storage for the matrices, each matrix has 16 elements,
+        # but because one pixel has four components, we need amount * 4 pixels.
+        buffer_texture = Texture()
+        buffer_texture.setup_buffer_texture(len(vertexes), Texture.T_float, Texture.F_rgba32, GeomEnums.UH_static)
+
+        floats = []
+
+        # Serialize matrices to floats
+        ram_image = buffer_texture.modify_ram_image()
+
+        for vertex in vertexes:
+            for j in range(3):
+                floats.append(vertex[j])
+            floats.append(0)
+
+        # Write the floats to the texture
+        data = struct.pack("f" * len(floats), *floats)
+        ram_image.set_subdata(0, len(data), data)
+
+        return buffer_texture
+
+    @staticmethod
+    def __AddMatrixBasedInstanceShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
                     buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator):
-        winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_basic")
+        winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_basic_matrixbased")
         modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
+        modelToApplyOn.set_instance_count(instanceCount)
+
+    @staticmethod
+    def __AddVertexBasedInstanceShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+                    buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator):
+        winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_basic_vertexbased")
+        modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
+        modelToApplyOn.set_instance_count(instanceCount)
+
+    @staticmethod
+    def __AddVertexBasedInstance3DBufferShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+                                       buffer_texture: Texture, instanceCount: int,
+                                       winCreator: WindowCreator.WindowCreator):
+        winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_3dbuffer_vertexbased")
+        modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
+        modelToApplyOn.set_shader_input("gridSize", int(instanceCount ** (1. / 3)))
         modelToApplyOn.set_instance_count(instanceCount)
 
 
