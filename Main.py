@@ -27,75 +27,38 @@ class Main(ShowBase):
         prefab = self.loader.loadModel("assets/models/icosphere")
 
         size = 64
-        spacing = 2
+        spacing = 8
         midPoint = size*spacing*0.5
         self.mouseTime = PTAFloat([0, 0, 0])
 
-        # Different ways of instancing.. The first being recommended by Panda3D, the rest done by me, based on
-        # an example found inside the render pipeline.. Which i also repurposed to a glsl shader
-        if True:
-            if False:
-                if False:
-                    # Collect all instances
-                    prefab.reparentTo(self.render)
-                    for x in range(size):
-                        for y in range(size):
-                            for z in range(size):
-                                placeholder: NodePath = self.render.attachNewNode("icosphere-placeholder")
-                                placeholder.setPos(x * spacing - midPoint, y * spacing - midPoint,
-                                                   z * spacing - midPoint)
-                                prefab.instanceTo(placeholder)
-                else:
-                    # Collect all instances
-                    matrices = []
-                    for x in range(size):
-                        for y in range(size):
-                            for z in range(size):
-                                placeholder: NodePath = NodePath("icosphere-placeholder")
-                                placeholder.setPos(x * spacing - midPoint, y * spacing - midPoint,
-                                                   z * spacing - midPoint)
-                                matrices.append(placeholder.get_mat(self.render))
-                                placeholder.remove_node()
+        vertexCount = pow(size, 3)
+        vertexBuffer = Texture("vertex buffer")
+        vertexBuffer.setup_3d_texture(size, size, size, Texture.T_float, Texture.F_rgba32)
 
-                    self.winCreator.baseData.debuggerMain.Inform(f"Loaded {len(matrices)} instances!")
-                    PipelineInstancing.PipelineInstancing.RenderThisModelAtMatrices(prefab, matrices, self.winCreator)
-            else:
-                vertexCount = pow(size, 3)
-                vertexBuffer = Texture("vertex buffer")
-                vertexBuffer.setup_3d_texture(size, size, size, Texture.T_float, Texture.F_rgba32)
+        vertexBuffer = Texture("marching cube vertex buffer")
+        vertexBuffer.setup_3d_texture(size, size, size, Texture.T_float, Texture.F_rgba32)
 
-                shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubebuffercreator.glsl")
-                dummy = NodePath("dummy")
-                dummy.set_shader(shader)
-                dummy.set_shader_input("vertexBuffer", vertexBuffer)
-                dummy.set_shader_input("spacing", spacing)
-                dummy.set_shader_input("midPoint", midPoint)
+        shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubebuffercreator.glsl")
+        dummy = NodePath("dummy")
+        dummy.set_shader(shader)
+        dummy.set_shader_input("vertexBuffer", vertexBuffer)
+        dummy.set_shader_input("spacing", spacing)
+        dummy.set_shader_input("midPoint", midPoint)
 
-                batchSize = int(size/8)
-                self.graphicsEngine.dispatch_compute(LVecBase3i(batchSize*2, batchSize, batchSize),
-                                                     dummy.get_attrib(ShaderAttrib), self.win.get_gsg())
+        batchSize = int(size/8)
+        self.graphicsEngine.dispatch_compute(LVecBase3i(batchSize*2, batchSize, batchSize),
+                                             dummy.get_attrib(ShaderAttrib), self.win.get_gsg())
 
-                self.winCreator.baseData.debuggerMain.Inform(f"Loaded {vertexCount} instances!")
-                PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, vertexBuffer, vertexCount, self.winCreator)
-                prefab.set_shader_input("mouseTime", self.mouseTime)
-        else:
-            # Collect all instances
-            vertexes = []
-            for x in range(size):
-                for y in range(size):
-                    for z in range(size):
-                        vertexes.append(
-                            LVector3f(x * spacing - midPoint, y * spacing - midPoint, z * spacing - midPoint))
-
-            self.winCreator.baseData.debuggerMain.Inform(f"Loaded {len(vertexes)} instances!")
-            PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexes(prefab, vertexes, self.winCreator)
+        self.winCreator.baseData.debuggerMain.Inform(f"Loaded {vertexCount} instances!")
+        PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, vertexBuffer, vertexCount, self.winCreator)
+        prefab.set_shader_input("mouseTime", self.mouseTime)
 
         self.x, self.y = 0, 0
 
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 1000
+        radius: float = 500
         angle_radians: float = task.time * 0.1
 
         self.camera.setPos(
