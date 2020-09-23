@@ -13,6 +13,7 @@ import sys
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
+from PipelineSwitcher import PipelineSwitcher
 
 
 class WindowCreator:
@@ -23,6 +24,7 @@ class WindowCreator:
         self.isFullscreen = isFullscreen
         self.base = base
         self.baseData: ShowBaseData = ShowBaseData(self.base)
+        self.pipelineSwitcher = PipelineSwitcher(self)
         self.baseData.StartDebugRunner()
         self.__UpdateWindow()
         self.__EnableDebugEventSystem()
@@ -72,7 +74,6 @@ class WindowCreator:
 
             self.render_pipeline.settings["pipeline.display_debugger"] = True
             self.render_pipeline.create(self.base)
-            self.render_pipeline.set_effect(self.base.render, "assets/rp-effects/scene-effect.yaml", {}, sort=250)
             self.render_pipeline.loading_screen.remove()
         else:
             self.base.setBackgroundColor(0, 0.2, 0.4)

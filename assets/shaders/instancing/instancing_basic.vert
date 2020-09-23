@@ -3,7 +3,6 @@
 // Uniform inputs
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform samplerBuffer InstancingData;
-uniform vec3 mouseTime;
 
 // Vertex inputs
 in vec4 p3d_Vertex;
@@ -25,8 +24,7 @@ void main() {
 
   mat4 transform_mat = mat4(data_0, data_1, data_2, data_3);
 
-  gl_Position = (p3d_ModelViewProjectionMatrix*transform_mat * vec4(p3d_Vertex.x, p3d_Vertex.y,
-  p3d_Vertex.z+sin(p3d_Vertex.y*5+mouseTime.z*mouseTime.x*10)*mouseTime.y*20, 1));
+  gl_Position = (p3d_ModelViewProjectionMatrix*transform_mat*p3d_Vertex);
 
   normal = mat3(transform_mat) * p3d_Normal;
 

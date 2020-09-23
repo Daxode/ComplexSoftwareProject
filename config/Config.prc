@@ -31,6 +31,8 @@ win-size 1600 900
 # in a window.
 
 fullscreen #f
+threading-model Cull/Draw
+
 
 # The framebuffer-hardware flag forces it to use an accelerated driver.
 # The framebuffer-software flag forces it to use a software renderer.
