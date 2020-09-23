@@ -28,7 +28,8 @@ class Main(ShowBase):
         prefab = self.loader.loadModel("assets/models/icosphere")
 
         cubeformer: CubeFormer = CubeFormer(self.winCreator, 32, 32, 32, 4)
-        cubeformer.GeneratePerlinCube()
+        cubeformer.GenerateCube()
+        cubeformer.GenerateNoiseSphere(50)
         self.winCreator.baseData.debuggerMain.Inform(f"Loaded {cubeformer.vertexCount} instances!")
         PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, cubeformer.vertexBuffer,
                                                                                     cubeformer.size, self.winCreator)
