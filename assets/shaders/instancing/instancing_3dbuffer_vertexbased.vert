@@ -22,9 +22,9 @@ void main() {
   ivec3 texelCoords = ivec3(gl_InstanceID % size.x, (gl_InstanceID / size.x)%size.y, gl_InstanceID / (size.x*size.y));
 
   vec4 locationOffset = imageLoad(InstancingData, texelCoords);
-  if (locationOffset.w < 0.5) {
-    return;
-  }
+//  if (locationOffset.w < 0.5) {
+//    return;
+//  }
 
   gl_Position = p3d_ModelViewProjectionMatrix*(vec4(locationOffset.xyz + p3d_Vertex.xyz, 1));
   value = locationOffset.w;

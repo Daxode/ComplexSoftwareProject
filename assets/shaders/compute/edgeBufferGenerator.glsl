@@ -6,7 +6,7 @@ layout (local_size_x = 16, local_size_y = SIZE, local_size_z = SIZE) in;
 uniform float isoLevel;
 uniform ivec3 size;
 
-//layout(binding = 0, offset = 12) uniform atomic_uint one;
+
 
 vec3 interpolateVerts(vec4 v1, vec4 v2) {
     float t = 0.5;
@@ -17,6 +17,7 @@ vec3 interpolateVerts(vec4 v1, vec4 v2) {
     return v1.xyz + t * (v2.xyz-v1.xyz);
 }
 
+layout(r32i) uniform iimageBuffer one;
 layout(rgba32f) uniform readonly image3D vertexBufferWAlphaCube;
 uniform writeonly image3D vertexBufferEdge;
 
@@ -24,7 +25,7 @@ void main() {
     ivec3 index = ivec3(gl_GlobalInvocationID.xyz);
     int type = int(gl_GlobalInvocationID.x/size.x);
 
-    //uint currentIndex = atomicCounterIncrement(one);
+    int yay = imageAtomicAdd(one, 0, 1);
 
     vec4 pointA = vec4(0);
     vec4 pointB = vec4(0);
@@ -56,6 +57,6 @@ void main() {
         interpolatedVert = interpolateVerts(pointA, pointB);
     }
 
-    vec4 point = vec4(interpolatedVert, 0);
+    vec4 point = vec4(interpolatedVert, yay);
     imageStore(vertexBufferEdge, ivec3(gl_GlobalInvocationID.xyz), point);
 }
