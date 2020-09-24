@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from typing import *
+
+from direct.showbase.ShowBase import ShowBase
 from multipledispatch import dispatch
 
 # Description:
@@ -10,6 +12,7 @@ from multipledispatch import dispatch
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
+from panda3d.core import Texture
 
 
 @dataclass
@@ -74,3 +77,16 @@ class Debugger:
                 print(f"------ {self.name} ------")
                 [print(msg) for msg in tmpPrinter]
                 print(f"------ end of debug ------")
+
+    def LogBuffer4VecInfo(self, base: ShowBase, buffer: Texture):
+        base.graphicsEngine.extractTextureData(buffer, base.win.gsg)
+        idk = buffer.getRamImage()
+        idk = memoryview(idk).cast('f')
+
+        i = 0
+        amount = 4
+        while i < len(idk):
+            # print([[[idk[i+x+y+z] for z in range(amount)] for y in range(4)] for x in range(4)])
+            # i += amount*4*4
+            self.Inform(str([idk[i + x] for x in range(amount)]))
+            i += amount
