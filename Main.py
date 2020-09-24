@@ -48,16 +48,20 @@ class Main(ShowBase):
         # PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab2,
         #                                                                             self.marchingCubes.edgeVertexBuffer,
         #                                                                             self.marchingCubes.size*3, self.winCreator)
-        self.accept("space-repeat", self.Update)
+        self.accept("space", self.Update, extraArgs=[1])
+        self.accept("space-repeat", self.Update, extraArgs=[1])
+
+        self.accept("e", self.Update, extraArgs=[-1])
+        self.accept("e-repeat", self.Update, extraArgs=[-1])
         # self.winCreator.baseData.debuggerMain.LogBuffer4VecInfo(self, marchingCubes.cubeVertexBuffer)
         # self.winCreator.baseData.debuggerMain.Inform("inform")
         # self.winCreator.baseData.debuggerMain.LogBuffer4VecInfo(self, marchingCubes.edgeVertexBuffer)
         self.i = 0
 
-    def Update(self):
-        self.i += 1
+    def Update(self, adjust):
+        self.i += adjust
         self.cubeformer.GenerateNoiseSphere(20+self.i)
-        self.cubeformer.offset.setData(PTAFloat([self.i]))
+        # self.cubeformer.offset.setData(PTAFloat([self.i]))
         self.marchingCubes.EdgeGenerator()
 
     # Define a procedure to move the camera.

@@ -15,14 +15,12 @@ from direct.task import Task
 class ShowBaseData:
     debuggerMain: Debugger
     debuggerPlanetFormer: Debugger
-    debuggerSphereCreator: Debugger
     base: ShowBase
 
     def __init__(self, base: ShowBase):
         self.base = base
         self.debuggerMain = Debugger("Main", 4)
         self.debuggerPlanetFormer = Debugger("Planet Former", 4)
-        self.debuggerSphereCreator = Debugger("Planet ", 4)
 
     def StartDebugRunner(self):
         self.base.taskMgr.doMethodLater(1, self.RunDebuggers, "Run debuggers")
@@ -30,5 +28,4 @@ class ShowBaseData:
     def RunDebuggers(self, task: Task.Task):
         self.debuggerMain.Run()
         self.debuggerPlanetFormer.Run()
-        self.debuggerSphereCreator.Run()
         return Task.cont
