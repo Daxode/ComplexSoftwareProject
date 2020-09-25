@@ -12,6 +12,7 @@ class MarchingCubes:
     edgeVertexBuffer: Texture = None
     triangleBuffer: Texture = None
     triangulationBuffer: Texture = None
+    normalBuffer: Texture = None
     edgeBufferGeneratorNode: NodePath = None
     cubeMarchBufferGeneratorNode: NodePath = None
     geom: Geom = None
@@ -58,18 +59,15 @@ class MarchingCubes:
             self.triangleBuffer = Texture("Cube march triangle Buffer")
             self.triangleBuffer.setupBufferTexture((self.size[0]-1)*(self.size[1]-1)*(self.size[2]-1)*4*3,
                                                    Texture.T_int, Texture.F_rgba32, GeomEnums.UH_dynamic)
+            self.normalBuffer = Texture("Cube march normal Buffer")
+            self.normalBuffer.setupBufferTexture((self.size[0] - 1) * (self.size[1] - 1) * (self.size[2] - 1) * 4,
+                                                   Texture.T_float, Texture.F_rgba32, GeomEnums.UH_dynamic)
         else:
             self.triangleBuffer.setClearColor(-1)
 
         if self.triangulationBuffer is None:
             self.triangulationBuffer = Texture("Triangulation buffer")
             self.triangulationBuffer.setup_2d_texture(16, 256, Texture.T_int, Texture.F_r32i)
-            # triangulationBufferRam: PTA_uchar = self.triangulationBuffer.modifyRamImage()
-            # concatenatedTRIANGULATION = []
-            # for x in range(len(MarchTable.TRIANGULATION)):
-            #     for y in range(len(MarchTable.TRIANGULATION[0])):
-            #         concatenatedTRIANGULATION.append(MarchTable.TRIANGULATION[x][y].())
-            # triangulationBufferRam.setData(PTA_uchar(concatenatedTRIANGULATION))
             self.triangulationBuffer.set_ram_image(MarchTable.TRIANGULATION.tobytes())
         else:
             self.triangleBuffer.setClearColor(0)
@@ -86,6 +84,7 @@ class MarchingCubes:
             self.cubeMarchBufferGeneratorNode.set_shader_input("vertexBufferEdge", self.edgeVertexBuffer)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triangleBuffer", self.triangleBuffer)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triangulationBuffer", self.triangulationBuffer)
+            self.cubeMarchBufferGeneratorNode.set_shader_input("normalBuffer", self.normalBuffer)
 
         self.atomic.setRamImage((0).to_bytes(4, 'big'))
         yass = LVecBase3i(math.ceil(self.size[0] / 16), math.ceil(self.size[1] / 8), math.ceil(self.size[2] / 8))
@@ -100,7 +99,6 @@ class MarchingCubes:
         return self.triangleBuffer
 
     def GenerateMesh(self):
-
         # Create a dummy vertex data object.
         format = GeomVertexFormat.get_empty()
         vdata = GeomVertexData('March VData', format, GeomEnums.UH_dynamic)
@@ -111,15 +109,15 @@ class MarchingCubes:
 
         # This represents a draw call, indicating how many vertices we want to draw.
         tris = GeomTriangles(GeomEnums.UH_dynamic)
-        print(self.vertexCount)
         tris.add_next_vertices(self.vertexCount)
         self.geom.add_primitive(tris)
 
         self.geom.set_bounds(OmniBoundingVolume())
         node = GeomNode("node")
         node.add_geom(self.geom)
-        if self.geomPath is not None:
+        if self.geomPath is not None: # Since it creates a new now, it should remove the last one
             self.winCreator.base.render.find("**/node").removeNode()
+
         self.geomPath = self.winCreator.base.render.attach_new_node(node)
         self.geomPath.setPos(
             -self.size.getX()*0.5*self.cubeformer.spacing,
@@ -128,5 +126,5 @@ class MarchingCubes:
         self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
         self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
         self.geomPath.set_shader_input('triangleBuffer', self.triangleBuffer)
-        self.geomPath.setTwoSided(True)
+        self.geomPath.set_shader_input('normalBuffer', self.normalBuffer)
 

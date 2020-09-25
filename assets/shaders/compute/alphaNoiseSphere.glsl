@@ -10,6 +10,6 @@ uniform vec3 midPoint;
 layout(rgba32f, binding = 0) uniform image3D vertexBufferWAlpha;
 void main() {
     vec4 point = imageLoad(vertexBufferWAlpha, ivec3(gl_GlobalInvocationID.xyz));
-    point.w = (radius - length(point.xyz-midPoint))/10+ snoise(point.xyz+offset)*10;
+    point.w = (radius*snoise(point.xyz+offset) - length(point.xyz-midPoint))/10;
     imageStore(vertexBufferWAlpha, ivec3(gl_GlobalInvocationID.xyz), point);
 }

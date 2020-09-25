@@ -26,7 +26,7 @@ class Main(ShowBase):
         self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
-        size = 256
+        size = 128
         spacing = 4
         mid = size * spacing / 2
         prefab = self.loader.loadModel("assets/models/icosphere")
@@ -64,8 +64,8 @@ class Main(ShowBase):
 
     def Update(self, adjust):
         self.i += adjust
-        self.cubeformer.GenerateNoiseSphere(5+self.i)
-        self.cubeformer.offset.setData(PTAFloat([self.i]))
+        self.cubeformer.GenerateNoiseSphere(5+self.i*5)
+        #self.cubeformer.offset.setData(PTAFloat([self.i]))
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
@@ -75,7 +75,7 @@ class Main(ShowBase):
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 1000
+        radius: float = 500
         angle_radians: float = task.time * 0.6
 
         self.camera.setPos(
