@@ -78,7 +78,7 @@ class MarchingCubes:
             shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubemarcher.glsl")
             self.cubeMarchBufferGeneratorNode = NodePath("Cube march triangle Generator")
             self.cubeMarchBufferGeneratorNode.set_shader(shader)
-            self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.3)
+            self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.1)
             self.cubeMarchBufferGeneratorNode.set_shader_input("size", self.size)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triagIndexBuffer", self.atomic)
 
@@ -112,19 +112,21 @@ class MarchingCubes:
         # This represents a draw call, indicating how many vertices we want to draw.
         tris = GeomTriangles(GeomEnums.UH_dynamic)
         print(self.vertexCount)
-        tris.add_next_vertices(20000000)
+        tris.add_next_vertices(self.vertexCount)
         self.geom.add_primitive(tris)
 
         self.geom.set_bounds(OmniBoundingVolume())
         node = GeomNode("node")
         node.add_geom(self.geom)
-        if self.geomPath is None:
-            self.geomPath = self.winCreator.base.render.attach_new_node(node)
-            self.geomPath.setPos(
-                -self.size.getX()*0.5*self.cubeformer.spacing,
-                -self.size.getY()*0.5*self.cubeformer.spacing,
-                -self.size.getZ()*0.5*self.cubeformer.spacing)
+        if self.geomPath is not None:
+            self.winCreator.base.render.find("**/node").removeNode()
+        self.geomPath = self.winCreator.base.render.attach_new_node(node)
+        self.geomPath.setPos(
+            -self.size.getX()*0.5*self.cubeformer.spacing,
+            -self.size.getY()*0.5*self.cubeformer.spacing,
+            -self.size.getZ()*0.5*self.cubeformer.spacing)
         self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
         self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
         self.geomPath.set_shader_input('triangleBuffer', self.triangleBuffer)
-        #self.geomPath.setTwoSided(True)
+        self.geomPath.setTwoSided(True)
+

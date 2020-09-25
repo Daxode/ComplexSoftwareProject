@@ -26,7 +26,7 @@ class Main(ShowBase):
         self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
-        size = 8
+        size = 256
         spacing = 4
         mid = size * spacing / 2
         prefab = self.loader.loadModel("assets/models/icosphere")
@@ -39,7 +39,7 @@ class Main(ShowBase):
         self.cubeformer.GenerateNoiseSphere(5)
         self.winCreator.baseData.debuggerMain.Inform(f"Loaded {self.cubeformer.vertexCount} instances!")
         #PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, self.cubeformer.vertexBuffer,
-        #                                                                           self.cubeformer.size, self.winCreator)
+        #                                                                          self.cubeformer.size, self.winCreator)
         self.marchingCubes: MarchingCubes = MarchingCubes(self.cubeformer)
         self.marchingCubes.EdgeGenerator()
         self.winCreator.baseData.debuggerMain.Inform(
@@ -65,15 +65,17 @@ class Main(ShowBase):
     def Update(self, adjust):
         self.i += adjust
         self.cubeformer.GenerateNoiseSphere(5+self.i)
-        # self.cubeformer.offset.setData(PTAFloat([self.i]))
+        self.cubeformer.offset.setData(PTAFloat([self.i]))
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
-        #self.render.ls()
+        # self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.cubeformer.vertexBuffer, "f", 4)
+        # self.winCreator.baseData.debuggerMain.Inform(f"inform {self.marchingCubes.vertexCount}")
+        # self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.triangleBuffer, "i", 4)
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 50
+        radius: float = 1000
         angle_radians: float = task.time * 0.6
 
         self.camera.setPos(

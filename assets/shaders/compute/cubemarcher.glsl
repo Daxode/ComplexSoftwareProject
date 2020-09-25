@@ -44,7 +44,7 @@ void main() {
     int triangleEdgeIndex = 1;
     do {
         triangleEdgeIndex = imageLoad(triangulationBuffer, ivec2(i, cubeIndex)).x;
-        if (triangleEdgeIndex < 0) return;
+        if (triangleEdgeIndex == -1) return;
 
         ivec4 globalIndexForA = globalEdgeFromLocal[triangleEdgeIndex];
         ivec4 vertexID = ivec4(id+globalIndexForA.xyz+(ivec3(size.x, 0, 0)*globalIndexForA.w), 0);
@@ -56,9 +56,9 @@ void main() {
         imageStore(triangleBuffer, triangleIDIndex+1, vertexID);
 
         ivec4 globalIndexForC = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(i+2, cubeIndex)).x];
-        vertexID = ivec4(id+globalIndexForC.xyz+(ivec3(size.x, 0, 0)*globalIndexForC.w), 0);
+        vertexID = ivec4(id+globalIndexForC.xyz+(ivec3(size.x, 0, 0)*globalIndexForC.w), cubeIndex);
         imageStore(triangleBuffer, triangleIDIndex+2, vertexID);
 
         i+=3;
-    } while (triangleEdgeIndex > 0);
+    } while (triangleEdgeIndex != -1);
 }
