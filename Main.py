@@ -26,7 +26,7 @@ class Main(ShowBase):
         self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
         self.taskMgr.add(self.SpinCameraTask, "Move Cam")
 
-        size = 4
+        size = 128
         spacing = 4
         mid = size * spacing / 2
         prefab = self.loader.loadModel("assets/models/icosphere")
@@ -38,8 +38,8 @@ class Main(ShowBase):
         self.cubeformer.GenerateCube()
         self.cubeformer.GenerateNoiseSphere(10)
         self.winCreator.baseData.debuggerMain.Inform(f"Loaded {self.cubeformer.vertexCount} instances!")
-        PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, self.cubeformer.vertexBuffer,
-                                                                                   self.cubeformer.size, self.winCreator)
+        # PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, self.cubeformer.vertexBuffer,
+        #                                                                            self.cubeformer.size, self.winCreator)
         self.marchingCubes: MarchingCubes = MarchingCubes(self.cubeformer)
         self.marchingCubes.EdgeGenerator()
         self.winCreator.baseData.debuggerMain.Inform(
@@ -47,17 +47,20 @@ class Main(ShowBase):
 
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
-        PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab2,
-                                                                                   self.marchingCubes.edgeVertexBuffer,
-                                                                                   self.marchingCubes.size*3, self.winCreator)
+        # PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab2,
+        #                                                                            self.marchingCubes.edgeVertexBuffer,
+        #                                                                            self.marchingCubes.size*3, self.winCreator)
         self.accept("space", self.Update, extraArgs=[1])
         self.accept("space-repeat", self.Update, extraArgs=[1])
 
         self.accept("e", self.Update, extraArgs=[-1])
         self.accept("e-repeat", self.Update, extraArgs=[-1])
-        self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.triangleBuffer, "i", 4)
+        #self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.triangleBuffer, "i", 4)
+        self.winCreator.baseData.debuggerMain.Inform(f"inform {self.marchingCubes.vertexCount}")
+        #self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.edgeVertexBuffer, "f", 4)
         self.winCreator.baseData.debuggerMain.Inform("inform")
-        self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.edgeVertexBuffer, "f", 4)
+        # self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.triangulationBuffer, "i", 16)
+        #self.render.ls()
         self.i = 0
 
     def Update(self, adjust):
@@ -65,16 +68,19 @@ class Main(ShowBase):
         self.cubeformer.GenerateNoiseSphere(20+self.i)
         # self.cubeformer.offset.setData(PTAFloat([self.i]))
         self.marchingCubes.EdgeGenerator()
+        self.marchingCubes.MarchCube()
+        self.marchingCubes.GenerateMesh()
+        self.render.ls()
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 500
+        radius: float = 50
         angle_radians: float = task.time * 0.1
 
         self.camera.setPos(
             radius * math.sin(angle_radians),
             radius * math.cos(angle_radians),
-            (math.sin(task.time)) * 20)
+            (math.sin(task.time)) * 1)
         self.camera.lookAt(0, 0, 0)
 
         return Task.cont

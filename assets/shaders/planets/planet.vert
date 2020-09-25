@@ -2,6 +2,7 @@
 
 // Uniform inputs
 uniform mat4 p3d_ModelViewProjectionMatrix;
+uniform mat4 p3d_ViewProjectionMatrix;
 layout(rgba32f) uniform readonly image3D vertexBufferEdge;
 layout(rgba32i) uniform readonly iimageBuffer triangleBuffer;
 
@@ -15,8 +16,9 @@ out vec3 normal;
 
 void main() {
   ivec3 vertexIndex = imageLoad(triangleBuffer, gl_VertexID).xyz;
-  vec4 vertex = imageLoad(vertexBufferEdge, vertexIndex);
-  gl_Position = p3d_ModelViewProjectionMatrix*vertex;
-  normal = p3d_Normal;
+  vec4 vertex = vec4(imageLoad(vertexBufferEdge, vertexIndex).xyz-vec3(256), 1);
+  //vertex = vec4(gl_VertexID, gl_VertexID, gl_VertexID+1, 0);
+  gl_Position = p3d_ViewProjectionMatrix*vertex;
+  normal = normalize(vertex.xyz);
   texcoord = p3d_MultiTexCoord0;
 }

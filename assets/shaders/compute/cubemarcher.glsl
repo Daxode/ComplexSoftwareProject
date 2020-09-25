@@ -5,8 +5,8 @@
 layout (local_size_x = 16, local_size_y = SIZE, local_size_z = SIZE) in;
 
 layout(r32i) uniform iimageBuffer triagIndexBuffer;
-layout(rgba32i) uniform readonly iimage3D vertexBufferWAlphaCube;
-layout(rgba32i) uniform readonly iimage3D vertexBufferEdge;
+layout(rgba32f) uniform readonly image3D vertexBufferWAlphaCube;
+layout(rgba32f) uniform readonly image3D vertexBufferEdge;
 uniform writeonly iimageBuffer triangleBuffer;
 uniform float isoLevel;
 uniform ivec3 size;
@@ -41,25 +41,25 @@ void main() {
     if (cubeCorners[7].w < isoLevel) cubeIndex |= 128;
 
     int i = 0;
-    int triangleEdgeIndex = 0;
+    int triangleEdgeIndex = 1;
     do {
-        triangleEdgeIndex = imageLoad(triangulationBuffer, ivec2(cubeIndex, i)).x;
-        if (triangleEdgeIndex == -1) return;
+        triangleEdgeIndex = imageLoad(triangulationBuffer, ivec2(i, cubeIndex)).x;
+        if (triangleEdgeIndex < 0) return;
 
         ivec4 globalIndexForA = globalEdgeFromLocal[triangleEdgeIndex];
-        int triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
         ivec4 vertexID = ivec4(id+globalIndexForA.xyz+(ivec3(size.x, 0, 0)*globalIndexForA.w), 0);
+        int triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
         imageStore(triangleBuffer, triangleIDIndex, vertexID);
 
-        ivec4 globalIndexForB = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(cubeIndex, i+1)).x];
+        ivec4 globalIndexForB = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(i+1, cubeIndex)).x];
         vertexID = ivec4(id+globalIndexForB.xyz+(ivec3(size.x, 0, 0)*globalIndexForB.w), 0);
         triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
         imageStore(triangleBuffer, triangleIDIndex, vertexID);
 
-        ivec4 globalIndexForC = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(cubeIndex, i+2)).x];
+        ivec4 globalIndexForC = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(i+2, cubeIndex)).x];
         vertexID = ivec4(id+globalIndexForC.xyz+(ivec3(size.x, 0, 0)*globalIndexForC.w), 0);
         triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
-        imageStore(triagIndexBuffer, triangleIDIndex, vertexID);
+        imageStore(triangleBuffer, triangleIDIndex, vertexID);
 
         i+=3;
     } while (triangleEdgeIndex > 0);
