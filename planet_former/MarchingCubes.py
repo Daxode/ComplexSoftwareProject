@@ -14,7 +14,8 @@ class MarchingCubes:
     triangulationBuffer: Texture = None
     edgeBufferGeneratorNode: NodePath = None
     cubeMarchBufferGeneratorNode: NodePath = None
-    geom: GeomNode = None
+    geom: Geom = None
+    geomPath: NodePath = None
     vertexCount: int = 0
 
     def __init__(self, cubeformer: CubeFormer):
@@ -99,26 +100,26 @@ class MarchingCubes:
         return self.triangleBuffer
 
     def GenerateMesh(self):
-        # Create a dummy vertex data object.
-        format = GeomVertexFormat.get_empty()
-        vdata = GeomVertexData('March VData', format, GeomEnums.UH_dynamic)
+        if self.geomPath is None:
+            # Create a dummy vertex data object.
+            format = GeomVertexFormat.get_empty()
+            vdata = GeomVertexData('March VData', format, GeomEnums.UH_dynamic)
+            # We need to set a bounding volume so that Panda doesn't try to cull it.
+            # You could be smarter about this by assigning a bounding volume that encloses
+            # the vertices.
+            self.geom = Geom(vdata)
+            self.geom.set_bounds(OmniBoundingVolume())
+            node = GeomNode("node")
+            node.add_geom(self.geom)
+            self.geomPath = self.winCreator.base.render.attach_new_node(node)
+            self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
+            self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
+            self.geomPath.set_shader_input('triangleBuffer', self.triangleBuffer)
+            #self.geomPath.setTwoSided(True)
 
-        # This represents a draw call, indicating how many vertices we want to draw.
-        tris = GeomTriangles(GeomEnums.UH_dynamic)
-        tris.add_next_vertices(self.vertexCount)
-
-        # We need to set a bounding volume so that Panda doesn't try to cull it.
-        # You could be smarter about this by assigning a bounding volume that encloses
-        # the vertices.
-        geom = Geom(vdata)
-        geom.add_primitive(tris)
-        geom.set_bounds(OmniBoundingVolume())
-
-        node = GeomNode("node")
-        node.add_geom(geom)
-
-        path = self.winCreator.base.render.attach_new_node(node)
-        self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(path, "assets/shaders/planets/planet")
-        path.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
-        path.set_shader_input('triangleBuffer', self.triangleBuffer)
-        path.setTwoSided(True)
+            # This represents a draw call, indicating how many vertices we want to draw.
+            tris = GeomTriangles(GeomEnums.UH_dynamic)
+            tris.add_next_vertices(self.vertexCount)
+            self.geom.add_primitive(tris)
+        else:
+            self.geom.modify_primitive(0).modify_vertices(self.vertexCount)

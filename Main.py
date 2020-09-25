@@ -36,7 +36,7 @@ class Main(ShowBase):
 
         self.cubeformer: CubeFormer = CubeFormer(self.winCreator, size, size, size, spacing)
         self.cubeformer.GenerateCube()
-        self.cubeformer.GenerateNoiseSphere(10)
+        self.cubeformer.GenerateNoiseSphere(100)
         self.winCreator.baseData.debuggerMain.Inform(f"Loaded {self.cubeformer.vertexCount} instances!")
         # PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, self.cubeformer.vertexBuffer,
         #                                                                            self.cubeformer.size, self.winCreator)
@@ -65,16 +65,16 @@ class Main(ShowBase):
 
     def Update(self, adjust):
         self.i += adjust
-        self.cubeformer.GenerateNoiseSphere(20+self.i)
+        self.cubeformer.GenerateNoiseSphere(100+self.i)
         # self.cubeformer.offset.setData(PTAFloat([self.i]))
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
-        self.render.ls()
+        #self.render.ls()
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 50
+        radius: float = 1000
         angle_radians: float = task.time * 0.1
 
         self.camera.setPos(
