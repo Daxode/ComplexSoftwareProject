@@ -36,26 +36,28 @@ class Main(ShowBase):
 
         self.cubeformer: CubeFormer = CubeFormer(self.winCreator, size, size, size, spacing)
         self.cubeformer.GenerateCube()
-        # self.cubeformer.GenerateNoiseSphere(20)
+        self.cubeformer.GenerateNoiseSphere(10)
         self.winCreator.baseData.debuggerMain.Inform(f"Loaded {self.cubeformer.vertexCount} instances!")
         PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, self.cubeformer.vertexBuffer,
-                                                                                    self.cubeformer.size, self.winCreator)
+                                                                                   self.cubeformer.size, self.winCreator)
         self.marchingCubes: MarchingCubes = MarchingCubes(self.cubeformer)
         self.marchingCubes.EdgeGenerator()
         self.winCreator.baseData.debuggerMain.Inform(
             f"Loaded {self.marchingCubes.edgeVertexCount} instances! With size of {self.marchingCubes.size}")
 
+        self.marchingCubes.MarchCube()
+        self.marchingCubes.GenerateMesh()
         PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab2,
-                                                                                    self.marchingCubes.edgeVertexBuffer,
-                                                                                    self.marchingCubes.size*3, self.winCreator)
+                                                                                   self.marchingCubes.edgeVertexBuffer,
+                                                                                   self.marchingCubes.size*3, self.winCreator)
         self.accept("space", self.Update, extraArgs=[1])
         self.accept("space-repeat", self.Update, extraArgs=[1])
 
         self.accept("e", self.Update, extraArgs=[-1])
         self.accept("e-repeat", self.Update, extraArgs=[-1])
-        # self.winCreator.baseData.debuggerMain.LogBuffer4VecInfo(self, self.marchingCubes.cubeVertexBuffer)
-        # self.winCreator.baseData.debuggerMain.Inform("inform")
-        # self.winCreator.baseData.debuggerMain.LogBuffer4VecInfo(self, self.marchingCubes.edgeVertexBuffer)
+        self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.triangleBuffer, "i", 4)
+        self.winCreator.baseData.debuggerMain.Inform("inform")
+        self.winCreator.baseData.debuggerMain.LogBufferVecInfo(self, self.marchingCubes.edgeVertexBuffer, "f", 4)
         self.i = 0
 
     def Update(self, adjust):
@@ -66,7 +68,7 @@ class Main(ShowBase):
 
     # Define a procedure to move the camera.
     def SpinCameraTask(self, task: Task.Task):
-        radius: float = 50
+        radius: float = 500
         angle_radians: float = task.time * 0.1
 
         self.camera.setPos(

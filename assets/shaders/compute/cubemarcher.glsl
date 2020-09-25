@@ -1,5 +1,66 @@
-#version 120
+#version 430
+#define SIZE 8
+#pragma include "includes/MarchTables.glsl"
+
+layout (local_size_x = 16, local_size_y = SIZE, local_size_z = SIZE) in;
+
+layout(r32i) uniform iimageBuffer triagIndexBuffer;
+layout(rgba32i) uniform readonly iimage3D vertexBufferWAlphaCube;
+layout(rgba32i) uniform readonly iimage3D vertexBufferEdge;
+uniform writeonly iimageBuffer triangleBuffer;
+uniform float isoLevel;
+uniform ivec3 size;
+layout(r32i) uniform readonly iimage2D triangulationBuffer;
 
 void main() {
+    // Stop one point before the end because voxel includes neighbouring points
+    ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
+    if (id.x >= size.x-1 || id.y >= size.y-1 || id.z >= size.z-1) {
+        return;
+    }
 
+    vec4 cubeCorners[8] = {
+        imageLoad(vertexBufferWAlphaCube, id),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(1,0,0)),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(1,0,1)),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(0,0,1)),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(0,1,0)),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(1,1,0)),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(1,1,1)),
+        imageLoad(vertexBufferWAlphaCube, id+ivec3(0,1,1))
+    };
+
+    int cubeIndex = 0;
+    if (cubeCorners[0].w < isoLevel) cubeIndex |= 1;
+    if (cubeCorners[1].w < isoLevel) cubeIndex |= 2;
+    if (cubeCorners[2].w < isoLevel) cubeIndex |= 4;
+    if (cubeCorners[3].w < isoLevel) cubeIndex |= 8;
+    if (cubeCorners[4].w < isoLevel) cubeIndex |= 16;
+    if (cubeCorners[5].w < isoLevel) cubeIndex |= 32;
+    if (cubeCorners[6].w < isoLevel) cubeIndex |= 64;
+    if (cubeCorners[7].w < isoLevel) cubeIndex |= 128;
+
+    int i = 0;
+    int triangleEdgeIndex = 0;
+    do {
+        triangleEdgeIndex = imageLoad(triangulationBuffer, ivec2(cubeIndex, i)).x;
+        if (triangleEdgeIndex == -1) return;
+
+        ivec4 globalIndexForA = globalEdgeFromLocal[triangleEdgeIndex];
+        int triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
+        ivec4 vertexID = ivec4(id+globalIndexForA.xyz+(ivec3(size.x, 0, 0)*globalIndexForA.w), 0);
+        imageStore(triangleBuffer, triangleIDIndex, vertexID);
+
+        ivec4 globalIndexForB = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(cubeIndex, i+1)).x];
+        vertexID = ivec4(id+globalIndexForB.xyz+(ivec3(size.x, 0, 0)*globalIndexForB.w), 0);
+        triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
+        imageStore(triangleBuffer, triangleIDIndex, vertexID);
+
+        ivec4 globalIndexForC = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(cubeIndex, i+2)).x];
+        vertexID = ivec4(id+globalIndexForC.xyz+(ivec3(size.x, 0, 0)*globalIndexForC.w), 0);
+        triangleIDIndex = imageAtomicAdd(triagIndexBuffer, 0, 1);
+        imageStore(triagIndexBuffer, triangleIDIndex, vertexID);
+
+        i+=3;
+    } while (triangleEdgeIndex > 0);
 }

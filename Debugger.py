@@ -78,13 +78,12 @@ class Debugger:
                 [print(msg) for msg in tmpPrinter]
                 print(f"------ end of debug ------")
 
-    def LogBuffer4VecInfo(self, base: ShowBase, buffer: Texture):
+    def LogBufferVecInfo(self, base: ShowBase, buffer: Texture, castTo: chr, amount: int):
         base.graphicsEngine.extractTextureData(buffer, base.win.gsg)
         idk = buffer.getRamImage()
-        idk = memoryview(idk).cast('f')
+        idk = memoryview(idk).cast(castTo)
 
         i = 0
-        amount = 4
         while i < len(idk):
             # print([[[idk[i+x+y+z] for z in range(amount)] for y in range(4)] for x in range(4)])
             # i += amount*4*4

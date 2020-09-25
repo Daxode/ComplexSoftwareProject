@@ -1,6 +1,5 @@
 #version 430
 #define SIZE 8
-#pragma include "../../external_libs/glsl-noise/simplex/three_d.glsl"
 
 layout (local_size_x = 16, local_size_y = SIZE, local_size_z = SIZE) in;
 uniform float isoLevel;
@@ -17,15 +16,13 @@ vec3 interpolateVerts(vec4 v1, vec4 v2) {
     return v1.xyz + t * (v2.xyz-v1.xyz);
 }
 
-layout(r32i) uniform iimageBuffer one;
+
 layout(rgba32f) uniform readonly image3D vertexBufferWAlphaCube;
 uniform writeonly image3D vertexBufferEdge;
 
 void main() {
     ivec3 index = ivec3(gl_GlobalInvocationID.xyz);
     int type = int(gl_GlobalInvocationID.x/size.x);
-
-    int yay = imageAtomicAdd(one, 0, 1);
 
     vec4 pointA = vec4(0);
     vec4 pointB = vec4(0);
@@ -39,7 +36,6 @@ void main() {
         index.x = index.x-size.x;
         pointA = imageLoad(vertexBufferWAlphaCube, index);
         if (gl_GlobalInvocationID.y < size.y) {
-            //pointB.xyz = index+ivec3(0,1,0);
             pointB = imageLoad(vertexBufferWAlphaCube, index+ivec3(0, 1, 0));
         }
     } else if (type == 2) {
@@ -52,11 +48,12 @@ void main() {
 
     vec3 interpolatedVert = vec3(0);
     if (pointB != vec4(0)) {
-        //interpolatedVert = pointB.xyz;
         //interpolatedVert = pointA.xyz + (0.5 * (pointB.xyz-pointA.xyz));
         interpolatedVert = interpolateVerts(pointA, pointB);
+    } else {
+        return;
     }
 
-    vec4 point = vec4(interpolatedVert, yay);
+    vec4 point = vec4(interpolatedVert, 0);
     imageStore(vertexBufferEdge, ivec3(gl_GlobalInvocationID.xyz), point);
 }
