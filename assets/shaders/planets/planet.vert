@@ -16,9 +16,9 @@ out vec3 normal;
 
 void main() {
   ivec3 vertexIndex = imageLoad(triangleBuffer, gl_VertexID).xyz;
-  vec4 vertex = vec4(imageLoad(vertexBufferEdge, vertexIndex).xyz-vec3(256), 1);
+  vec4 vertex = vec4(imageLoad(vertexBufferEdge, vertexIndex).xyz, 1);
   //vertex = vec4(gl_VertexID, gl_VertexID, gl_VertexID+1, 0);
-  gl_Position = p3d_ViewProjectionMatrix*vertex;
+  gl_Position = p3d_ModelViewProjectionMatrix*vertex;
   normal = normalize(vertex.xyz);
   texcoord = p3d_MultiTexCoord0;
 }

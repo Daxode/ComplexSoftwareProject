@@ -78,7 +78,7 @@ class MarchingCubes:
             shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubemarcher.glsl")
             self.cubeMarchBufferGeneratorNode = NodePath("Cube march triangle Generator")
             self.cubeMarchBufferGeneratorNode.set_shader(shader)
-            self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.6)
+            self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.3)
             self.cubeMarchBufferGeneratorNode.set_shader_input("size", self.size)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triagIndexBuffer", self.atomic)
 
@@ -100,26 +100,31 @@ class MarchingCubes:
         return self.triangleBuffer
 
     def GenerateMesh(self):
-        if self.geomPath is None:
-            # Create a dummy vertex data object.
-            format = GeomVertexFormat.get_empty()
-            vdata = GeomVertexData('March VData', format, GeomEnums.UH_dynamic)
-            # We need to set a bounding volume so that Panda doesn't try to cull it.
-            # You could be smarter about this by assigning a bounding volume that encloses
-            # the vertices.
-            self.geom = Geom(vdata)
-            self.geom.set_bounds(OmniBoundingVolume())
-            node = GeomNode("node")
-            node.add_geom(self.geom)
-            self.geomPath = self.winCreator.base.render.attach_new_node(node)
-            self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
-            self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
-            self.geomPath.set_shader_input('triangleBuffer', self.triangleBuffer)
-            #self.geomPath.setTwoSided(True)
 
-            # This represents a draw call, indicating how many vertices we want to draw.
-            tris = GeomTriangles(GeomEnums.UH_dynamic)
-            tris.add_next_vertices(self.vertexCount)
-            self.geom.add_primitive(tris)
-        else:
-            self.geom.modify_primitive(0).modify_vertices(self.vertexCount)
+        # Create a dummy vertex data object.
+        format = GeomVertexFormat.get_empty()
+        vdata = GeomVertexData('March VData', format, GeomEnums.UH_dynamic)
+        # We need to set a bounding volume so that Panda doesn't try to cull it.
+        # You could be smarter about this by assigning a bounding volume that encloses
+        # the vertices.
+        self.geom = Geom(vdata)
+
+        # This represents a draw call, indicating how many vertices we want to draw.
+        tris = GeomTriangles(GeomEnums.UH_dynamic)
+        print(self.vertexCount)
+        tris.add_next_vertices(20000000)
+        self.geom.add_primitive(tris)
+
+        self.geom.set_bounds(OmniBoundingVolume())
+        node = GeomNode("node")
+        node.add_geom(self.geom)
+        if self.geomPath is None:
+            self.geomPath = self.winCreator.base.render.attach_new_node(node)
+            self.geomPath.setPos(
+                -self.size.getX()*0.5*self.cubeformer.spacing,
+                -self.size.getY()*0.5*self.cubeformer.spacing,
+                -self.size.getZ()*0.5*self.cubeformer.spacing)
+        self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
+        self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
+        self.geomPath.set_shader_input('triangleBuffer', self.triangleBuffer)
+        #self.geomPath.setTwoSided(True)
