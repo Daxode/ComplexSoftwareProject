@@ -3,7 +3,7 @@ from panda3d.core import loadPrcFile
 from direct.showbase.ShowBase import ShowBase, PTAFloat, \
     DirectionalLight, AntialiasAttrib
 
-from Blobtory.Scripts.WindowCreator import WindowCreator
+from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 
 # Description:
 # This is the main program, and should thus be kept clean,
@@ -14,8 +14,8 @@ from Blobtory.Scripts.WindowCreator import WindowCreator
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
-from planet_former.CubeFormer import CubeFormer
-from planet_former.MarchingCubes import MarchingCubes
+from Blobtory.Scripts.planet_former.CubeFormer import CubeFormer
+from Blobtory.Scripts.planet_former.MarchingCubes import MarchingCubes
 
 
 class Main(ShowBase):
@@ -30,38 +30,53 @@ class Main(ShowBase):
         dlight.setColor((0.8, 0.8, 0.5, 1))
         self.dlnp = self.render.attachNewNode(dlight)
         self.render.setAntialias(AntialiasAttrib.MAuto)
-        # self.render.setLight(self.dlnp)
+        self.render.setLight(self.dlnp)
 
         self.cubeformer: CubeFormer = CubeFormer(self.winCreator, size, size, size, spacing)
         self.cubeformer.GenerateCube()
-        self.cubeformer.GenerateNoiseSphere(5)
+        self.cubeformer.GenerateNoiseSphere(50)
         self.marchingCubes: MarchingCubes = MarchingCubes(self.cubeformer)
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
+
+
         self.accept("space", self.Update, extraArgs=[1])
         self.accept("space-repeat", self.Update, extraArgs=[1])
         self.accept("e", self.Update, extraArgs=[-1])
         self.accept("e-repeat", self.Update, extraArgs=[-1])
         self.i = 0
-        self.camera.setPos(0, 500, 0)
+        self.camera.setPos(0, -500, 0)
         self.camera.lookAt(0, 0, 0)
 
         prefab = self.loader.loadModel("assets/models/icosphere")
         # prefab.setPos(-128, -128, -128)
         # PipelineInstancing.PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(prefab, self.cubeformer.vertexBuffer,
         #                                                                           self.cubeformer.size, self.winCreator)
-        self.taskMgr.doMethodLater(0.1, self.TimedUpdate, "Yass")
+        self.taskMgr.doMethodLater(1, self.TimedUpdate, "Update planet")
         self.mouseX, self.mouseY = 0, 0
+        self.keyMap = {
+            "mouse": False,
+            "down": False,
+            "left": False,
+            "right": False,
+            "shoot": False
+        }
+
+        self.accept("mouse1", self.updateKeyMap, ["mouse", True])
+        self.accept("mouse1-up", self.updateKeyMap, ["mouse", False])
+
+    def updateKeyMap(self, controlName, controlState):
+        self.keyMap[controlName] = controlState
+        print(controlName, "set to", controlState)
 
     def TimedUpdate(self, task: Task.Task):
         if self.mouseWatcherNode.hasMouse():
             self.mouseX = self.mouseWatcherNode.getMouseX()
             self.mouseY = self.mouseWatcherNode.getMouseY()
 
-        self.cubeformer.mouseTime.setData(PTAFloat([self.mouseX, self.mouseY, task.time]))
-
-        self.cubeformer.GenerateNoiseSphere(5+self.i*5)
+        self.cubeformer.mouseTime.setData(PTAFloat([self.mouseX, self.mouseY, task.time, float(self.keyMap["mouse"])]))
+        self.cubeformer.GenerateNoiseSphere(50+self.i*5)
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
@@ -69,8 +84,8 @@ class Main(ShowBase):
 
     def Update(self, adjust):
         self.i += adjust
-        self.cubeformer.GenerateNoiseSphere(5+self.i*5)
-        #self.cubeformer.offset.setData(PTAFloat([self.i]))
+        self.cubeformer.GenerateNoiseSphere(50+self.i*5)
+        self.cubeformer.offset.setData(PTAFloat([self.i*20]))
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
         self.marchingCubes.GenerateMesh()
@@ -89,7 +104,9 @@ class Main(ShowBase):
         #     (math.sin(task.time)) * 100)
         # self.camera.lookAt(0, 0, 0)
 
-        self.dlnp.setHpr(0, task.time*1.4, 0)
+        self.dlnp.setHpr(0, task.time*3, 0)
+
+
 
         return Task.cont
 

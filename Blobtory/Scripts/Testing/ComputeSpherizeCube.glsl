@@ -6,7 +6,7 @@ layout (local_size_x = SIZE, local_size_y = 1) in;
 uniform int gridSize;
 uniform float radius;
 layout(rgba32f, binding = 0) uniform readonly image1D fromVertexes;
-layout(rgba32f, binding = 0)uniform writeonly image1D toVertexes;
+layout(rgba32f, binding = 0) uniform writeonly image1D toVertexes;
 
 vec3 spherize(vec3 cubeCord) {
     vec3 p = cubeCord * 2.0 / gridSize - vec3(1,1,1);

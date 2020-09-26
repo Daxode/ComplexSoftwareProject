@@ -6,7 +6,7 @@ from panda3d.core import NodePath, Shader
 from direct.showbase.Loader import Loader, Filename
 
 from typing import *
-from Blobtory.Scripts import WindowCreator
+from Blobtory.Scripts.Pipeline import WindowCreator
 
 
 class PipelineMode(Enum):

@@ -2,7 +2,7 @@ import struct
 from typing import *
 
 from panda3d.core import Texture, GeomEnums, LMatrix4f, NodePath, OmniBoundingVolume, LVector3f
-from Blobtory.Scripts import WindowCreator
+from Blobtory.Scripts.Pipeline import WindowCreator
 from direct.showbase.Loader import Loader, PTAInt
 
 

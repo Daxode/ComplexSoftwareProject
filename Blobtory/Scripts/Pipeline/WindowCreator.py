@@ -1,6 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import WindowProperties
-from Blobtory.Scripts.BaseData import ShowBaseData
+from Blobtory.Scripts.Pipeline.BaseData import ShowBaseData
 from multipledispatch import dispatch
 import sys
 
@@ -13,7 +13,7 @@ import sys
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
-from Blobtory.Scripts.PipelineSwitcher import PipelineSwitcher
+from Blobtory.Scripts.Pipeline.PipelineSwitcher import PipelineSwitcher
 
 
 class WindowCreator:
@@ -42,7 +42,7 @@ class WindowCreator:
         self.__UpdateWindow()
 
     def __InitRp(self):
-        sys.path.insert(0, "../../assets/external_libs/render_pipeline")
+        sys.path.insert(0, "../../../assets/external_libs/render_pipeline")
         from assets.external_libs.render_pipeline.rpcore import RenderPipeline
         self.render_pipeline = RenderPipeline()
         self.render_pipeline.pre_showbase_init()

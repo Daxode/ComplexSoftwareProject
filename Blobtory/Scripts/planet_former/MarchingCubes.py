@@ -1,10 +1,10 @@
 import math
 
-from panda3d.core import Texture, Shader, NodePath, LVecBase3i, ShaderAttrib, PTAInt, GeomEnums, GeomNode, \
-    GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume, PTA_uchar
+from panda3d.core import Texture, Shader, NodePath, LVecBase3i, ShaderAttrib, GeomEnums, GeomNode, \
+    GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume
 
 from assets.shaders.compute.includes import MarchTable
-from planet_former.CubeFormer import CubeFormer
+from Blobtory.Scripts.planet_former.CubeFormer import CubeFormer
 
 
 class MarchingCubes:
@@ -38,7 +38,7 @@ class MarchingCubes:
             shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/edgeBufferGenerator.glsl")
             self.edgeBufferGeneratorNode = NodePath("Edge Buffer Generator")
             self.edgeBufferGeneratorNode.set_shader(shader)
-            self.edgeBufferGeneratorNode.set_shader_input("isoLevel", 0.3)
+            self.edgeBufferGeneratorNode.set_shader_input("isoLevel", 0.5)
             self.edgeBufferGeneratorNode.set_shader_input("size", self.size)
             self.edgeBufferGeneratorNode.set_shader_input("vertexBufferWAlphaCube", self.cubeVertexBuffer)
             self.edgeBufferGeneratorNode.set_shader_input("vertexBufferEdge", self.edgeVertexBuffer)
@@ -76,7 +76,7 @@ class MarchingCubes:
             shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubemarcher.glsl")
             self.cubeMarchBufferGeneratorNode = NodePath("Cube march triangle Generator")
             self.cubeMarchBufferGeneratorNode.set_shader(shader)
-            self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.1)
+            self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.5)
             self.cubeMarchBufferGeneratorNode.set_shader_input("size", self.size)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triagIndexBuffer", self.atomic)
 

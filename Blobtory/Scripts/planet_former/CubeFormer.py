@@ -1,7 +1,7 @@
 import math
 
 from panda3d.core import Texture, NodePath, Shader, LVecBase3i, ShaderAttrib, PTAFloat, LVecBase3f
-from Blobtory.Scripts.WindowCreator import WindowCreator
+from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 
 
 class CubeFormer:
@@ -16,7 +16,7 @@ class CubeFormer:
         self.size = LVecBase3i(width, length, height)
         self.spacing = spacing
         self.vertexCount = width*length*height
-        self.mouseTime = PTAFloat([0, 0, 0])
+        self.mouseTime = PTAFloat([0, 0, 0, 0])
 
     def GenerateCube(self) -> Texture:
         if self.vertexBuffer is None:

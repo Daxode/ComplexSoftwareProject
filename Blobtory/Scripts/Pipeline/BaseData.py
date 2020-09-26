@@ -1,5 +1,5 @@
 from direct.showbase.ShowBase import ShowBase
-from Blobtory.Scripts.Debugger import Debugger
+from Blobtory.Scripts.Pipeline.Debugger import Debugger
 from direct.task import Task
 
 # Description:
