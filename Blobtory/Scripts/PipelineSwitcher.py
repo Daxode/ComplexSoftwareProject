@@ -6,7 +6,7 @@ from panda3d.core import NodePath, Shader
 from direct.showbase.Loader import Loader, Filename
 
 from typing import *
-import WindowCreator
+from Blobtory.Scripts import WindowCreator
 
 
 class PipelineMode(Enum):
@@ -19,7 +19,7 @@ class ShadersHolder:
     fragmentShader: Filename
     vertexShader: Filename
     hdrpShaderModel: Filename
-    modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback]
+    modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback]
 
 
 class PipelineSwitcher:
@@ -54,13 +54,13 @@ class PipelineSwitcher:
                                             fragment=shadersHolder.fragmentShader)
             shadersHolder.modelToApplyOn.setShader(myShader, 1)
 
-    def AddModelWithShaderGeneralName(self, modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+    def AddModelWithShaderGeneralName(self, modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
                            shaderName: str = "assets/shaders/default"):
         self.AddModelWithShader(modelToApplyOn, Filename(shaderName+".frag"),
                                                 Filename(shaderName+".vert"),
                                                 shaderName+".yaml")
 
-    def AddModelWithShader(self, modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+    def AddModelWithShader(self, modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
                            fragmentShader: Filename = "assets/shaders/default.frag",
                            vertexShader: Filename = "assets/shaders/default.vert",
                            hdrpShaderModel: Filename = "assets/shaders/default.yaml"):

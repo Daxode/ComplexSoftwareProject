@@ -1,4 +1,6 @@
-panda3d~=1.10.6
+panda3d~=1.10.7
 numpy~=1.19.2
 setuptools~=50.3.0
 multipledispatch~=0.6.0
+pip~=20.2.3
+six~=1.15.0

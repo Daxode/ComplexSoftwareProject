@@ -9,10 +9,12 @@ uniform ivec3 size;
 
 vec3 interpolateVerts(vec4 v1, vec4 v2) {
     float t = 0.5;
-    if (v1.w-v2.w < 0) {t=(isoLevel - v1.w) / (v2.w - v1.w);}
-    else {t=(isoLevel - v2.w) / (v1.w - v2.w);}
-    if (isinf(t)){t = 0.5;}
-    t=0.5;
+    if(v2.w-v1.w != 0 && v2.w-v1.w != -0) t =  (isoLevel - v1.w) / (v2.w - v1.w);
+
+    //if (v1.w-v2.w < 0) {t=(isoLevel - v1.w) / (v2.w - v1.w);}
+    //else {t=(isoLevel - v2.w) / (v1.w - v2.w);}
+    //if (isinf(t)){t = 0.5;}
+    t = clamp(t, -1, 1);
     return v1.xyz + t * (v2.xyz-v1.xyz);
 }
 

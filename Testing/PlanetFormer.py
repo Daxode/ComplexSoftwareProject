@@ -1,5 +1,5 @@
 from direct.task import Task
-from BaseData import ShowBaseData
+from Blobtory.Scripts.BaseData import ShowBaseData
 
 
 class PlanetFormer:

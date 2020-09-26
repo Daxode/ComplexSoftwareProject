@@ -1,5 +1,3 @@
-#version 130
-
 uniform struct p3d_LightSourceParameters {
   // Primary light color.
   vec4 color;

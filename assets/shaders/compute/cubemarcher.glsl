@@ -66,6 +66,7 @@ void main() {
         vec3 v2 = imageLoad(vertexBufferEdge, vertexID.xyz).xyz;
 
         vec3 normal = cross(v2-v0, v1-v0);
+        //vec3 normal = normalize(v2+v0+v1);
         imageStore(normalBuffer, int(triangleIDIndex/3), vec4(normal, triangleIDIndex/1000));
 
         i+=3;

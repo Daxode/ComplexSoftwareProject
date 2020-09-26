@@ -23,6 +23,8 @@ load-display pandagl
 # while -1 lets the window manager choose the position.
 
 framebuffer-srgb #t
+#framebuffer-multisample 1
+#multisamples 2
 
 win-origin -2 -2
 win-size 1600 900

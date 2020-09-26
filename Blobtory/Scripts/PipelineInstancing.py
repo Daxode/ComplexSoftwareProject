@@ -2,13 +2,13 @@ import struct
 from typing import *
 
 from panda3d.core import Texture, GeomEnums, LMatrix4f, NodePath, OmniBoundingVolume, LVector3f
-import WindowCreator
+from Blobtory.Scripts import WindowCreator
 from direct.showbase.Loader import Loader, PTAInt
-from multipledispatch import dispatch
+
 
 class PipelineInstancing:
     @staticmethod
-    def RenderThisModelAtMatrices(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+    def RenderThisModelAtMatrices(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
                                   matrices: List[LMatrix4f], winCreator: WindowCreator.WindowCreator) -> Texture:
         buffer = PipelineInstancing.__LoadBufferWithMatrices(matrices)
         PipelineInstancing.__AddMatrixBasedInstanceShader(modelToApplyOn, buffer, len(matrices), winCreator)
@@ -18,14 +18,14 @@ class PipelineInstancing:
         return buffer
 
     @staticmethod
-    def RenderThisModelAtVertexes(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+    def RenderThisModelAtVertexes(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
                                   vertexes: List[LVector3f], winCreator: WindowCreator.WindowCreator) -> Texture:
         buffer = PipelineInstancing.__LoadBufferWithVertexes(vertexes)
         return PipelineInstancing.RenderThisModelAtVertexesFromBuffer(modelToApplyOn, buffer, len(vertexes), winCreator)
 
     @staticmethod
-    def RenderThisModelAtVertexesFromBuffer(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
-                                  buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator) -> Texture:
+    def RenderThisModelAtVertexesFromBuffer(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
+                                            buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator) -> Texture:
         PipelineInstancing.__AddVertexBasedInstanceShader(modelToApplyOn, buffer, vertexCount, winCreator)
         PipelineInstancing.__DefineBoundingBox(modelToApplyOn)
         modelToApplyOn.reparentTo(winCreator.base.render)
@@ -34,7 +34,7 @@ class PipelineInstancing:
 
     @staticmethod
     def RenderThisModelAtVertexesFrom3DBuffer(
-            modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
+            modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
             buffer: Texture, vertexCount: PTAInt, winCreator: WindowCreator.WindowCreator) -> Texture:
         PipelineInstancing.__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer, vertexCount, winCreator)
         PipelineInstancing.__DefineBoundingBox(modelToApplyOn)
@@ -89,23 +89,23 @@ class PipelineInstancing:
         return buffer_texture
 
     @staticmethod
-    def __AddMatrixBasedInstanceShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
-                    buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator):
+    def __AddMatrixBasedInstanceShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
+                                       buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator):
         winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_basic_matrixbased")
         modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
         modelToApplyOn.set_instance_count(instanceCount)
 
     @staticmethod
-    def __AddVertexBasedInstanceShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
-                    buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator):
+    def __AddVertexBasedInstanceShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
+                                       buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator):
         winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_basic_vertexbased")
         modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
         modelToApplyOn.set_instance_count(instanceCount)
 
     @staticmethod
-    def __AddVertexBasedInstance3DBufferShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback],
-                                       buffer_texture: Texture, instanceCount: PTAInt,
-                                       winCreator: WindowCreator.WindowCreator):
+    def __AddVertexBasedInstance3DBufferShader(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback],
+                                               buffer_texture: Texture, instanceCount: PTAInt,
+                                               winCreator: WindowCreator.WindowCreator):
         winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(modelToApplyOn, "assets/shaders/instancing/instancing_3dbuffer_vertexbased")
         modelToApplyOn.set_shader_input("InstancingData", buffer_texture)
         modelToApplyOn.set_shader_input("size", instanceCount)
@@ -113,7 +113,7 @@ class PipelineInstancing:
 
 
     @staticmethod
-    def __DefineBoundingBox(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader.Callback]):
+    def __DefineBoundingBox(modelToApplyOn: Union[List[Optional[NodePath]], NodePath, None, Loader._Callback]):
         # We have do disable culling, so that all instances stay visible
         modelToApplyOn.node().set_bounds(OmniBoundingVolume())
         modelToApplyOn.node().set_final(True)

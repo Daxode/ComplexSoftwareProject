@@ -1,4 +1,4 @@
-from BaseData import ShowBaseData
+from Blobtory.Scripts.BaseData import ShowBaseData
 
 
 class SphereCreator:

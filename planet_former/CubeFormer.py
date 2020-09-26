@@ -1,7 +1,7 @@
 import math
 
-from panda3d.core import Texture, NodePath, Shader, LVecBase3i, ShaderAttrib, PTAFloat, PTAInt, LVecBase3f
-from WindowCreator import WindowCreator
+from panda3d.core import Texture, NodePath, Shader, LVecBase3i, ShaderAttrib, PTAFloat, LVecBase3f
+from Blobtory.Scripts.WindowCreator import WindowCreator
 
 
 class CubeFormer:
@@ -16,6 +16,7 @@ class CubeFormer:
         self.size = LVecBase3i(width, length, height)
         self.spacing = spacing
         self.vertexCount = width*length*height
+        self.mouseTime = PTAFloat([0, 0, 0])
 
     def GenerateCube(self) -> Texture:
         if self.vertexBuffer is None:
@@ -48,6 +49,7 @@ class CubeFormer:
             self.__alphaNoiseSphereComputeNode.set_shader_input("radius", self.radius)
             self.__alphaNoiseSphereComputeNode.set_shader_input("vertexBufferWAlpha", self.vertexBuffer)
             self.__alphaNoiseSphereComputeNode.set_shader_input("offset", self.offset)
+            self.__alphaNoiseSphereComputeNode.set_shader_input("mouseTime", self.mouseTime)
 
         yass = LVecBase3i(math.ceil(self.size[0]/16), math.ceil(self.size[1]/8), math.ceil(self.size[2]/8))
         self.winCreator.base.graphicsEngine.dispatch_compute(yass,
