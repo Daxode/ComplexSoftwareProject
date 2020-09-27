@@ -28,3 +28,8 @@ jobs:
     - name: Build and Publish
       run: |
         python Blobtory/Scripts/setup.py bdist_apps
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v2
+      with:
+          name: Blobtory-Version0.1
+          path: dist/Blobtory-0.1_win_amd64.zip
