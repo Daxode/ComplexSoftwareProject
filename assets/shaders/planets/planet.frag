@@ -16,6 +16,7 @@ in vec2 texcoord;
 in vec3 vertexNormal;
 in vec3 primNormal;
 in vec3 FragPos;
+in float num;
 
 out vec4 outputColor;
 const float atten = 1.0;
@@ -50,7 +51,7 @@ void main() {
   outputColor = vec4(result, 1);
 
   //outputColor = vec4()
-  outputColor = vec4(rgb_normal, 1) * smoothstep(0,1, dot(vertexNormal, lightDir)+0.9*dot(p3d_LightModel.ambient.xyz, vec3(1)));
+  outputColor = clamp(num, 0.5, 1)*vec4(rgb_normal, 1) * smoothstep(0,1, dot(vertexNormal, lightDir)+0.9*dot(p3d_LightModel.ambient.xyz, vec3(1)));
   //vec3 diffuseReflection = atten * p3d_LightSource[0].color.xyz * max(primNormal, lightDir);
 
   //vec3 lightReflectDir = reflect(-lightDir, primNormal);

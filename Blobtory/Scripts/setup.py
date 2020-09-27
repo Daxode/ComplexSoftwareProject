@@ -26,7 +26,7 @@ setup(
             # We want a gui-app, and our "main" Python file
             # is "Game.py"
             "gui_apps": {
-                "Blobtory": "Main.py"
+                "Blobtory": "Blobtory/Scripts/Main.py"
             },
             'log_filename': '$USER_APPDATA/Blobtory/output.log',
             'log_append': False,
