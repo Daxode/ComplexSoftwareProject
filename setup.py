@@ -1,8 +1,17 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="Blobtory",
     version='0.1',
+    packages=find_packages(include=['Blobtory', 'Blobtory.*']),
+    install_requires=[
+        'panda3d>=1.10.7',
+        'numpy>=1.19.2',
+        'setuptools>=50.3.0',
+        'multipledispatch>=0.6.0'
+        'pip>=20.2.3'
+        'six>=1.15.0'
+    ],
     options={
         "build_apps": {
             # Files that we want to include. Specifically:

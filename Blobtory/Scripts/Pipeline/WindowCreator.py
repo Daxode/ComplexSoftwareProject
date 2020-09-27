@@ -1,4 +1,5 @@
-from direct.showbase.ShowBase import ShowBase
+from direct.filter.CommonFilters import CommonFilters
+from direct.showbase.ShowBase import ShowBase, DirectionalLight, AntialiasAttrib
 from panda3d.core import WindowProperties
 from Blobtory.Scripts.Pipeline.BaseData import ShowBaseData
 from multipledispatch import dispatch
@@ -74,6 +75,18 @@ class WindowCreator:
             self.render_pipeline.create(self.base)
             self.render_pipeline.loading_screen.remove()
         else:
+            filters = CommonFilters(self.base.win, self.base.cam)
+            filters.setHighDynamicRange()
+            # filters.setBloom()
+
+            dlight = DirectionalLight('my dlight')
+            # dlight.setColor((0.8, 0.8, 0.5, 1))
+            dlnp = self.base.render.attachNewNode(dlight)
+            self.base.render.setAntialias(AntialiasAttrib.MAuto)
+            self.base.render.setLight(dlnp)
+
+            #filters.setAmbientOcclusion()
+            # filters.setVolumetricLighting(dlnp)
             self.base.setBackgroundColor(0, 0.01, 0.1)
             self.base.render.setShaderAuto(True)
             self.base.setFrameRateMeter(True)

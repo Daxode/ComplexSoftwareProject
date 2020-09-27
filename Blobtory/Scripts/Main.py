@@ -26,11 +26,6 @@ class Main(ShowBase):
 
         size = 64
         spacing = 4
-        dlight = DirectionalLight('my dlight')
-        #dlight.setColor((0.8, 0.8, 0.5, 1))
-        self.dlnp = self.render.attachNewNode(dlight)
-        self.render.setAntialias(AntialiasAttrib.MAuto)
-        self.render.setLight(self.dlnp)
 
         alight = AmbientLight('alight')
         alight.setColor((0.2, 0.2, 0.2, 1))
@@ -108,10 +103,6 @@ class Main(ShowBase):
         #     radius * math.cos(angle_radians),
         #     (math.sin(task.time)) * 100)
         # self.camera.lookAt(0, 0, 0)
-
-        self.dlnp.setHpr(0, task.time*3, 0)
-
-
 
         return Task.cont
 
