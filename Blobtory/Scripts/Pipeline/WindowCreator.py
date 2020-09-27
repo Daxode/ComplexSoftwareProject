@@ -74,6 +74,6 @@ class WindowCreator:
             self.render_pipeline.create(self.base)
             self.render_pipeline.loading_screen.remove()
         else:
-            self.base.setBackgroundColor(0, 0.2, 0.4)
+            self.base.setBackgroundColor(0, 0.01, 0.1)
             self.base.render.setShaderAuto(True)
             self.base.setFrameRateMeter(True)

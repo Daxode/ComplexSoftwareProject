@@ -8,7 +8,7 @@ uniform float radius;
 uniform float offset;
 uniform vec3 midPoint;
 uniform vec4 mouseTime;
-const int craterCount = 200;
+const int craterCount = 20;
 
 layout(rgba32f, binding = 0) uniform image3D vertexBufferWAlpha;
 
@@ -45,13 +45,13 @@ void main() {
 
 //    point.w = (snoise(polarCoord.yz/(mouseX*10))*radius - r);
 
-    float noiseOuter = (fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*10;
+    float noiseOuter = 1-abs(fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*10;
     float planetRadius = radius+noiseOuter;
     point.w = smoothstep(0, 1, (planetRadius - lengthFromCenter)/10);
 
 
-    float cometOffset = 1.0;
-    float cometDiff = 0.2;
+    float cometOffset = 0.9;
+    float cometDiff = 0.01;
     float sizeMatters = 0.4;
     for (int i = 0; i < craterCount; i++) {
         float theta = rand((offset+i))*2*PI;
@@ -63,8 +63,8 @@ void main() {
         vec3 cartCraterPosCenter = (planetRadius*cometOffset-cometDiff+cometSize*sizeMatters)*cartCraterNormal;
         vec3 cartCraterPosOffset = (planetRadius*cometOffset+cometSize*sizeMatters)*cartCraterNormal;
 
-        point.w += smoothstep(0,1,max(0, cometSize-distance(movedPoint, cartCraterPosCenter)));
-        point.w -= smoothstep(0,1,max(0, cometSize-cometDiff-distance(movedPoint, cartCraterPosOffset)))*2;
+        point.w += smoothstep(0,1, max(0, cometSize-distance(movedPoint, cartCraterPosCenter)));
+        point.w -= smoothstep(0,1, max(0, cometSize-cometDiff-distance(movedPoint, cartCraterPosOffset)))*5;
     }
 
     imageStore(vertexBufferWAlpha, ivec3(gl_GlobalInvocationID.xyz), point);

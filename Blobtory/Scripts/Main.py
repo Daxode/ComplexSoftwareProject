@@ -1,7 +1,7 @@
 from direct.task import Task
 from panda3d.core import loadPrcFile
 from direct.showbase.ShowBase import ShowBase, PTAFloat, \
-    DirectionalLight, AntialiasAttrib
+    DirectionalLight, AntialiasAttrib, AmbientLight
 
 from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 
@@ -27,10 +27,15 @@ class Main(ShowBase):
         size = 64
         spacing = 4
         dlight = DirectionalLight('my dlight')
-        dlight.setColor((0.8, 0.8, 0.5, 1))
+        #dlight.setColor((0.8, 0.8, 0.5, 1))
         self.dlnp = self.render.attachNewNode(dlight)
         self.render.setAntialias(AntialiasAttrib.MAuto)
         self.render.setLight(self.dlnp)
+
+        alight = AmbientLight('alight')
+        alight.setColor((0.2, 0.2, 0.2, 1))
+        alnp = self.render.attachNewNode(alight)
+        self.render.setLight(alnp)
 
         self.cubeformer: CubeFormer = CubeFormer(self.winCreator, size, size, size, spacing)
         self.cubeformer.GenerateCube()
