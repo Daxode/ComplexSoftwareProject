@@ -28,4 +28,4 @@ class ShowBaseData:
     def RunDebuggers(self, task: Task.Task):
         self.debuggerMain.Run()
         self.debuggerPlanetFormer.Run()
-        return Task.cont
+        return Task.again

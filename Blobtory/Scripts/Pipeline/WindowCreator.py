@@ -19,6 +19,7 @@ from Blobtory.Scripts.Pipeline.PipelineSwitcher import PipelineSwitcher
 
 class WindowCreator:
     render_pipeline = None
+    cubeSpacing: float = 8
 
     def __init__(self, base: ShowBase, enableRP: bool = False, isFullscreen: bool = False):
         self.enableRP = enableRP
@@ -76,11 +77,11 @@ class WindowCreator:
             self.render_pipeline.loading_screen.remove()
         else:
             filters = CommonFilters(self.base.win, self.base.cam)
-            filters.setHighDynamicRange()
+            # filters.setHighDynamicRange()
             # filters.setBloom()
 
             dlight = DirectionalLight('my dlight')
-            # dlight.setColor((0.8, 0.8, 0.5, 1))
+            dlight.setColor((0.8, 0.5, 0.5, 1))
             dlnp = self.base.render.attachNewNode(dlight)
             self.base.render.setAntialias(AntialiasAttrib.MAuto)
             self.base.render.setLight(dlnp)
@@ -88,5 +89,4 @@ class WindowCreator:
             #filters.setAmbientOcclusion()
             # filters.setVolumetricLighting(dlnp)
             self.base.setBackgroundColor(0, 0.01, 0.1)
-            self.base.render.setShaderAuto(True)
             self.base.setFrameRateMeter(True)

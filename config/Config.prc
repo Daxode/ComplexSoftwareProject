@@ -24,7 +24,7 @@ load-display pandagl
 
 framebuffer-srgb #t
 framebuffer-multisample 1
-multisamples 2
+multisamples 1
 
 win-origin -2 -2
 win-size 1600 900
