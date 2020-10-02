@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+import version
 
 setup(
     name="Blobtory",
-    version='0.1',
+    version=version.version,
     packages=find_packages(include=['Blobtory', 'Blobtory.*']),
     install_requires=[
         'panda3d>=1.10.7',
