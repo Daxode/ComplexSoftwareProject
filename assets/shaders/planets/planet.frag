@@ -4,10 +4,6 @@
 
 #define MAX_ITERATION 20
 
-uniform struct {
-  vec4 ambient;
-} p3d_LightModel;
-
 // Input from vertex shader
 in vec2 texcoord;
 in vec3 vertexNormal;

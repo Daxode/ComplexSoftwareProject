@@ -1,5 +1,5 @@
 from direct.task import Task
-from panda3d.core import loadPrcFile
+from panda3d.core import loadPrcFile, loadPrcFileData
 from direct.showbase.ShowBase import ShowBase, PTAFloat, \
     DirectionalLight, AntialiasAttrib, AmbientLight
 
@@ -32,6 +32,8 @@ class Main(ShowBase):
         self.render.setLight(alnp)
 
 
+loadPrcFileData('', 'framebuffer-multisample 1')
+loadPrcFileData('', 'multisamples 1')
 loadPrcFile("config/Config.prc")
 blobtoryBase = Main()
 blobtoryBase.run()

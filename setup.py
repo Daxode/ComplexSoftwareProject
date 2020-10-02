@@ -48,10 +48,10 @@ setup(
             # Platforms that we're building for.
             # Remove those that you don't want.
             "platforms": [
-                'manylinux1_x86_64',
-                'macosx_10_6_x86_64',
+                # 'manylinux1_x86_64',
+                # 'macosx_10_6_x86_64',
                 'win_amd64',
-                'win32',
+                # 'win32',
             ]
         }
     }
