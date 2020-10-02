@@ -14,20 +14,5 @@ to restore wasted planets through automation.
   </tr>
 </table>
 
-## How marching works
-/- Explaination coming -\\\
-<img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/Diagrams/grid_w_explain.png" alt="alt text" width="250">\
-<img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/Diagrams/marching_cubes.png" alt="alt text" width="250">
-
-## How to create planets from it
-### Creating sphere based on world position and radius
-/- Explaination coming -\\\
-<img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/Diagrams/grid_w_sphere_math.png" alt="alt text" width="250">
-
-### How to create detailing
-/- Explaination coming -\\\
-<img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/Diagrams/crater_creation.png" alt="alt text" width="250">
-
-## How to make it performant
-/- Explaination coming -\\\
-<img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/Diagrams/performance_grid.png" alt="alt text" width="500">
+## Wiki
+Yup, there's a wiki and you can find it [here](https://github.com/Daxode/ComplexSoftwareProject/wiki)
