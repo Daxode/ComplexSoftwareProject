@@ -34,6 +34,9 @@ jobs:
         echo 'VERSION<<EOF' >> $GITHUB_ENV
         python version.py >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
+        echo 'DATEPRETTY<<EOF' >> $GITHUB_ENV
+        date "+%D %T"
+        echo 'EOF' >> $GITHUB_ENV
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -41,7 +44,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{env.VERSION}}t${{env.DATE}}
-        release_name: Release v${{env.VERSION}} t${{env.DATE}}
+        release_name: Release v${{env.VERSION}} ${{env.DATEPRETTY}}
         draft: false
         prerelease: true
     - name: Upload Release Asset
