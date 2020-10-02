@@ -29,7 +29,7 @@ jobs:
       run: |
         python setup.py bdist_apps
         echo 'DATE<<EOF' >> $GITHUB_ENV
-        date +"%d-%m-%y" >> $GITHUB_ENV
+        date +"%d%m%y %H%M%S" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo 'VERSION<<EOF' >> $GITHUB_ENV
         python version.py >> $GITHUB_ENV
@@ -40,8 +40,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{env.VERSION}}
-        release_name: Release v${{env.VERSION}} ${{env.DATE}}
+        tag_name: v${{env.VERSION}} t${{env.DATE}}
+        release_name: Release v${{env.VERSION}} t${{env.DATE}}
         draft: false
         prerelease: true
     - name: Upload Release Asset
