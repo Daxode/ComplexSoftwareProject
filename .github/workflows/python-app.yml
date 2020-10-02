@@ -20,6 +20,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+      env:
+        VERSION: v0.1 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -34,10 +36,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: $VERSION
+        release_name: Release $VERSION
         draft: false
-        prerelease: false
+        prerelease: true
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
