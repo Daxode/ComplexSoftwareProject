@@ -38,8 +38,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION: v0.1
       with:
-        tag_name: ${{jobs.build.env.VERSION}}
-        release_name: Release ${{jobs.build.env.VERSION}} ${{jobs.build.env.YASS}}
+        tag_name: ${{env.VERSION}}
+        release_name: Release ${{env.VERSION}} ${{env.YASS}}
         draft: false
         prerelease: true
     - name: Upload Release Asset
