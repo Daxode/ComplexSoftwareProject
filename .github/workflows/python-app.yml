@@ -28,7 +28,7 @@ jobs:
     - name: Build and Publish
       run: |
         python setup.py bdist_apps
-        echo 'YASS<<EOF' >> $GITHUB_ENV
+        echo 'DATE<<EOF' >> $GITHUB_ENV
         date +"%d-%m-%y" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
     - name: Create Release
@@ -36,10 +36,10 @@ jobs:
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: v0.1
+        VERSION: v0.0.1
       with:
-        tag_name: ${{env.VERSION}}
-        release_name: Release ${{env.VERSION}} ${{env.YASS}}
+        tag_name: ${{env.VERSION}} ${{env.DATE}}
+        release_name: Release ${{env.VERSION}} ${{env.DATE}}
         draft: false
         prerelease: true
     - name: Upload Release Asset
