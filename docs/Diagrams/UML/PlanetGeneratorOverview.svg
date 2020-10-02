@@ -1,0 +1,217 @@
+<svg version="1.1" baseProfile="full" width="1243" height="1103" viewbox="0 0 1243 1103" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" style="font:normal normal 12pt Helvetica, Helvetica, sans-serif;;stroke-linejoin:round;stroke-linecap:round">
+  <title >nomnoml</title>
+  <desc >#.pipelinetools: fill=#82b2ff
+#.pipelineswitch: fill=#6090ee
+#.planetformers: fill=#66ee66
+#.gamescripts: fill=#ee6666
+#.shaders: fill=#eeee66 dashed
+#ranker:longest-path
+
+[&lt;planetformers&gt;PlanetGenerator|
+radius
+winCreator
+cubeformer: CubeFormer
+marchingCubes: MarchingCubes
+|
+__init__(winCreator: WindowCreator, gridSize: int, radius: float):
+RegenPlanet()]
+
+[PlanetGenerator]+-[MarchingCubes]
+
+[&lt;planetformers&gt;MarchingCubes|
+atomic: Texture
+edgeVertexBuffer: Texture
+triangleBuffer: Texture
+triangulationBuffer: Texture
+normalBuffer: Texture
+edgeBufferGeneratorNode: NodePath
+cubeMarchBufferGeneratorNode: NodePath
+geom: Geom
+geomPath: NodePath
+vertexCount: int
+cubeformer
+winCreator
+size
+cubeVertexBuffer
+edgeVertexCount: int
+|
+__init__(cubeformer: CubeFormer):
+EdgeGenerator(): Texture
+MarchCube():
+GenerateMesh()
+]
+
+[MarchingCubes]+-[CubeFormer]
+
+[&lt;planetformers&gt;CubeFormer|
++offset: PTAFloat
++radius: PTAFloat
++vertexBuffer: Texture
++winCreator: WindowCreator
++size: LVecBase3i
++spacing: float
++vertexCount: int
++mouseTime: PTAFloat
+-__alphaNoiseSphereComputeNode: NodePath
+-__cubeBufferCreatorComputeNode: NodePath
+|
+__init__(winCreator: WindowCreator, width: int, length: int, height: int, spacing: float):
+GenerateCube(): Texture
+GenerateNoiseSphere(radius: float): Texture
+]
+
+[&lt;shaders&gt;AlphaNoiseSphere|
+radius: float
+offset: float
+midPoint: vec3
+mouseTime: vec4
+craterCount: int
+vertexBufferWAlpha: image3D
+|
+rand(x: float): float
+fractalNoise(point: vec3): float
+main()
+]
+
+[&lt;shaders&gt;CubeBufferCreator|
+spacing: float
+vertexBuffer: image3D
+|
+main()
+]
+
+[&lt;shaders&gt;CubeMarcher|
+triagIndexBuffer: iimageBuffer
+triangulationBuffer: iimage2D
+vertexBufferWAlphaCube: image3D
+vertexBufferEdge: image3D
+triangleBuffer: iimageBuffer
+normalBuffer: imageBuffer
+isoLevel: float
+size: ivec3
+|
+main()
+]
+
+[&lt;shaders&gt;EdgeBufferGenerator|
+isoLevel: float
+size: ivec3
+vertexBufferWAlphaCube: image3D
+vertexBufferEdge: image3D
+
+|
+interpolateVerts(v1: vec4, v2: vec4): vec3
+main()
+]
+
+[CubeFormer]&lt;--[AlphaNoiseSphere]
+[CubeFormer]&lt;--[CubeBufferCreator]
+[MarchingCubes]&lt;--[CubeMarcher]
+[MarchingCubes]&lt;-[EdgeBufferGenerator]</desc>
+  <rect x="0" y="0" height="1103" width="1243" style="stroke:none; fill:transparent;"></rect>
+  <path d="M747 166.5 L747 186.5 L747 206.5 L747 206.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M752.3 175.8 L747 185.2 L741.7 175.8 L747 166.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M583 455.2 L321 574.5 L321 594.5 L321 594.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M576.7 463.9 L566 462.9 L572.3 454.2 L583 455.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M216 852.5 L199.8 872.5 L199.8 892.5 L199.8 892.5 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M211.7 866.2 L211.8 857.7 L203.5 859.5 L216 852.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M426 852.5 L442.3 872.5 L442.3 937.5 L442.3 937.5 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M438.5 859.5 L430.2 857.7 L430.3 866.2 L426 852.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M747 554.5 L747 574.5 L747 723.5 L747 723.5 L747 872.5 L747 872.5 L747 892.5 L747 892.5 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M752.3 567.8 L747 561.2 L741.7 567.8 L747 554.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M911 477.2 L1076 574.5 L1076 723.5 L1076 723.5 L1076 872.5 L1076 872.5 L1076 915 L1076 915 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M925.2 479.4 L916.7 480.6 L919.8 488.6 L911 477.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="513.5" y="13.5" height="153" width="467" data-name="PlanetGenerator" style="stroke:#33322E;fill:#66ee66;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="747" y="35" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PlanetGenerator">PlanetGenerator</text>
+  <text x="521.5" y="66" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">radius</text>
+  <text x="521.5" y="81" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">winCreator</text>
+  <text x="521.5" y="96" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">cubeformer: CubeFormer</text>
+  <text x="521.5" y="111" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">marchingCubes: MarchingCubes</text>
+  <text x="521.5" y="142" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">__init__(winCreator: WindowCreator, gridSize: int, radius: float):</text>
+  <text x="521.5" y="157" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">RegenPlanet()</text>
+  <path d="M513.5 44.5 L980.5 44.5" data-name="PlanetGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M513.5 120.5 L980.5 120.5" data-name="PlanetGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="583.5" y="206.5" height="348" width="328" data-name="MarchingCubes" style="stroke:#33322E;fill:#66ee66;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="747.5" y="228" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="MarchingCubes">MarchingCubes</text>
+  <text x="591.5" y="259" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">atomic: Texture</text>
+  <text x="591.5" y="274" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">edgeVertexBuffer: Texture</text>
+  <text x="591.5" y="289" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">triangleBuffer: Texture</text>
+  <text x="591.5" y="304" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">triangulationBuffer: Texture</text>
+  <text x="591.5" y="319" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">normalBuffer: Texture</text>
+  <text x="591.5" y="334" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">edgeBufferGeneratorNode: NodePath</text>
+  <text x="591.5" y="349" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">cubeMarchBufferGeneratorNode: NodePath</text>
+  <text x="591.5" y="364" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">geom: Geom</text>
+  <text x="591.5" y="379" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">geomPath: NodePath</text>
+  <text x="591.5" y="394" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">vertexCount: int</text>
+  <text x="591.5" y="409" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">cubeformer</text>
+  <text x="591.5" y="424" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">winCreator</text>
+  <text x="591.5" y="439" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">size</text>
+  <text x="591.5" y="454" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">cubeVertexBuffer</text>
+  <text x="591.5" y="469" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">edgeVertexCount: int</text>
+  <text x="591.5" y="500" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">__init__(cubeformer: CubeFormer):</text>
+  <text x="591.5" y="515" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">EdgeGenerator(): Texture</text>
+  <text x="591.5" y="530" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">MarchCube():</text>
+  <text x="591.5" y="545" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">GenerateMesh()</text>
+  <path d="M583.5 237.5 L911.5 237.5" data-name="MarchingCubes" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M583.5 478.5 L911.5 478.5" data-name="MarchingCubes" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="13.5" y="594.5" height="258" width="615" data-name="CubeFormer" style="stroke:#33322E;fill:#66ee66;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="321" y="616" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="CubeFormer">CubeFormer</text>
+  <text x="21.5" y="647" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+offset: PTAFloat</text>
+  <text x="21.5" y="662" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+radius: PTAFloat</text>
+  <text x="21.5" y="677" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+vertexBuffer: Texture</text>
+  <text x="21.5" y="692" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+winCreator: WindowCreator</text>
+  <text x="21.5" y="707" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+size: LVecBase3i</text>
+  <text x="21.5" y="722" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+spacing: float</text>
+  <text x="21.5" y="737" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+vertexCount: int</text>
+  <text x="21.5" y="752" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+mouseTime: PTAFloat</text>
+  <text x="21.5" y="767" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">-__alphaNoiseSphereComputeNode: NodePath</text>
+  <text x="21.5" y="782" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">-__cubeBufferCreatorComputeNode: NodePath</text>
+  <text x="21.5" y="813" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">__init__(winCreator: WindowCreator, width: int, length: int, height: int, spacing: float):</text>
+  <text x="21.5" y="828" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">GenerateCube(): Texture</text>
+  <text x="21.5" y="843" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">GenerateNoiseSphere(radius: float): Texture</text>
+  <path d="M13.5 625.5 L628.5 625.5" data-name="CubeFormer" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M13.5 791.5 L628.5 791.5" data-name="CubeFormer" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="84.5" y="892.5" height="198" width="230" data-name="AlphaNoiseSphere" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="199.5" y="914" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="AlphaNoiseSphere">AlphaNoiseSphere</text>
+  <text x="92.5" y="945" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">radius: float</text>
+  <text x="92.5" y="960" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">offset: float</text>
+  <text x="92.5" y="975" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">midPoint: vec3</text>
+  <text x="92.5" y="990" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">mouseTime: vec4</text>
+  <text x="92.5" y="1005" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">craterCount: int</text>
+  <text x="92.5" y="1020" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">vertexBufferWAlpha: image3D</text>
+  <text x="92.5" y="1051" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">rand(x: float): float</text>
+  <text x="92.5" y="1066" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">fractalNoise(point: vec3): float</text>
+  <text x="92.5" y="1081" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">main()</text>
+  <path d="M84.5 923.5 L314.5 923.5" data-name="AlphaNoiseSphere" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M84.5 1029.5 L314.5 1029.5" data-name="AlphaNoiseSphere" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="354.5" y="937.5" height="108" width="175" data-name="CubeBufferCreator" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="442" y="959" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="CubeBufferCreator">CubeBufferCreator</text>
+  <text x="362.5" y="990" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeBufferCreator">spacing: float</text>
+  <text x="362.5" y="1005" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeBufferCreator">vertexBuffer: image3D</text>
+  <text x="362.5" y="1036" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeBufferCreator">main()</text>
+  <path d="M354.5 968.5 L529.5 968.5" data-name="CubeBufferCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M354.5 1014.5 L529.5 1014.5" data-name="CubeBufferCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="612.5" y="892.5" height="198" width="269" data-name="CubeMarcher" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="747" y="914" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="CubeMarcher">CubeMarcher</text>
+  <text x="620.5" y="945" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">triagIndexBuffer: iimageBuffer</text>
+  <text x="620.5" y="960" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">triangulationBuffer: iimage2D</text>
+  <text x="620.5" y="975" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">vertexBufferWAlphaCube: image3D</text>
+  <text x="620.5" y="990" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">vertexBufferEdge: image3D</text>
+  <text x="620.5" y="1005" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">triangleBuffer: iimageBuffer</text>
+  <text x="620.5" y="1020" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">normalBuffer: imageBuffer</text>
+  <text x="620.5" y="1035" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">isoLevel: float</text>
+  <text x="620.5" y="1050" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">size: ivec3</text>
+  <text x="620.5" y="1081" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">main()</text>
+  <path d="M612.5 923.5 L881.5 923.5" data-name="CubeMarcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M612.5 1059.5 L881.5 1059.5" data-name="CubeMarcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="921.5" y="915.5" height="153" width="309" data-name="EdgeBufferGenerator" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="1076" y="937" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="EdgeBufferGenerator">EdgeBufferGenerator</text>
+  <text x="929.5" y="968" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">isoLevel: float</text>
+  <text x="929.5" y="983" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">size: ivec3</text>
+  <text x="929.5" y="998" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">vertexBufferWAlphaCube: image3D</text>
+  <text x="929.5" y="1013" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">vertexBufferEdge: image3D</text>
+  <text x="929.5" y="1044" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">interpolateVerts(v1: vec4, v2: vec4): vec3</text>
+  <text x="929.5" y="1059" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">main()</text>
+  <path d="M921.5 946.5 L1230.5 946.5" data-name="EdgeBufferGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M921.5 1022.5 L1230.5 1022.5" data-name="EdgeBufferGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+</svg>

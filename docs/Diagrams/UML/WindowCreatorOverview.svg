@@ -1,0 +1,210 @@
+<svg version="1.1" baseProfile="full" width="2487.75" height="960" viewbox="0 0 2487.75 960" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" style="font:normal normal 12pt Helvetica, Helvetica, sans-serif;;stroke-linejoin:round;stroke-linecap:round">
+  <title >nomnoml</title>
+  <desc >#.pipelinetools: fill=#82b2ff
+#.pipelineswitch: fill=#6090ee
+#.planetformers: fill=#66ee66
+#.gamescripts: fill=#ee6666
+#.shaders: fill=#eeee66 dashed
+#ranker:longest-path
+
+[&lt;pipelinetools&gt;WindowCreator|
+enableRP: bool
+isFullscreen: bool
+base: ShowBase
+baseData: ShowBaseData
+pipelineSwitcher: PipelineSwitcher|
+-__EnableDebugEventSystem()
+-__HandleDebugKeys(key: str)
+-__UpdateWindow()
++UpdateWindow(isFullscreen, enableRP)
+]
+
+[WindowCreator]1 +- 1[ShowBaseData]
+
+[&lt;pipelinetools&gt;ShowBaseData|
+debuggerMain: Debugger
+debuggerPlanetFormer: Debugger
+base: ShowBase|
+StartDebugRunner()
+RunDebuggers(task: Task.Task)]
+
+[ShowBaseData]1+-2[Debugger]
+
+[&lt;pipelinetools&gt;Debugger|
+name: str
+queue: List(DebugMsgPacket)
+debugLevel: int|
+__init__(name: str, debugLevel: int):
+__init__(name: str)
+SetDebugLevel(val: int)
+__AddMsgToQueue(self, msg: str)
+__AddMsgToQueue(msg: str, level: int)
+Message(msg: str)
+Inform(msg: str)
+Warning(msg: str)
+Error(msg: str)
+Run():
+LogBuffer4VecInfo(base: ShowBase, buffer: Texture)
+]
+
+[Debugger]1+-0..*[DebugMsgPacket]
+
+[&lt;pipelinetools&gt;DebugMsgPacket|
+msg: str
+level: int]
+
+[WindowCreator]1+-1[PipelineSwitcher]
+
+[&lt;pipelineswitch&gt;PipelineSwitcher|
+pipelineMode: PipelineMode
+shaderManager: List(ShadersHolder)
+|
+__init__(self, winCreator: WindowCreator):
+UpdateShaders()
+UpdateShaders(shadersHolder: ShadersHolder)
+AddModelWithShaderGeneralName(modelToApplyOn, shaderName)
+AddModelWithShader(modelToApplyOn, fragmentShader, vertexShader, hdrpShaderModel)
+]
+
+[PipelineSwitcher]1+-1[PipelineMode]
+
+[&lt;pipelineswitch&gt;PipelineMode|
+HDRP
+DEFAULTRP]
+
+[PipelineSwitcher]1+-0..*[ShadersHolder]
+
+[&lt;pipelineswitch&gt;ShadersHolder|
+    fragmentShader: Filename
+    vertexShader: Filename
+    hdrpShaderModel: Filename
+    modelToApplyOn: Union(List(Optional(NodePath)), NodePath, None, Loader._Callback)
+]
+
+[WindowCreator]&lt;-[PipelineInstancing]
+
+[&lt;pipelineswitch&gt;PipelineInstancing|
+|
++RenderThisModelAtMatrices(modelToApplyOn, matrices: List(LMatrix4f), winCreator: WindowCreator.WindowCreator): Texture
++RenderThisModelAtVertexes(modelToApplyOn, vertexes: List(LVector3f), winCreator: WindowCreator.WindowCreator): Texture
++RenderThisModelAtVertexesFromBuffer(modelToApplyOn, buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator): Texture
++RenderThisModelAtVertexesFrom3DBuffer(modelToApplyOn, buffer: Texture, vertexCount: PTAInt, winCreator: WindowCreator.WindowCreator): Texture
+-__LoadBufferWithMatrices(matrices: List(LMatrix4f)): Texture
+-__LoadBufferWithVertexes(vertexes: List(LVector3f)): Texture
+-__AddMatrixBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)
+-__AddVertexBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)
+-__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer_texture: Texture, instanceCount: PTAInt, winCreator: WindowCreator.WindowCreator)
+-__DefineBoundingBox(modelToApplyOn)
+]
+
+</desc>
+  <rect x="0" y="0" height="960" width="2487.75" style="stroke:none; fill:transparent;"></rect>
+  <text x="641" y="164.2" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="191.1" y="243.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M633 144.2 L208 231.5 L208 251.5 L208 251.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M624.9 151.3 L614.7 148 L622.8 140.9 L633 144.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="216" y="409.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="191.1" y="421.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">2</text>
+  <path d="M208 389.5 L208 409.5 L208 429.5 L208 429.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M213.3 398.8 L208 408.2 L202.7 398.8 L208 389.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="216" y="722.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="176" y="798.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">0..*</text>
+  <path d="M208 702.5 L208 722.5 L208 806.5 L208 806.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M213.3 711.8 L208 721.2 L202.7 711.8 L208 702.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="795.5" y="231.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="770.6" y="474" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M787.5 211.5 L787.5 231.5 L787.5 320.5 L787.5 320.5 L787.5 409.5 L787.5 409.5 L787.5 482 L787.5 482 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M792.8 220.8 L787.5 230.2 L782.2 220.8 L787.5 211.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="683.5" y="670" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="561.9" y="798.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M675.5 650 L578.8 722.5 L578.8 806.5 L578.8 806.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M671.2 659.9 L660.5 661.2 L664.8 651.3 L675.5 650 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="882.6" y="670" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="1004.3" y="783.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">0..*</text>
+  <path d="M899.5 650 L996.3 722.5 L996.3 791.5 L996.3 791.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M910.2 651.3 L914.5 661.2 L903.8 659.9 L899.5 650 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M942 128.8 L1914.8 231.5 L1914.8 320.5 L1914.8 320.5 L1914.8 409.5 L1914.8 409.5 L1914.8 566 L1914.8 566 L1914.8 722.5 L1914.8 722.5 L1914.8 742.5 L1914.8 742.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M955.8 124.9 L948.6 129.5 L954.7 135.5 L942 128.8 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="633.5" y="13.5" height="198" width="309" data-name="WindowCreator" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="788" y="35" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="WindowCreator">WindowCreator</text>
+  <text x="641.5" y="66" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">enableRP: bool</text>
+  <text x="641.5" y="81" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">isFullscreen: bool</text>
+  <text x="641.5" y="96" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">base: ShowBase</text>
+  <text x="641.5" y="111" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">baseData: ShowBaseData</text>
+  <text x="641.5" y="126" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">pipelineSwitcher: PipelineSwitcher</text>
+  <text x="641.5" y="157" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">-__EnableDebugEventSystem()</text>
+  <text x="641.5" y="172" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">-__HandleDebugKeys(key: str)</text>
+  <text x="641.5" y="187" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">-__UpdateWindow()</text>
+  <text x="641.5" y="202" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">+UpdateWindow(isFullscreen, enableRP)</text>
+  <path d="M633.5 44.5 L942.5 44.5" data-name="WindowCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M633.5 135.5 L942.5 135.5" data-name="WindowCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="78.5" y="251.5" height="138" width="260" data-name="ShowBaseData" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="208.5" y="273" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="ShowBaseData">ShowBaseData</text>
+  <text x="86.5" y="304" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">debuggerMain: Debugger</text>
+  <text x="86.5" y="319" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">debuggerPlanetFormer: Debugger</text>
+  <text x="86.5" y="334" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">base: ShowBase</text>
+  <text x="86.5" y="365" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">StartDebugRunner()</text>
+  <text x="86.5" y="380" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">RunDebuggers(task: Task.Task)</text>
+  <path d="M78.5 282.5 L338.5 282.5" data-name="ShowBaseData" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M78.5 343.5 L338.5 343.5" data-name="ShowBaseData" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="13.5" y="429.5" height="273" width="389" data-name="Debugger" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="208" y="451" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="Debugger">Debugger</text>
+  <text x="21.5" y="482" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">name: str</text>
+  <text x="21.5" y="497" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">queue: List(DebugMsgPacket)</text>
+  <text x="21.5" y="512" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">debugLevel: int</text>
+  <text x="21.5" y="543" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__init__(name: str, debugLevel: int):</text>
+  <text x="21.5" y="558" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__init__(name: str)</text>
+  <text x="21.5" y="573" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">SetDebugLevel(val: int)</text>
+  <text x="21.5" y="588" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__AddMsgToQueue(self, msg: str)</text>
+  <text x="21.5" y="603" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__AddMsgToQueue(msg: str, level: int)</text>
+  <text x="21.5" y="618" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Message(msg: str)</text>
+  <text x="21.5" y="633" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Inform(msg: str)</text>
+  <text x="21.5" y="648" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Warning(msg: str)</text>
+  <text x="21.5" y="663" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Error(msg: str)</text>
+  <text x="21.5" y="678" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Run():</text>
+  <text x="21.5" y="693" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">LogBuffer4VecInfo(base: ShowBase, buffer: Texture)</text>
+  <path d="M13.5 460.5 L402.5 460.5" data-name="Debugger" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M13.5 521.5 L402.5 521.5" data-name="Debugger" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="454.5" y="482.5" height="168" width="666" data-name="PipelineSwitcher" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="787.5" y="504" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PipelineSwitcher">PipelineSwitcher</text>
+  <text x="462.5" y="535" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">pipelineMode: PipelineMode</text>
+  <text x="462.5" y="550" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">shaderManager: List(ShadersHolder)</text>
+  <text x="462.5" y="581" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">__init__(self, winCreator: WindowCreator):</text>
+  <text x="462.5" y="596" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">UpdateShaders()</text>
+  <text x="462.5" y="611" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">UpdateShaders(shadersHolder: ShadersHolder)</text>
+  <text x="462.5" y="626" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">AddModelWithShaderGeneralName(modelToApplyOn, shaderName)</text>
+  <text x="462.5" y="641" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">AddModelWithShader(modelToApplyOn, fragmentShader, vertexShader, hdrpShaderModel)</text>
+  <path d="M454.5 513.5 L1120.5 513.5" data-name="PipelineSwitcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M454.5 559.5 L1120.5 559.5" data-name="PipelineSwitcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="1354.5" y="742.5" height="205" width="1121" data-name="PipelineInstancing" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="1915" y="764" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PipelineInstancing">PipelineInstancing</text>
+  <text x="1362.5" y="803" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtMatrices(modelToApplyOn, matrices: List(LMatrix4f), winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="818" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtVertexes(modelToApplyOn, vertexes: List(LVector3f), winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="833" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtVertexesFromBuffer(modelToApplyOn, buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="848" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtVertexesFrom3DBuffer(modelToApplyOn, buffer: Texture, vertexCount: PTAInt, winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="863" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__LoadBufferWithMatrices(matrices: List(LMatrix4f)): Texture</text>
+  <text x="1362.5" y="878" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__LoadBufferWithVertexes(vertexes: List(LVector3f)): Texture</text>
+  <text x="1362.5" y="893" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__AddMatrixBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)</text>
+  <text x="1362.5" y="908" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__AddVertexBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)</text>
+  <text x="1362.5" y="923" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer_texture: Texture, instanceCount: PTAInt, winCreator: WindowCreator.WindowCreator)</text>
+  <text x="1362.5" y="938" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__DefineBoundingBox(modelToApplyOn)</text>
+  <path d="M1354.5 773.5 L2475.5 773.5" data-name="PipelineInstancing" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M1354.5 781.5 L2475.5 781.5" data-name="PipelineInstancing" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="133.5" y="806.5" height="77" width="149" data-name="DebugMsgPacket" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="208" y="828" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="DebugMsgPacket">DebugMsgPacket</text>
+  <text x="141.5" y="859" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="DebugMsgPacket">msg: str</text>
+  <text x="141.5" y="874" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="DebugMsgPacket">level: int</text>
+  <path d="M133.5 837.5 L282.5 837.5" data-name="DebugMsgPacket" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="519.5" y="806.5" height="77" width="119" data-name="PipelineMode" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="579" y="828" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PipelineMode">PipelineMode</text>
+  <text x="527.5" y="859" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineMode">HDRP</text>
+  <text x="527.5" y="874" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineMode">DEFAULTRP</text>
+  <path d="M519.5 837.5 L638.5 837.5" data-name="PipelineMode" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="678.5" y="791.5" height="107" width="636" data-name="ShadersHolder" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="996.5" y="813" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="ShadersHolder">ShadersHolder</text>
+  <text x="686.5" y="844" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">fragmentShader: Filename</text>
+  <text x="686.5" y="859" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">vertexShader: Filename</text>
+  <text x="686.5" y="874" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">hdrpShaderModel: Filename</text>
+  <text x="686.5" y="889" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">modelToApplyOn: Union(List(Optional(NodePath)), NodePath, None, Loader._Callback)</text>
+  <path d="M678.5 822.5 L1314.5 822.5" data-name="ShadersHolder" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+</svg>
