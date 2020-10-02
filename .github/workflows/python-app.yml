@@ -29,7 +29,7 @@ jobs:
       run: |
         python setup.py bdist_apps
         echo 'YASS<<EOF' >> $GITHUB_ENV
-        date >> $GITHUB_ENV
+        date +"%d-%m-%y" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
     - name: Create Release
       id: create_release
