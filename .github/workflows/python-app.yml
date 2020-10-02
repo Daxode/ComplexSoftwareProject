@@ -31,14 +31,16 @@ jobs:
         echo 'DATE<<EOF' >> $GITHUB_ENV
         date +"%d-%m-%y" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
+        echo 'VERSION<<EOF' >> $GITHUB_ENV
+        python version.py >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: v0.0.1
       with:
-        tag_name: ${{env.VERSION}} ${{env.DATE}}
+        tag_name: ${{env.VERSION}}${{env.DATE}}
         release_name: Release ${{env.VERSION}} ${{env.DATE}}
         draft: false
         prerelease: true
