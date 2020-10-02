@@ -1,0 +1,446 @@
+<svg version="1.1" baseProfile="full" width="3673.5" height="1378" viewbox="0 0 3673.5 1378" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" style="font:normal normal 12pt Helvetica, Helvetica, sans-serif;;stroke-linejoin:round;stroke-linecap:round">
+  <title >nomnoml</title>
+  <desc >#.pipelinetools: fill=#82b2ff
+#.pipelineswitch: fill=#6090ee
+#.planetformers: fill=#66ee66
+#.gamescripts: fill=#ee6666
+#.shaders: fill=#eeee66 dashed
+#ranker:longest-path
+
+[Main|
+winCreator: WindowCreator
+render: Nodepath
+loader: Loader
+taskMgr: TaskManager
+camera
+planet: PlanetFormer|
+SpinCameraTask(): int
+]
+
+[Main]1+-1[WindowCreator]
+
+[&lt;pipelinetools&gt;WindowCreator|
+enableRP: bool
+isFullscreen: bool
+base: ShowBase
+baseData: ShowBaseData
+pipelineSwitcher: PipelineSwitcher|
+-__EnableDebugEventSystem()
+-__HandleDebugKeys(key: str)
+-__UpdateWindow()
++UpdateWindow(isFullscreen, enableRP)
+]
+
+[WindowCreator]1 +- 1[ShowBaseData]
+
+[&lt;pipelinetools&gt;ShowBaseData|
+debuggerMain: Debugger
+debuggerPlanetFormer: Debugger
+base: ShowBase|
+StartDebugRunner()
+RunDebuggers(task: Task.Task)]
+
+[ShowBaseData]1+-2[Debugger]
+
+[&lt;pipelinetools&gt;Debugger|
+name: str
+queue: List(DebugMsgPacket)
+debugLevel: int|
+__init__(name: str, debugLevel: int):
+__init__(name: str)
+SetDebugLevel(val: int)
+__AddMsgToQueue(self, msg: str)
+__AddMsgToQueue(msg: str, level: int)
+Message(msg: str)
+Inform(msg: str)
+Warning(msg: str)
+Error(msg: str)
+Run():
+LogBuffer4VecInfo(base: ShowBase, buffer: Texture)
+]
+
+[Debugger]1+-0..*[DebugMsgPacket]
+
+[&lt;pipelinetools&gt;DebugMsgPacket|
+msg: str
+level: int]
+
+[WindowCreator]1+-1[PipelineSwitcher]
+
+[&lt;pipelineswitch&gt;PipelineSwitcher|
+pipelineMode: PipelineMode
+shaderManager: List(ShadersHolder)
+|
+__init__(self, winCreator: WindowCreator):
+UpdateShaders()
+UpdateShaders(shadersHolder: ShadersHolder)
+AddModelWithShaderGeneralName(modelToApplyOn, shaderName)
+AddModelWithShader(modelToApplyOn, fragmentShader, vertexShader, hdrpShaderModel)
+]
+
+[PipelineSwitcher]1+-1[PipelineMode]
+
+[&lt;pipelineswitch&gt;PipelineMode|
+HDRP
+DEFAULTRP]
+
+[PipelineSwitcher]1+-0..*[ShadersHolder]
+
+[&lt;pipelineswitch&gt;ShadersHolder|
+    fragmentShader: Filename
+    vertexShader: Filename
+    hdrpShaderModel: Filename
+    modelToApplyOn: Union(List(Optional(NodePath)), NodePath, None, Loader._Callback)
+]
+
+[WindowCreator]&lt;-[PipelineInstancing]
+
+[&lt;pipelineswitch&gt;PipelineInstancing|
+|
++RenderThisModelAtMatrices(modelToApplyOn, matrices: List(LMatrix4f), winCreator: WindowCreator.WindowCreator): Texture
++RenderThisModelAtVertexes(modelToApplyOn, vertexes: List(LVector3f), winCreator: WindowCreator.WindowCreator): Texture
++RenderThisModelAtVertexesFromBuffer(modelToApplyOn, buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator): Texture
++RenderThisModelAtVertexesFrom3DBuffer(modelToApplyOn, buffer: Texture, vertexCount: PTAInt, winCreator: WindowCreator.WindowCreator): Texture
+-__LoadBufferWithMatrices(matrices: List(LMatrix4f)): Texture
+-__LoadBufferWithVertexes(vertexes: List(LVector3f)): Texture
+-__AddMatrixBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)
+-__AddVertexBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)
+-__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer_texture: Texture, instanceCount: PTAInt, winCreator: WindowCreator.WindowCreator)
+-__DefineBoundingBox(modelToApplyOn)
+]
+
+[Main]+-[PlanetGenerator]
+
+[&lt;planetformers&gt;PlanetGenerator|
+radius
+winCreator
+cubeformer: CubeFormer
+marchingCubes: MarchingCubes
+|
+__init__(winCreator: WindowCreator, gridSize: int, radius: float):
+RegenPlanet()]
+
+[PlanetGenerator]+-[MarchingCubes]
+
+[&lt;planetformers&gt;MarchingCubes|
+atomic: Texture
+edgeVertexBuffer: Texture
+triangleBuffer: Texture
+triangulationBuffer: Texture
+normalBuffer: Texture
+edgeBufferGeneratorNode: NodePath
+cubeMarchBufferGeneratorNode: NodePath
+geom: Geom
+geomPath: NodePath
+vertexCount: int
+cubeformer
+winCreator
+size
+cubeVertexBuffer
+edgeVertexCount: int
+|
+__init__(cubeformer: CubeFormer):
+EdgeGenerator(): Texture
+MarchCube():
+GenerateMesh()
+]
+
+[MarchingCubes]+-[CubeFormer]
+
+[&lt;planetformers&gt;CubeFormer|
++offset: PTAFloat
++radius: PTAFloat
++vertexBuffer: Texture
++winCreator: WindowCreator
++size: LVecBase3i
++spacing: float
++vertexCount: int
++mouseTime: PTAFloat
+-__alphaNoiseSphereComputeNode: NodePath
+-__cubeBufferCreatorComputeNode: NodePath
+|
+__init__(winCreator: WindowCreator, width: int, length: int, height: int, spacing: float):
+GenerateCube(): Texture
+GenerateNoiseSphere(radius: float): Texture
+]
+
+[&lt;shaders&gt;AlphaNoiseSphere|
+radius: float
+offset: float
+midPoint: vec3
+mouseTime: vec4
+craterCount: int
+vertexBufferWAlpha: image3D
+|
+rand(x: float): float
+fractalNoise(point: vec3): float
+main()
+]
+
+[&lt;shaders&gt;CubeBufferCreator|
+spacing: float
+vertexBuffer: image3D
+|
+main()
+]
+
+[&lt;shaders&gt;CubeMarcher|
+triagIndexBuffer: iimageBuffer
+triangulationBuffer: iimage2D
+vertexBufferWAlphaCube: image3D
+vertexBufferEdge: image3D
+triangleBuffer: iimageBuffer
+normalBuffer: imageBuffer
+isoLevel: float
+size: ivec3
+|
+main()
+]
+
+[&lt;shaders&gt;EdgeBufferGenerator|
+isoLevel: float
+size: ivec3
+vertexBufferWAlphaCube: image3D
+vertexBufferEdge: image3D
+
+|
+interpolateVerts(v1: vec4, v2: vec4): vec3
+main()
+]
+
+[CubeFormer]&lt;--[AlphaNoiseSphere]
+[CubeFormer]&lt;--[CubeBufferCreator]
+[MarchingCubes]&lt;--[CubeMarcher]
+[MarchingCubes]&lt;--[EdgeBufferGenerator]</desc>
+  <rect x="0" y="0" height="1378" width="3673.5" style="stroke:none; fill:transparent;"></rect>
+  <text x="1801" y="127.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="770.6" y="213.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M1793 107.5 L787.5 201.5 L787.5 221.5 L787.5 221.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M1784.2 113.6 L1774.4 109.2 L1783.2 103 L1793 107.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="641" y="372.2" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="191.1" y="556.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M633 352.2 L208 439.5 L208 564.5 L208 564.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M624.9 359.3 L614.7 356 L622.8 348.9 L633 352.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="216" y="722.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="191.1" y="839.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">2</text>
+  <path d="M208 702.5 L208 827.5 L208 847.5 L208 847.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M213.3 711.8 L208 721.2 L202.7 711.8 L208 702.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="216" y="1140.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="176" y="1216.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">0..*</text>
+  <path d="M208 1120.5 L208 1140.5 L208 1224.5 L208 1224.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M213.3 1129.8 L208 1139.2 L202.7 1129.8 L208 1120.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="795.5" y="439.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="770.6" y="892" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M787.5 419.5 L787.5 439.5 L787.5 633.5 L787.5 633.5 L787.5 827.5 L787.5 827.5 L787.5 900 L787.5 900 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M792.8 428.8 L787.5 438.2 L782.2 428.8 L787.5 419.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="683.5" y="1088" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="561.9" y="1216.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <path d="M675.5 1068 L578.8 1140.5 L578.8 1224.5 L578.8 1224.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M671.2 1077.9 L660.5 1079.2 L664.8 1069.3 L675.5 1068 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <text x="882.6" y="1088" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">1</text>
+  <text x="1004.3" y="1201.5" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;">0..*</text>
+  <path d="M899.5 1068 L996.3 1140.5 L996.3 1209.5 L996.3 1209.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M910.2 1069.3 L914.5 1079.2 L903.8 1077.9 L899.5 1068 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M942 336.8 L1914.8 439.5 L1914.8 633.5 L1914.8 633.5 L1914.8 827.5 L1914.8 827.5 L1914.8 984 L1914.8 984 L1914.8 1140.5 L1914.8 1140.5 L1914.8 1160.5 L1914.8 1160.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M955.8 332.9 L948.6 337.5 L954.7 343.5 L942 336.8 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2006 106.2 L3177.5 201.5 L3177.5 244 L3177.5 244 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2015.7 101.6 L2024.6 107.7 L2014.9 112.2 L2006 106.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3177.5 397 L3177.5 439.5 L3177.5 459.5 L3177.5 459.5 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3182.8 406.3 L3177.5 415.7 L3172.2 406.3 L3177.5 397 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3013.5 708.2 L2751.5 827.5 L2751.5 855 L2751.5 855 " style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3007.2 716.9 L2996.5 715.9 L3002.8 707.2 L3013.5 708.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2651.6 1113 L2630.3 1140.5 L2630.3 1164 L2630.3 1164 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M2647.6 1126.8 L2647.5 1118.3 L2639.2 1120.3 L2651.6 1113 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2851.4 1113 L2872.8 1140.5 L2872.8 1209 L2872.8 1209 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M2863.8 1120.3 L2855.5 1118.3 L2855.4 1126.8 L2851.4 1113 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3177.5 807.5 L3177.5 827.5 L3177.5 984 L3177.5 984 L3177.5 1140.5 L3177.5 1140.5 L3177.5 1164 L3177.5 1164 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M3182.8 820.8 L3177.5 814.2 L3172.2 820.8 L3177.5 807.5 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3341.5 730.2 L3506.5 827.5 L3506.5 984 L3506.5 984 L3506.5 1140.5 L3506.5 1140.5 L3506.5 1186.5 L3506.5 1186.5 " style="stroke:#33322E;fill:none;stroke-dasharray:6 6;stroke-width:3;"></path>
+  <path d="M3355.7 732.4 L3347.2 733.6 L3350.3 741.6 L3341.5 730.2 Z" style="stroke:#33322E;fill:#33322E;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="1793.5" y="13.5" height="168" width="213" data-name="Main" style="stroke:#33322E;fill:#eee8d5;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="1900" y="35" style="fill: #33322E;font:bold  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="Main">Main</text>
+  <text x="1801.5" y="66" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">winCreator: WindowCreator</text>
+  <text x="1801.5" y="81" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">render: Nodepath</text>
+  <text x="1801.5" y="96" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">loader: Loader</text>
+  <text x="1801.5" y="111" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">taskMgr: TaskManager</text>
+  <text x="1801.5" y="126" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">camera</text>
+  <text x="1801.5" y="141" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">planet: PlanetFormer</text>
+  <text x="1801.5" y="172" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Main">SpinCameraTask(): int</text>
+  <path d="M1793.5 44.5 L2006.5 44.5" data-name="Main" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M1793.5 150.5 L2006.5 150.5" data-name="Main" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="633.5" y="221.5" height="198" width="309" data-name="WindowCreator" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="788" y="243" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="WindowCreator">WindowCreator</text>
+  <text x="641.5" y="274" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">enableRP: bool</text>
+  <text x="641.5" y="289" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">isFullscreen: bool</text>
+  <text x="641.5" y="304" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">base: ShowBase</text>
+  <text x="641.5" y="319" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">baseData: ShowBaseData</text>
+  <text x="641.5" y="334" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">pipelineSwitcher: PipelineSwitcher</text>
+  <text x="641.5" y="365" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">-__EnableDebugEventSystem()</text>
+  <text x="641.5" y="380" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">-__HandleDebugKeys(key: str)</text>
+  <text x="641.5" y="395" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">-__UpdateWindow()</text>
+  <text x="641.5" y="410" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="WindowCreator">+UpdateWindow(isFullscreen, enableRP)</text>
+  <path d="M633.5 252.5 L942.5 252.5" data-name="WindowCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M633.5 343.5 L942.5 343.5" data-name="WindowCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="78.5" y="564.5" height="138" width="260" data-name="ShowBaseData" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="208.5" y="586" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="ShowBaseData">ShowBaseData</text>
+  <text x="86.5" y="617" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">debuggerMain: Debugger</text>
+  <text x="86.5" y="632" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">debuggerPlanetFormer: Debugger</text>
+  <text x="86.5" y="647" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">base: ShowBase</text>
+  <text x="86.5" y="678" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">StartDebugRunner()</text>
+  <text x="86.5" y="693" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShowBaseData">RunDebuggers(task: Task.Task)</text>
+  <path d="M78.5 595.5 L338.5 595.5" data-name="ShowBaseData" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M78.5 656.5 L338.5 656.5" data-name="ShowBaseData" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="13.5" y="847.5" height="273" width="389" data-name="Debugger" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="208" y="869" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="Debugger">Debugger</text>
+  <text x="21.5" y="900" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">name: str</text>
+  <text x="21.5" y="915" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">queue: List(DebugMsgPacket)</text>
+  <text x="21.5" y="930" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">debugLevel: int</text>
+  <text x="21.5" y="961" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__init__(name: str, debugLevel: int):</text>
+  <text x="21.5" y="976" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__init__(name: str)</text>
+  <text x="21.5" y="991" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">SetDebugLevel(val: int)</text>
+  <text x="21.5" y="1006" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__AddMsgToQueue(self, msg: str)</text>
+  <text x="21.5" y="1021" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">__AddMsgToQueue(msg: str, level: int)</text>
+  <text x="21.5" y="1036" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Message(msg: str)</text>
+  <text x="21.5" y="1051" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Inform(msg: str)</text>
+  <text x="21.5" y="1066" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Warning(msg: str)</text>
+  <text x="21.5" y="1081" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Error(msg: str)</text>
+  <text x="21.5" y="1096" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">Run():</text>
+  <text x="21.5" y="1111" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="Debugger">LogBuffer4VecInfo(base: ShowBase, buffer: Texture)</text>
+  <path d="M13.5 878.5 L402.5 878.5" data-name="Debugger" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M13.5 939.5 L402.5 939.5" data-name="Debugger" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="454.5" y="900.5" height="168" width="666" data-name="PipelineSwitcher" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="787.5" y="922" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PipelineSwitcher">PipelineSwitcher</text>
+  <text x="462.5" y="953" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">pipelineMode: PipelineMode</text>
+  <text x="462.5" y="968" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">shaderManager: List(ShadersHolder)</text>
+  <text x="462.5" y="999" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">__init__(self, winCreator: WindowCreator):</text>
+  <text x="462.5" y="1014" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">UpdateShaders()</text>
+  <text x="462.5" y="1029" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">UpdateShaders(shadersHolder: ShadersHolder)</text>
+  <text x="462.5" y="1044" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">AddModelWithShaderGeneralName(modelToApplyOn, shaderName)</text>
+  <text x="462.5" y="1059" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineSwitcher">AddModelWithShader(modelToApplyOn, fragmentShader, vertexShader, hdrpShaderModel)</text>
+  <path d="M454.5 931.5 L1120.5 931.5" data-name="PipelineSwitcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M454.5 977.5 L1120.5 977.5" data-name="PipelineSwitcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="1354.5" y="1160.5" height="205" width="1121" data-name="PipelineInstancing" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="1915" y="1182" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PipelineInstancing">PipelineInstancing</text>
+  <text x="1362.5" y="1221" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtMatrices(modelToApplyOn, matrices: List(LMatrix4f), winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="1236" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtVertexes(modelToApplyOn, vertexes: List(LVector3f), winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="1251" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtVertexesFromBuffer(modelToApplyOn, buffer: Texture, vertexCount: int, winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="1266" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">+RenderThisModelAtVertexesFrom3DBuffer(modelToApplyOn, buffer: Texture, vertexCount: PTAInt, winCreator: WindowCreator.WindowCreator): Texture</text>
+  <text x="1362.5" y="1281" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__LoadBufferWithMatrices(matrices: List(LMatrix4f)): Texture</text>
+  <text x="1362.5" y="1296" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__LoadBufferWithVertexes(vertexes: List(LVector3f)): Texture</text>
+  <text x="1362.5" y="1311" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__AddMatrixBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)</text>
+  <text x="1362.5" y="1326" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__AddVertexBasedInstanceShader(modelToApplyOn, buffer_texture: Texture, instanceCount: int, winCreator: WindowCreator.WindowCreator)</text>
+  <text x="1362.5" y="1341" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__AddVertexBasedInstance3DBufferShader(modelToApplyOn, buffer_texture: Texture, instanceCount: PTAInt, winCreator: WindowCreator.WindowCreator)</text>
+  <text x="1362.5" y="1356" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineInstancing">-__DefineBoundingBox(modelToApplyOn)</text>
+  <path d="M1354.5 1191.5 L2475.5 1191.5" data-name="PipelineInstancing" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M1354.5 1199.5 L2475.5 1199.5" data-name="PipelineInstancing" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="2944.5" y="244.5" height="153" width="467" data-name="PlanetGenerator" style="stroke:#33322E;fill:#66ee66;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="3178" y="266" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PlanetGenerator">PlanetGenerator</text>
+  <text x="2952.5" y="297" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">radius</text>
+  <text x="2952.5" y="312" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">winCreator</text>
+  <text x="2952.5" y="327" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">cubeformer: CubeFormer</text>
+  <text x="2952.5" y="342" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">marchingCubes: MarchingCubes</text>
+  <text x="2952.5" y="373" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">__init__(winCreator: WindowCreator, gridSize: int, radius: float):</text>
+  <text x="2952.5" y="388" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PlanetGenerator">RegenPlanet()</text>
+  <path d="M2944.5 275.5 L3411.5 275.5" data-name="PlanetGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2944.5 351.5 L3411.5 351.5" data-name="PlanetGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="3013.5" y="459.5" height="348" width="328" data-name="MarchingCubes" style="stroke:#33322E;fill:#66ee66;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="3177.5" y="481" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="MarchingCubes">MarchingCubes</text>
+  <text x="3021.5" y="512" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">atomic: Texture</text>
+  <text x="3021.5" y="527" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">edgeVertexBuffer: Texture</text>
+  <text x="3021.5" y="542" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">triangleBuffer: Texture</text>
+  <text x="3021.5" y="557" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">triangulationBuffer: Texture</text>
+  <text x="3021.5" y="572" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">normalBuffer: Texture</text>
+  <text x="3021.5" y="587" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">edgeBufferGeneratorNode: NodePath</text>
+  <text x="3021.5" y="602" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">cubeMarchBufferGeneratorNode: NodePath</text>
+  <text x="3021.5" y="617" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">geom: Geom</text>
+  <text x="3021.5" y="632" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">geomPath: NodePath</text>
+  <text x="3021.5" y="647" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">vertexCount: int</text>
+  <text x="3021.5" y="662" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">cubeformer</text>
+  <text x="3021.5" y="677" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">winCreator</text>
+  <text x="3021.5" y="692" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">size</text>
+  <text x="3021.5" y="707" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">cubeVertexBuffer</text>
+  <text x="3021.5" y="722" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">edgeVertexCount: int</text>
+  <text x="3021.5" y="753" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">__init__(cubeformer: CubeFormer):</text>
+  <text x="3021.5" y="768" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">EdgeGenerator(): Texture</text>
+  <text x="3021.5" y="783" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">MarchCube():</text>
+  <text x="3021.5" y="798" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="MarchingCubes">GenerateMesh()</text>
+  <path d="M3013.5 490.5 L3341.5 490.5" data-name="MarchingCubes" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3013.5 731.5 L3341.5 731.5" data-name="MarchingCubes" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="2444.5" y="855.5" height="258" width="615" data-name="CubeFormer" style="stroke:#33322E;fill:#66ee66;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="2752" y="877" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="CubeFormer">CubeFormer</text>
+  <text x="2452.5" y="908" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+offset: PTAFloat</text>
+  <text x="2452.5" y="923" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+radius: PTAFloat</text>
+  <text x="2452.5" y="938" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+vertexBuffer: Texture</text>
+  <text x="2452.5" y="953" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+winCreator: WindowCreator</text>
+  <text x="2452.5" y="968" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+size: LVecBase3i</text>
+  <text x="2452.5" y="983" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+spacing: float</text>
+  <text x="2452.5" y="998" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+vertexCount: int</text>
+  <text x="2452.5" y="1013" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">+mouseTime: PTAFloat</text>
+  <text x="2452.5" y="1028" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">-__alphaNoiseSphereComputeNode: NodePath</text>
+  <text x="2452.5" y="1043" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">-__cubeBufferCreatorComputeNode: NodePath</text>
+  <text x="2452.5" y="1074" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">__init__(winCreator: WindowCreator, width: int, length: int, height: int, spacing: float):</text>
+  <text x="2452.5" y="1089" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">GenerateCube(): Texture</text>
+  <text x="2452.5" y="1104" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeFormer">GenerateNoiseSphere(radius: float): Texture</text>
+  <path d="M2444.5 886.5 L3059.5 886.5" data-name="CubeFormer" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2444.5 1052.5 L3059.5 1052.5" data-name="CubeFormer" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="2515.5" y="1164.5" height="198" width="230" data-name="AlphaNoiseSphere" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="2630.5" y="1186" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="AlphaNoiseSphere">AlphaNoiseSphere</text>
+  <text x="2523.5" y="1217" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">radius: float</text>
+  <text x="2523.5" y="1232" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">offset: float</text>
+  <text x="2523.5" y="1247" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">midPoint: vec3</text>
+  <text x="2523.5" y="1262" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">mouseTime: vec4</text>
+  <text x="2523.5" y="1277" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">craterCount: int</text>
+  <text x="2523.5" y="1292" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">vertexBufferWAlpha: image3D</text>
+  <text x="2523.5" y="1323" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">rand(x: float): float</text>
+  <text x="2523.5" y="1338" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">fractalNoise(point: vec3): float</text>
+  <text x="2523.5" y="1353" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="AlphaNoiseSphere">main()</text>
+  <path d="M2515.5 1195.5 L2745.5 1195.5" data-name="AlphaNoiseSphere" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2515.5 1301.5 L2745.5 1301.5" data-name="AlphaNoiseSphere" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="2785.5" y="1209.5" height="108" width="175" data-name="CubeBufferCreator" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="2873" y="1231" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="CubeBufferCreator">CubeBufferCreator</text>
+  <text x="2793.5" y="1262" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeBufferCreator">spacing: float</text>
+  <text x="2793.5" y="1277" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeBufferCreator">vertexBuffer: image3D</text>
+  <text x="2793.5" y="1308" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeBufferCreator">main()</text>
+  <path d="M2785.5 1240.5 L2960.5 1240.5" data-name="CubeBufferCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M2785.5 1286.5 L2960.5 1286.5" data-name="CubeBufferCreator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="3043.5" y="1164.5" height="198" width="269" data-name="CubeMarcher" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="3178" y="1186" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="CubeMarcher">CubeMarcher</text>
+  <text x="3051.5" y="1217" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">triagIndexBuffer: iimageBuffer</text>
+  <text x="3051.5" y="1232" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">triangulationBuffer: iimage2D</text>
+  <text x="3051.5" y="1247" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">vertexBufferWAlphaCube: image3D</text>
+  <text x="3051.5" y="1262" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">vertexBufferEdge: image3D</text>
+  <text x="3051.5" y="1277" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">triangleBuffer: iimageBuffer</text>
+  <text x="3051.5" y="1292" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">normalBuffer: imageBuffer</text>
+  <text x="3051.5" y="1307" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">isoLevel: float</text>
+  <text x="3051.5" y="1322" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">size: ivec3</text>
+  <text x="3051.5" y="1353" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="CubeMarcher">main()</text>
+  <path d="M3043.5 1195.5 L3312.5 1195.5" data-name="CubeMarcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3043.5 1331.5 L3312.5 1331.5" data-name="CubeMarcher" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="3352.5" y="1186.5" height="153" width="309" data-name="EdgeBufferGenerator" style="stroke:#33322E;fill:#eeee66;stroke-dasharray:6 6;stroke-width:3;"></rect>
+  <text x="3507" y="1208" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="EdgeBufferGenerator">EdgeBufferGenerator</text>
+  <text x="3360.5" y="1239" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">isoLevel: float</text>
+  <text x="3360.5" y="1254" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">size: ivec3</text>
+  <text x="3360.5" y="1269" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">vertexBufferWAlphaCube: image3D</text>
+  <text x="3360.5" y="1284" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">vertexBufferEdge: image3D</text>
+  <text x="3360.5" y="1315" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">interpolateVerts(v1: vec4, v2: vec4): vec3</text>
+  <text x="3360.5" y="1330" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="EdgeBufferGenerator">main()</text>
+  <path d="M3352.5 1217.5 L3661.5 1217.5" data-name="EdgeBufferGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <path d="M3352.5 1293.5 L3661.5 1293.5" data-name="EdgeBufferGenerator" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="133.5" y="1224.5" height="77" width="149" data-name="DebugMsgPacket" style="stroke:#33322E;fill:#82b2ff;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="208" y="1246" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="DebugMsgPacket">DebugMsgPacket</text>
+  <text x="141.5" y="1277" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="DebugMsgPacket">msg: str</text>
+  <text x="141.5" y="1292" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="DebugMsgPacket">level: int</text>
+  <path d="M133.5 1255.5 L282.5 1255.5" data-name="DebugMsgPacket" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="519.5" y="1224.5" height="77" width="119" data-name="PipelineMode" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="579" y="1246" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="PipelineMode">PipelineMode</text>
+  <text x="527.5" y="1277" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineMode">HDRP</text>
+  <text x="527.5" y="1292" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="PipelineMode">DEFAULTRP</text>
+  <path d="M519.5 1255.5 L638.5 1255.5" data-name="PipelineMode" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+  <rect x="678.5" y="1209.5" height="107" width="636" data-name="ShadersHolder" style="stroke:#33322E;fill:#6090ee;stroke-dasharray:none;stroke-width:3;"></rect>
+  <text x="996.5" y="1231" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;text-anchor: middle;" data-name="ShadersHolder">ShadersHolder</text>
+  <text x="686.5" y="1262" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">fragmentShader: Filename</text>
+  <text x="686.5" y="1277" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">vertexShader: Filename</text>
+  <text x="686.5" y="1292" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">hdrpShaderModel: Filename</text>
+  <text x="686.5" y="1307" style="fill: #33322E;font:normal  12pt Helvetica, Helvetica, sans-serif;" data-name="ShadersHolder">modelToApplyOn: Union(List(Optional(NodePath)), NodePath, None, Loader._Callback)</text>
+  <path d="M678.5 1240.5 L1314.5 1240.5" data-name="ShadersHolder" style="stroke:#33322E;fill:none;stroke-dasharray:none;stroke-width:3;"></path>
+</svg>
