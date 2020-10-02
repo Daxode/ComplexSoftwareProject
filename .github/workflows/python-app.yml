@@ -31,15 +31,17 @@ jobs:
         echo 'DATE<<EOF' >> $GITHUB_ENV
         date +"%d-%m-%y" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
+        echo 'VERSION<<EOF' >> $GITHUB_ENV
+        python version.py >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: v0.0.1
       with:
-        tag_name: ${{env.VERSION}} ${{env.DATE}}
-        release_name: Release ${{env.VERSION}} ${{env.DATE}}
+        tag_name: ${{"v"+env.VERSION}}
+        release_name: Release ${{"v"+env.VERSION}} ${{env.DATE}}
         draft: false
         prerelease: true
     - name: Upload Release Asset
@@ -49,6 +51,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: dist/Blobtory-0.1_win_amd64.zip
-        asset_name: Blobtory-Version0.1(win64).zip
+        asset_path: dist/Blobtory-${{env.VERSION}}_win_amd64.zip
+        asset_name: Blobtory-Version${{env.VERSION}}(win64).zip
         asset_content_type: application/zip
