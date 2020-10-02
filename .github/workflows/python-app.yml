@@ -29,7 +29,7 @@ jobs:
       run: |
         python setup.py bdist_apps
         echo 'DATE<<EOF' >> $GITHUB_ENV
-        date +"%d%m%y %H%M%S" >> $GITHUB_ENV
+        date +"%d%m%y-%H%M%S" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo 'VERSION<<EOF' >> $GITHUB_ENV
         python version.py >> $GITHUB_ENV
