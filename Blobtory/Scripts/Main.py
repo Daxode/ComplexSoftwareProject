@@ -34,6 +34,7 @@ class Main(ShowBase):
 
 loadPrcFileData('', 'framebuffer-multisample 1')
 loadPrcFileData('', 'multisamples 1')
+loadPrcFileData('', 'sync-video false')
 loadPrcFile("config/Config.prc")
 blobtoryBase = Main()
 blobtoryBase.run()
