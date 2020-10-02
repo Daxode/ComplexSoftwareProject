@@ -16,3 +16,22 @@ to restore wasted planets through automation.
 
 ## Wiki
 Yup, there's a wiki and you can find it [here](https://github.com/Daxode/ComplexSoftwareProject/wiki)
+
+## Executable
+Download the latest working binary of the project here: (which should now be automated)
+https://github.com/Daxode/ComplexSoftwareProject/releases
+
+[![GitHub release](https://img.shields.io/github/release/Daxode/ComplexSoftwareProject.svg)](https://GitHub.com/Daxode/ComplexSoftwareProject/releases/)
+[![Github all releases](https://img.shields.io/github/downloads/Daxode/ComplexSoftwareProject/total.svg)](https://GitHub.com/Daxode/ComplexSoftwareProject/releases/)
+[![GitHub tag](https://img.shields.io/github/tag/Daxode/ComplexSoftwareProject.svg)](https://GitHub.com/Daxode/ComplexSoftwareProject/tags/)
+
+[![GitHub license](https://img.shields.io/github/license/Daxode/ComplexSoftwareProject.svg)](https://github.com/Daxode/ComplexSoftwareProject/blob/master/LICENSE)
+
+[![GitHub issues-closed](https://img.shields.io/github/issues-closed/Daxode/ComplexSoftwareProject.svg)](https://GitHub.com/Daxode/ComplexSoftwareProject/issues?q=is%3Aissue+is%3Aclosed)
+[![GitHub issues](https://img.shields.io/github/issues/Daxode/ComplexSoftwareProject.svg)](https://GitHub.com/Daxode/ComplexSoftwareProject/issues/)
+
+## About me:
+![Profile views](https://gpvc.arturio.dev/Daxode)
+[![HitCount](http://hits.dwyl.io/Daxode/badges.svg)](http://hits.dwyl.io/Daxode/badges)\
+Daxode's top languages on github:\
+![1](https://github-readme-stats.vercel.app/api/top-langs/?username=Daxode&theme=blue-green)
