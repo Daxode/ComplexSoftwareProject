@@ -1,28 +1,19 @@
 #version 130
 
 #pragma include "../utils/p3d_light_sources.glsl"
-
-#define MAX_ITERATION 20
+#pragma include "../utils/p3d_material.glsl"
 
 // Input from vertex shader
-in vec2 texcoord;
+in vec3 viewspacePos;
+in vec4 fragPos;
 in vec3 vertexNormal;
 in vec3 primNormal;
-in vec3 FragPos;
 in float num;
-
-in vec3 pospos;
 
 in vec3 cam_pos;
 in vec3 cam_dir;
 
 out vec4 outputColor;
-const float atten = 0.5;
-const float shininess = 0.5;
-
-const float specularStrength = 0.9;
-const vec3 specColor = vec3(1,1,1);
-const vec3 matColor = vec3(0,0.2,0);
 
 vec3 remap(vec3 iMin, vec3 iMax, vec3 oMin, vec3 oMax, vec3 v) {
   vec3 t = smoothstep(iMin, iMax, v);
@@ -35,36 +26,49 @@ float remap(float iMin, float iMax, float oMin, float oMax, float v) {
 }
 
 void main() {
-  vec3 rgb_normal = (normalize(primNormal) + 0.5) * 0.5;
+  int mode = 1;
+  //vec3 viewDir = normalize(viewspacePos.xyz-cam_pos);
+  vec3 illumLightSum = vec3(0);
+  vec3 normal = normalize(primNormal);
 
-  //outputColor = vec4(rgb_normal, 1)*clamp(vec4(dot(primNormal, )),0,1);
-  //outputColor = vec4(rgb_normal, 1);//*clamp(primNormal, 0, 1).x;
-  vec3 lightDir = p3d_LightSource[0].position.xyz;
-  lightDir = vec3(0,-0.5,0.5);
+  for (int i = 0; i < p3d_LightSource.length; i++) {
+    vec3 lightDir = p3d_LightSource[i].position.xyz;
+    if (p3d_LightSource[i].position.w != 0) lightDir -= viewspacePos;
 
-  float diff = max(dot(primNormal, lightDir), 0.0);
-  vec3 diffuse = diff * vec3(0.1);//p3d_LightSource[0].color.xyz;
+    float distance = length(lightDir);
+    distance = distance * distance;
+    lightDir = normalize(lightDir);
 
-  vec3 viewDir = normalize(cam_pos - FragPos);
-  vec3 reflectDir = reflect(lightDir, normalize(primNormal));
+    float lambertian = max(dot(lightDir, normal), 0.0);
+    float specular = 0.0;
 
-  float spec = pow(max(dot(-viewDir, reflectDir), 0.0), 32);
-  vec3 specular = specularStrength * spec * specColor;
+    if (lambertian > 0.0) {
+      vec3 viewDir = normalize(-viewspacePos);
 
-  vec3 light = diffuse + specular;
-  //if (any(lessThan(normalize(pospos), vec3(0)))) light = vec3(0);
+      // this is blinn phong
+      vec3 halfDir = normalize(lightDir + viewDir);
+      float specAngle = max(dot(halfDir, normal), 0.0);
+      specular = pow(specAngle, p3d_Material.shininess);
 
-  vec3 result = (p3d_LightModel.ambient.xyz+light) * vec3(remap(0.5, 10, 0, 1, dot(pospos,vec3(1))));
-  outputColor = vec4(result, 1);
+      // this is phong (for comparison)
+      if (mode == 2) {
+        vec3 reflectDir = reflect(-lightDir, normal);
+        specAngle = max(dot(reflectDir, viewDir), 0.0);
+        // note that the exponent is different here
+        specular = pow(specAngle, p3d_Material.shininess/4.0);
+      }
+    }
+    vec3 illumDiffuse = (p3d_Material.diffuse.xyz) * lambertian * p3d_LightSource[i].color.xyz * 1 / distance;
+    vec3 illumSpecular = p3d_Material.diffuse.xyz*p3d_Material.specular * specular * p3d_LightSource[i].color.xyz * 1 / distance;
 
-  //outputColor = vec4()
-  //outputColor = vec4(rgb_normal, 1);// * smoothstep(0,1, dot(vertexNormal, lightDir)+0.9*dot(p3d_LightModel.ambient.xyz, vec3(1)));
-//  vec3 diffuseReflection = atten * p3d_LightSource[0].color.xyz * max(normalize(primNormal), lightDir);
-//  vec3 lightReflectDir = reflect(-lightDir, normalize(primNormal));
-//  float lightSeeDir = max(0.0, dot(lightReflectDir, cam_dir));
-//  vec3 shininessPower = vec3(pow(lightSeeDir.x, shininess), pow(lightSeeDir.y, shininess), pow(lightSeeDir.z, shininess));
-//  float shininessPower = pow(lightSeeDir, (shininess));
-//  vec3 specularReflect = atten * specColor * shininessPower;
-//
-//  outputColor = vec4(matColor*(diffuseReflection+p3d_LightModel.ambient.xyz), 1);
+    illumLightSum += illumDiffuse+illumSpecular;
+  }
+
+  //vec3 reflectDir = reflect(-lightDir, normalize(primNormal));
+  //float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
+  //vec3 specular = specularStrength * spec * specColor;
+
+  vec3 colorGammaCorrected = pow(p3d_LightModel.ambient.xyz*p3d_Material.ambient.xyz+illumLightSum, vec3(0.49504950495));
+  // use the gamma corrected color in the fragment0
+  outputColor = vec4(colorGammaCorrected, 1.0);
 }

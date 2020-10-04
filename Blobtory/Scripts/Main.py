@@ -1,7 +1,5 @@
-from direct.task import Task
 from panda3d.core import loadPrcFile, loadPrcFileData
-from direct.showbase.ShowBase import ShowBase, PTAFloat, \
-    DirectionalLight, AntialiasAttrib, AmbientLight
+from direct.showbase.ShowBase import ShowBase, PTAFloat, AmbientLight
 
 from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 
@@ -22,12 +20,12 @@ class Main(ShowBase):
         super().__init__()
         self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
 
-        self.planetGen: PlanetGenerator = PlanetGenerator(self.winCreator, 128, 150)
+        self.planetGen: PlanetGenerator = PlanetGenerator(self.winCreator, 128, 500)
         self.planetGen.cubeformer.mouseTime.setData(PTAFloat([10, 0, 0, 1]))
         self.accept("a", self.planetGen.RegenPlanet)
 
         alight = AmbientLight('alight')
-        alight.setColor((0.6, 0.6, 0.6, 1))
+        alight.setColor((0.5, 0.5, 0.5, 1))
         alnp = self.render.attachNewNode(alight)
         self.render.setLight(alnp)
 

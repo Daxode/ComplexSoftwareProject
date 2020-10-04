@@ -81,12 +81,18 @@ class WindowCreator:
             # filters.setBloom()
 
             dlight = DirectionalLight('my dlight')
-            dlight.setColor((0.8, 0.5, 0.5, 1))
+            # dlight.setColor((0.8, 0.5, 0.5, 1))
             dlnp = self.base.render.attachNewNode(dlight)
-            self.base.render.setAntialias(AntialiasAttrib.MAuto)
+            self.base.render.setLight(dlnp)
+
+            dlight = DirectionalLight('my dlight')
+            dlight.setColor((0.05, 0.05, 0.05, 1))
+            dlnp = self.base.render.attachNewNode(dlight)
+            dlnp.setHpr(0, 180, 0)
             self.base.render.setLight(dlnp)
 
             #filters.setAmbientOcclusion()
             # filters.setVolumetricLighting(dlnp)
+            self.base.render.setAntialias(AntialiasAttrib.MAuto)
             self.base.setBackgroundColor(0, 0.01, 0.1)
             self.base.setFrameRateMeter(True)

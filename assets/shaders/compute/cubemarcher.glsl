@@ -43,6 +43,9 @@ void main() {
     if (cubeCorners[6].w < isoLevel) cubeIndex |= 64;
     if (cubeCorners[7].w < isoLevel) cubeIndex |= 128;
 
+    float wComb = 0;
+    for (int i = 0; i < 8; i++) wComb += cubeCorners[i].w;
+
     int i = 0;
     int triangleEdgeIndex = 1;
     do {
@@ -67,7 +70,7 @@ void main() {
 
         vec3 normal = cross(v2-v0, v1-v0);
         //vec3 normal = normalize(v2+v0+v1);
-        imageStore(normalBuffer, int(triangleIDIndex/3), vec4(normal, triangleIDIndex/1000));
+        imageStore(normalBuffer, int(triangleIDIndex/3), vec4(normal, wComb));
 
         i+=3;
     } while (triangleEdgeIndex != -1);

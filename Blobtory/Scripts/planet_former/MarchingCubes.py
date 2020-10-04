@@ -1,7 +1,7 @@
 import math
 
 from panda3d.core import Texture, Shader, NodePath, LVecBase3i, ShaderAttrib, GeomEnums, GeomNode, \
-    GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume
+    GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume, Material, LColor
 
 from assets.shaders.compute.includes import MarchTable
 from Blobtory.Scripts.planet_former.CubeFormer import CubeFormer
@@ -123,8 +123,16 @@ class MarchingCubes:
             -self.size.getX()*0.5*self.cubeformer.spacing,
             -self.size.getY()*0.5*self.cubeformer.spacing,
             -self.size.getZ()*0.5*self.cubeformer.spacing)
+
         self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
         self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
         self.geomPath.set_shader_input('triangleBuffer', self.triangleBuffer)
         self.geomPath.set_shader_input('normalBuffer', self.normalBuffer)
+
+        myMaterial = Material()
+        myMaterial.setShininess(0.8)  # Make this material shiny
+        myMaterial.setDiffuse(LColor(0.95, 0.24, 0.06, 1)*0.1)
+        myMaterial.setSpecular((1.1, 1.1, 1.1, 1))
+        myMaterial.setAmbient((0.04, 0.01, 0.006, 1))  # Make this material blue
+        self.geomPath.setMaterial(myMaterial)
 
