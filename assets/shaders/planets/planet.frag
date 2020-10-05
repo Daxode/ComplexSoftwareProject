@@ -10,6 +10,9 @@ in vec3 vertexNormal;
 in vec3 primNormal;
 in float num;
 
+in vec3 diffuseColor;
+in float specStrength;
+
 in vec3 cam_pos;
 in vec3 cam_dir;
 
@@ -26,10 +29,11 @@ float remap(float iMin, float iMax, float oMin, float oMax, float v) {
 }
 
 void main() {
-  int mode = 1;
-  //vec3 viewDir = normalize(viewspacePos.xyz-cam_pos);
   vec3 illumLightSum = vec3(0);
   vec3 normal = normalize(primNormal);
+
+  //diffuseColor = p3d_Material.diffuse.xyz;
+  //specStrength = p3d_Material.specular.x;
 
   for (int i = 0; i < p3d_LightSource.length; i++) {
     vec3 lightDir = p3d_LightSource[i].position.xyz;
@@ -49,26 +53,14 @@ void main() {
       vec3 halfDir = normalize(lightDir + viewDir);
       float specAngle = max(dot(halfDir, normal), 0.0);
       specular = pow(specAngle, p3d_Material.shininess);
-
-      // this is phong (for comparison)
-      if (mode == 2) {
-        vec3 reflectDir = reflect(-lightDir, normal);
-        specAngle = max(dot(reflectDir, viewDir), 0.0);
-        // note that the exponent is different here
-        specular = pow(specAngle, p3d_Material.shininess/4.0);
-      }
     }
-    vec3 illumDiffuse = (p3d_Material.diffuse.xyz) * lambertian * p3d_LightSource[i].color.xyz * 1 / distance;
-    vec3 illumSpecular = p3d_Material.diffuse.xyz*p3d_Material.specular * specular * p3d_LightSource[i].color.xyz * 1 / distance;
+    vec3 illumDiffuse = diffuseColor * lambertian * p3d_LightSource[i].color.xyz * 1 / distance;
+    vec3 illumSpecular = diffuseColor * specStrength * specular * p3d_LightSource[i].color.xyz * 1 / distance;
 
     illumLightSum += illumDiffuse+illumSpecular;
   }
 
-  //vec3 reflectDir = reflect(-lightDir, normalize(primNormal));
-  //float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-  //vec3 specular = specularStrength * spec * specColor;
-
-  vec3 colorGammaCorrected = pow(p3d_LightModel.ambient.xyz*p3d_Material.ambient.xyz+illumLightSum, vec3(0.49504950495));
+  vec3 colorGammaCorrected = pow(p3d_LightModel.ambient.xyz*diffuseColor+illumLightSum, vec3(0.49504950495));
   // use the gamma corrected color in the fragment0
   outputColor = vec4(colorGammaCorrected, 1.0);
 }

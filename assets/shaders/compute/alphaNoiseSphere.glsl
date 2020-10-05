@@ -8,7 +8,7 @@ uniform float radius;
 uniform float offset;
 uniform vec3 midPoint;
 uniform vec4 mouseTime;
-const int craterCount = 20;
+const int craterCount = 0;
 
 layout(rgba32f, binding = 0) uniform image3D vertexBufferWAlpha;
 
@@ -45,7 +45,7 @@ void main() {
 
 //    point.w = (snoise(polarCoord.yz/(mouseX*10))*radius - r);
 
-    float noiseOuter = 1-abs(fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*50;
+    float noiseOuter = 1-abs(fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*90;
     float planetRadius = radius+noiseOuter;
     point.w = smoothstep(0, 1, (planetRadius - lengthFromCenter)/10);
 

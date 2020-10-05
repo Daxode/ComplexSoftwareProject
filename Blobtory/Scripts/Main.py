@@ -1,5 +1,5 @@
 from panda3d.core import loadPrcFile, loadPrcFileData
-from direct.showbase.ShowBase import ShowBase, PTAFloat, AmbientLight
+from direct.showbase.ShowBase import ShowBase, PTAFloat, AmbientLight, DirectionalLight
 
 from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 
@@ -25,13 +25,23 @@ class Main(ShowBase):
         self.accept("a", self.planetGen.RegenPlanet)
 
         alight = AmbientLight('alight')
-        alight.setColor((0.5, 0.5, 0.5, 1))
+        alight.setColor((0.1, 0.1, 0.1, 1))
         alnp = self.render.attachNewNode(alight)
         self.render.setLight(alnp)
 
+        dlight = DirectionalLight('my dlight')
+        dlnp = self.render.attachNewNode(dlight)
+        self.render.setLight(dlnp)
+
+        dlight = DirectionalLight('my dlight')
+        dlight.setColor((0.05, 0.05, 0.05, 1))
+        dlnp = self.render.attachNewNode(dlight)
+        dlnp.setHpr(0, 180, 0)
+        self.render.setLight(dlnp)
+
 
 loadPrcFileData('', 'framebuffer-multisample 1')
-loadPrcFileData('', 'multisamples 1')
+loadPrcFileData('', 'multisamples 0')
 loadPrcFileData('', 'sync-video false')
 loadPrcFile("config/Config.prc")
 blobtoryBase = Main()

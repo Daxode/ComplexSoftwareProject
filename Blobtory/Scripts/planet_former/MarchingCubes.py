@@ -1,7 +1,8 @@
 import math
 
 from panda3d.core import Texture, Shader, NodePath, LVecBase3i, ShaderAttrib, GeomEnums, GeomNode, \
-    GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume, Material, LColor
+    GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume, Material, LColor, SamplerState, \
+    TextureStage
 
 from assets.shaders.compute.includes import MarchTable
 from Blobtory.Scripts.planet_former.CubeFormer import CubeFormer
@@ -131,8 +132,18 @@ class MarchingCubes:
 
         myMaterial = Material()
         myMaterial.setShininess(0.8)  # Make this material shiny
-        myMaterial.setDiffuse(LColor(0.95, 0.24, 0.06, 1)*0.1)
+        myMaterial.setDiffuse(LColor(0.99, 0.16, 0.06, 1)*0.1)
         myMaterial.setSpecular((1.1, 1.1, 1.1, 1))
-        myMaterial.setAmbient((0.04, 0.01, 0.006, 1))  # Make this material blue
         self.geomPath.setMaterial(myMaterial)
+
+        myDiffTex = self.winCreator.base.loader.loadTexture(
+            "assets/textures/ramps/rampTerrainDiffuse.png",
+            "assets/textures/ramps/rampTerrainSpecular.png")
+        #myDiffTex.setMagfilter(SamplerState.FT_linear)
+        #myDiffTex.setMinfilter(SamplerState.FT_linear)
+
+        stageDiff = TextureStage("Diffuse")
+        stageDiff.setSort(1)
+        self.geomPath.setTexture(stageDiff, myDiffTex)
+
 
