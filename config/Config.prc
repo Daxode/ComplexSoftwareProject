@@ -22,7 +22,7 @@ load-display pandagl
 # A value of -2 for the origin means to center it on the screen,
 # while -1 lets the window manager choose the position.
 
-framebuffer-srgb #t
+#framebuffer-srgb #t
 #framebuffer-multisample 1
 
 win-origin -2 -2
@@ -33,7 +33,6 @@ win-size 1600 900
 
 fullscreen #f
 #threading-model Cull/Draw
-
 
 # The framebuffer-hardware flag forces it to use an accelerated driver.
 # The framebuffer-software flag forces it to use a software renderer.
@@ -68,6 +67,8 @@ default-directnotify-level warning
 model-path    $MAIN_DIR
 model-path    $THIS_PRC_DIR/..
 model-path    $THIS_PRC_DIR/../models
+model-path    C:/Panda3D-1.10.6-x64
+model-path    C:/Panda3D-1.10.6-x64/models
 
 # This enable the automatic creation of a TK window when running
 # Direct.

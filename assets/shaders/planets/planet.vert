@@ -1,5 +1,7 @@
 #version 430
 
+#pragma include "../utils/p3d_light_sources.glsl"
+
 // Uniform inputs
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform mat4 p3d_ViewMatrixInverse;
@@ -8,7 +10,6 @@ uniform mat4 p3d_ModelViewMatrix;
 uniform mat3 p3d_NormalMatrix;
 
 uniform sampler2D p3d_Texture0;
-uniform sampler2D p3d_Texture1;
 
 layout(rgba32f) uniform readonly image3D vertexBufferEdge;
 layout(rgba32i) uniform readonly iimageBuffer triangleBuffer;
@@ -30,6 +31,7 @@ out float specStrength;
 
 out vec3 cam_pos;
 out vec3 cam_dir;
+out vec4[4] shadow_uv;
 
 void main() {
   ivec3 vertexIndex = imageLoad(triangleBuffer, gl_VertexID).xyz;
@@ -56,4 +58,8 @@ void main() {
 
   cam_pos = p3d_ViewMatrixInverse[3].xyz;
   cam_dir = -p3d_ViewMatrixInverse[2].xyz;
+
+  for (int i = 0; i < p3d_LightSource.length; i++) {
+    shadow_uv[i] = p3d_LightSource[i].shadowViewMatrix * (p3d_ModelViewMatrix * vertex);
+  }
 }

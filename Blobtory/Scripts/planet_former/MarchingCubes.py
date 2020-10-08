@@ -2,7 +2,7 @@ import math
 
 from panda3d.core import Texture, Shader, NodePath, LVecBase3i, ShaderAttrib, GeomEnums, GeomNode, \
     GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume, Material, LColor, SamplerState, \
-    TextureStage
+    TextureStage, TransparencyAttrib
 
 from assets.shaders.compute.includes import MarchTable
 from Blobtory.Scripts.planet_former.CubeFormer import CubeFormer
@@ -139,11 +139,23 @@ class MarchingCubes:
         myDiffTex = self.winCreator.base.loader.loadTexture(
             "assets/textures/ramps/rampTerrainDiffuse.png",
             "assets/textures/ramps/rampTerrainSpecular.png")
-        #myDiffTex.setMagfilter(SamplerState.FT_linear)
-        #myDiffTex.setMinfilter(SamplerState.FT_linear)
+        myDiffTex.setWrapU(Texture.WM_clamp)
+        myDiffTex.setWrapV(Texture.WM_clamp)
 
         stageDiff = TextureStage("Diffuse")
         stageDiff.setSort(1)
         self.geomPath.setTexture(stageDiff, myDiffTex)
+        #self.geomPath.setTransparency(TransparencyAttrib.MAlpha)
+
+        myToonLightTex = self.winCreator.base.loader.loadTexture(
+            "assets/textures/ramps/rampToonLight.png")
+        myToonLightTex.setWrapU(Texture.WM_clamp)
+        myToonLightTex.setWrapV(Texture.WM_clamp)
+        myToonLightTex.setMagfilter(SamplerState.FT_nearest)
+        myToonLightTex.setMinfilter(SamplerState.FT_nearest)
+
+        stageToonLight = TextureStage("ToonLight")
+        stageToonLight.setSort(2)
+        self.geomPath.setTexture(stageToonLight, myToonLightTex)
 
 
