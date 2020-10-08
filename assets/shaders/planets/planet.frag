@@ -80,7 +80,7 @@ void main() {
   //diffuseColor = p3d_Material.diffuse.xyz;
   //specStrength = p3d_Material.specular.x;
 
-  for (int i = 0; i < p3d_LightSource.length; i++) {
+  for (int i = 0; i < p3d_LightSource.length(); i++) {
     vec3 lightDir = p3d_LightSource[i].position.xyz;
     if (p3d_LightSource[i].position.w != 0) lightDir -= viewspacePos;
 
@@ -102,10 +102,10 @@ void main() {
       specular = pow(specAngle, p3d_Material.shininess);
       specular = texture(p3d_Texture1, vec2(specular, 0.5)).x;
     }
-    vec3 illumDiffuse = diffuseColor *                 lambertian * p3d_LightSource[i].color.xyz * 1 / distance;
-    vec3 illumSpecular = diffuseColor * specStrength * specular   * p3d_LightSource[i].color.xyz * 1 / distance;
-    //illumLightSum += (illumDiffuse+illumSpecular)*textureProjSoft(p3d_LightSource[i].shadowMap, shadow_uv[i], 0.0001, 0.2);
-    illumLightSum += (illumDiffuse+illumSpecular)*textureProj(p3d_LightSource[i].shadowMap, shadow_uv[i]);
+    vec3 illumDiffuse = diffuseColor *                 lambertian * p3d_LightSource[i].color.xyz / (distance);
+    vec3 illumSpecular = diffuseColor * specStrength * specular   * p3d_LightSource[i].color.xyz / (distance);
+    illumLightSum += (illumDiffuse+illumSpecular)*textureProjSoft(p3d_LightSource[i].shadowMap, shadow_uv[i], 0.0001, 0.01);
+    //illumLightSum += (illumDiffuse+illumSpecular)*textureProj(p3d_LightSource[i].shadowMap, shadow_uv[i]);
   }
 
   vec3 colorGammaCorrected = pow(p3d_LightModel.ambient.xyz*diffuseColor+illumLightSum, vec3(0.49504950495));

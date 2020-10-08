@@ -59,7 +59,7 @@ void main() {
   cam_pos = p3d_ViewMatrixInverse[3].xyz;
   cam_dir = -p3d_ViewMatrixInverse[2].xyz;
 
-  for (int i = 0; i < p3d_LightSource.length; i++) {
+  for (int i = 0; i < p3d_LightSource.length(); i++) {
     shadow_uv[i] = p3d_LightSource[i].shadowViewMatrix * (p3d_ModelViewMatrix * vertex);
   }
 }

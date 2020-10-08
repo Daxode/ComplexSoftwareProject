@@ -1,5 +1,5 @@
 from direct.interval.LerpInterval import LerpPosInterval
-from panda3d.core import loadPrcFile, loadPrcFileData, LPoint3f
+from panda3d.core import loadPrcFile, loadPrcFileData, LPoint3f, PointLight, Spotlight, PerspectiveLens
 from direct.showbase.ShowBase import ShowBase, PTAFloat, AmbientLight, DirectionalLight, Shader, Texture, TextureStage, \
     SamplerState, FrameBufferProperties, WindowProperties, GraphicsPipe, GraphicsOutput, NodePath
 
@@ -31,7 +31,7 @@ class Main(ShowBase):
         myShader: Shader = Shader.load(Shader.SL_GLSL,
                                        vertex="assets/shaders/defaults/default.vert",
                                        fragment="assets/shaders/defaults/default.frag")
-        sphere.setShader(myShader, 1)
+        #sphere.setShader(myShader, 1)
         sphere.setScale(100)
         sphere.setPos((0,50,600))
 
@@ -68,19 +68,25 @@ class Main(ShowBase):
         alnp = self.render.attachNewNode(alight)
         self.render.setLight(alnp)
 
-        dlight1 = DirectionalLight('my dlight1')
-        dlight1.setShadowCaster(True, 512, 512)
-        #dlight1.show_frustum()
-        dlnp1 = self.render.attachNewNode(dlight1)
-        dlnp1.setPos(0,0,512)
-        dlnp1.setHpr(0, 270, 0)
-        self.render.setLight(dlnp1)
+        sun = DirectionalLight('TheSun')
+        sun.setShadowCaster(True, 1024, 1024)
+        #lens = PerspectiveLens()
+        #lens.setFov(40)
+        #sun.setLens(lens)
+        #sun.attenuation = (0.0000000000000000001, 0., 0.)
 
-        bmin, bmax = self.render.get_tight_bounds(dlnp1)
-        size=128
+        sun.show_frustum()
+        sun.set_color((1, 1, 1, 1))
+        sunNodePath = self.render.attachNewNode(sun)
+        sunNodePath.setPos(0, 200, 600)
+        sunNodePath.lookAt(0,0,0)
+        self.render.setLight(sunNodePath)
+
+        bmin, bmax = self.render.get_tight_bounds(sunNodePath)
+        size=512
         bmin, bmax = LPoint3f(-size,0, -size), LPoint3f(size, size,size)
         print(bmin,bmax)
-        lens = dlight1.get_lens(0)
+        lens = sun.get_lens(0)
         lens.set_film_offset((bmin.xz + bmax.xz) * 0.5)
         lens.set_film_size(bmax.xz - bmin.xz)
         lens.set_near_far(bmin.y, bmax.y)
@@ -90,12 +96,12 @@ class Main(ShowBase):
                             (0,-100,600),(0,100,600))
         i.loop()
 
-        dlight2 = DirectionalLight('my dlight2')
-        dlight2.setColor((0.05, 0.05, 0.05, 1))
-        dlight2.setShadowCaster(True, 512, 512)
-        dlnp2 = self.render.attachNewNode(dlight2)
-        dlnp2.setHpr(0, 180, 0)
-        self.render.setLight(dlnp2)
+        # dlight2 = DirectionalLight('my dlight2')
+        # dlight2.setColor((0.05, 0.05, 0.05, 1))
+        # dlight2.setShadowCaster(True, 512, 512)
+        # dlnp2 = self.render.attachNewNode(dlight2)
+        # dlnp2.setHpr(0, 180, 0)
+        # self.render.setLight(dlnp2)
 
 
 loadPrcFileData('', 'framebuffer-multisample 1')
