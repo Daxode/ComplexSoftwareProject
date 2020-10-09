@@ -45,7 +45,7 @@ void main() {
 
 //    point.w = (snoise(polarCoord.yz/(mouseX*10))*radius - r);
 
-    float noiseOuter = 1-abs(fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*60;
+    float noiseOuter = 1-abs(fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*100;
     float planetRadius = radius+noiseOuter;
     point.w = smoothstep(0, 1, (planetRadius - lengthFromCenter)/10);
 

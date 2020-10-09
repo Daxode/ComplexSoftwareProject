@@ -93,7 +93,7 @@ void main() {
     lightDir = normalize(-lightDir);
 
     float lambertian = max(dot(lightDir, normal), 0.0);
-    lambertian = texture(p3d_Texture1, vec2(lambertian, 0.5)).x;
+    //lambertian = texture(p3d_Texture1, vec2(lambertian, 0.5)).x;
 
     float specular = 0.0;
 
@@ -104,7 +104,7 @@ void main() {
       vec3 halfDir = normalize(lightDir + viewDir);
       float specAngle = max(dot(halfDir, normal), 0.0);
       specular = pow(specAngle, p3d_Material.shininess);
-      specular = texture(p3d_Texture1, vec2(specular, 0.5)).x;
+      //specular = texture(p3d_Texture1, vec2(specular, 0.5)).x;
     }
     vec3 illumDiffuse = diffuseColor *                 lambertian * p3d_LightSource[i].color.xyz / (distance);
     vec3 illumSpecular = diffuseColor * specStrength * specular   * p3d_LightSource[i].color.xyz / (distance);
@@ -112,7 +112,7 @@ void main() {
   }
 
   vec3 colorGammaCorrected = pow(p3d_LightModel.ambient.xyz*diffuseColor+illumLightSum, vec3(0.49504950495));
-  colorGammaCorrected = texture(p3d_Texture1, vec2(length(colorGammaCorrected.xyz), 0.5), 0).x*colorGammaCorrected;
+  //colorGammaCorrected = texture(p3d_Texture1, vec2(length(colorGammaCorrected.xyz), 0.5), 0).x*colorGammaCorrected;
 
   // use the gamma corrected color in the fragment0
   outputColor = vec4(colorGammaCorrected, 1);
