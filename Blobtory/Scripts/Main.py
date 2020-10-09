@@ -46,20 +46,20 @@ class Main(ShowBase):
         stageToonLight.setSort(1)
         sphere.setTexture(stageToonLight, myToonLightTex)
 
-        winprops = WindowProperties(size=(512, 512))
-        props = FrameBufferProperties()
-        props.setRgbColor(1)
-        props.setAlphaBits(1)
-        props.setDepthBits(1)
-        LBuffer = self.graphicsEngine.makeOutput(
-            self.pipe, "offscreen buffer", -2,
-            props, winprops,
-            GraphicsPipe.BFRefuseWindow,
-            self.win.getGsg(), self.win)
-
-        Ldepthmap = Texture()
-        LBuffer.addRenderTexture(Ldepthmap, GraphicsOutput.RTMBindOrCopy,
-                                 GraphicsOutput.RTPDepthStencil)
+        # winprops = WindowProperties(size=(512, 512))
+        # props = FrameBufferProperties()
+        # props.setRgbColor(1)
+        # props.setAlphaBits(1)
+        # props.setDepthBits(1)
+        # LBuffer = self.graphicsEngine.makeOutput(
+        #     self.pipe, "offscreen buffer", -2,
+        #     props, winprops,
+        #     GraphicsPipe.BFRefuseWindow,
+        #     self.win.getGsg(), self.win)
+        #
+        # Ldepthmap = Texture()
+        # LBuffer.addRenderTexture(Ldepthmap, GraphicsOutput.RTMBindOrCopy,
+        #                          GraphicsOutput.RTPDepthStencil)
 
         self.accept("v", self.bufferViewer.toggleEnable)
 
@@ -69,43 +69,36 @@ class Main(ShowBase):
         self.render.setLight(alnp)
 
         sun = DirectionalLight('TheSun')
-        sun.setShadowCaster(True, 1024, 1024)
-        #lens = PerspectiveLens()
-        #lens.setFov(40)
-        #sun.setLens(lens)
-        #sun.attenuation = (0.0000000000000000001, 0., 0.)
+        sun.setShadowCaster(True, 2048, 2048)
 
-        sun.show_frustum()
+        #sun.show_frustum()
         sun.set_color((1, 1, 1, 1))
         sunNodePath = self.render.attachNewNode(sun)
         sunNodePath.setPos(0, 200, 600)
         sunNodePath.lookAt(0,0,0)
         self.render.setLight(sunNodePath)
 
-        bmin, bmax = self.render.get_tight_bounds(sunNodePath)
         size=512
-        bmin, bmax = LPoint3f(-size,0, -size), LPoint3f(size, size,size)
+        bmin, bmax = LPoint3f(-size,0, -size), LPoint3f(size, 10*size,size)
         print(bmin,bmax)
         lens = sun.get_lens(0)
         lens.set_film_offset((bmin.xz + bmax.xz) * 0.5)
         lens.set_film_size(bmax.xz - bmin.xz)
         lens.set_near_far(bmin.y, bmax.y)
 
-        i = LerpPosInterval(sphere,
-                            2,
-                            (0,-100,600),(0,100,600))
-        i.loop()
+        # i = LerpPosInterval(sphere, 2, (0,-100,600),(0,100,600))
+        # i.loop()
 
-        # dlight2 = DirectionalLight('my dlight2')
-        # dlight2.setColor((0.05, 0.05, 0.05, 1))
-        # dlight2.setShadowCaster(True, 512, 512)
-        # dlnp2 = self.render.attachNewNode(dlight2)
-        # dlnp2.setHpr(0, 180, 0)
-        # self.render.setLight(dlnp2)
+        dlight2 = DirectionalLight('my dlight2')
+        dlight2.setColor((0.05, 0.05, 0.05, 1))
+        dlnp2 = self.render.attachNewNode(dlight2)
+        dlnp2.setPos(0, -200, -600)
+        dlnp2.lookAt(0, 0, 0)
+        self.render.setLight(dlnp2)
 
 
-loadPrcFileData('', 'framebuffer-multisample 1')
-loadPrcFileData('', 'multisamples 0')
+loadPrcFileData('', 'framebuffer-multisample 0')
+loadPrcFileData('', 'multisamples 1')
 loadPrcFileData('', 'sync-video false')
 loadPrcFile("config/Config.prc")
 blobtoryBase = Main()

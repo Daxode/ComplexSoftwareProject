@@ -13,7 +13,7 @@
 # when that fails, the next aux-display line, and so on.
 
 sync-video false #f
-gl-debug #t
+#gl-debug #t
 load-display pandagl
 #load-display pandadx9
 #load-display p3tinydisplay
@@ -22,7 +22,7 @@ load-display pandagl
 # A value of -2 for the origin means to center it on the screen,
 # while -1 lets the window manager choose the position.
 
-#framebuffer-srgb #t
+framebuffer-srgb #t
 #framebuffer-multisample 1
 
 win-origin -2 -2

@@ -7,7 +7,6 @@ uniform sampler2D p3d_Texture1;
 
 // Input from vertex shader
 in vec3 viewspacePos;
-in vec4 fragPos;
 in vec3 vertexNormal;
 in vec3 primNormal;
 in float num;
@@ -16,7 +15,7 @@ in vec3 diffuseColor;
 in float specStrength;
 
 in vec3 cam_pos;
-in vec3 cam_dir;
+//in vec3 cam_dir;
 
 in vec4[4] shadow_uv;
 
@@ -81,8 +80,13 @@ void main() {
   //specStrength = p3d_Material.specular.x;
 
   for (int i = 0; i < p3d_LightSource.length(); i++) {
+    float shadowScale = 1;
+    shadowScale = textureProj(p3d_LightSource[i].shadowMap, shadow_uv[i]);
+    //shadowScale = textureProjSoft(p3d_LightSource[i].shadowMap, shadow_uv[i], 0.0001, 0.001);
     vec3 lightDir = p3d_LightSource[i].position.xyz;
-    if (p3d_LightSource[i].position.w != 0) lightDir -= viewspacePos;
+    if (p3d_LightSource[i].position.w != 0) {
+      lightDir -= viewspacePos;
+    }
 
     float distance = length(lightDir);
     distance = distance * distance;
@@ -104,12 +108,11 @@ void main() {
     }
     vec3 illumDiffuse = diffuseColor *                 lambertian * p3d_LightSource[i].color.xyz / (distance);
     vec3 illumSpecular = diffuseColor * specStrength * specular   * p3d_LightSource[i].color.xyz / (distance);
-    illumLightSum += (illumDiffuse+illumSpecular)*textureProjSoft(p3d_LightSource[i].shadowMap, shadow_uv[i], 0.0001, 0.01);
-    //illumLightSum += (illumDiffuse+illumSpecular)*textureProj(p3d_LightSource[i].shadowMap, shadow_uv[i]);
+    illumLightSum += (illumDiffuse+illumSpecular)*shadowScale;
   }
 
   vec3 colorGammaCorrected = pow(p3d_LightModel.ambient.xyz*diffuseColor+illumLightSum, vec3(0.49504950495));
-  colorGammaCorrected = texture(p3d_Texture1, vec2(length(colorGammaCorrected.xyz), 0), 0).x*colorGammaCorrected;
+  colorGammaCorrected = texture(p3d_Texture1, vec2(length(colorGammaCorrected.xyz), 0.5), 0).x*colorGammaCorrected;
 
   // use the gamma corrected color in the fragment0
   outputColor = vec4(colorGammaCorrected, 1);

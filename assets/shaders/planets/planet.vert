@@ -23,7 +23,6 @@ out vec2 texcoord;
 out vec3 vertexNormal;
 out vec3 primNormal;
 out float num;
-out vec4 fragPos;
 out vec3 viewspacePos;
 
 out vec3 diffuseColor;
@@ -36,8 +35,8 @@ out vec4[4] shadow_uv;
 void main() {
   ivec3 vertexIndex = imageLoad(triangleBuffer, gl_VertexID).xyz;
   vec4 vertex = vec4(imageLoad(vertexBufferEdge, vertexIndex).xyz, 1);
+
   gl_Position = p3d_ModelViewProjectionMatrix*vertex;
-  fragPos = gl_Position;
 
   vec4 viewspacePos4 = p3d_ModelViewMatrix * vertex;
   viewspacePos = vec3(viewspacePos4) / viewspacePos4.w;
@@ -51,13 +50,12 @@ void main() {
   texcoord = p3d_MultiTexCoord0;
   num = primNormalWVal.w;
 
-  vec4 getColor = texelFetch(p3d_Texture0, ivec2(8-num, 8-num), 0);
-  diffuseColor = getColor.xyz;
-  diffuseColor = diffuseColor*diffuseColor;
-  specStrength = getColor.w;
+  diffuseColor = texelFetch(p3d_Texture0, ivec2(num, 3), 0).xyz;
+  diffuseColor = pow(diffuseColor, vec3(5));
+  specStrength = texelFetch(p3d_Texture0, ivec2(num, 2), 0).x;
 
   cam_pos = p3d_ViewMatrixInverse[3].xyz;
-  cam_dir = -p3d_ViewMatrixInverse[2].xyz;
+  //cam_dir = -p3d_ViewMatrixInverse[2].xyz;
 
   for (int i = 0; i < p3d_LightSource.length(); i++) {
     shadow_uv[i] = p3d_LightSource[i].shadowViewMatrix * (p3d_ModelViewMatrix * vertex);

@@ -132,19 +132,16 @@ class MarchingCubes:
 
         myMaterial = Material()
         myMaterial.setShininess(0.8)  # Make this material shiny
-        myMaterial.setDiffuse(LColor(0.99, 0.16, 0.06, 1)*0.1)
-        myMaterial.setSpecular((1.1, 1.1, 1.1, 1))
         self.geomPath.setMaterial(myMaterial)
 
-        myDiffTex = self.winCreator.base.loader.loadTexture(
-            "assets/textures/ramps/rampTerrainDiffuse.png",
-            "assets/textures/ramps/rampTerrainSpecular.png")
-        myDiffTex.setWrapU(Texture.WM_clamp)
-        myDiffTex.setWrapV(Texture.WM_clamp)
+        myMarchCubeMatsTex = self.winCreator.base.loader.loadTexture(
+            "assets/textures/ramps/rampMarchCubeMat.png")
+        myMarchCubeMatsTex.setWrapU(Texture.WM_clamp)
+        myMarchCubeMatsTex.setWrapV(Texture.WM_clamp)
 
-        stageDiff = TextureStage("Diffuse")
+        stageDiff = TextureStage("March Cube Mat")
         stageDiff.setSort(1)
-        self.geomPath.setTexture(stageDiff, myDiffTex)
+        self.geomPath.setTexture(stageDiff, myMarchCubeMatsTex)
         #self.geomPath.setTransparency(TransparencyAttrib.MAlpha)
 
         myToonLightTex = self.winCreator.base.loader.loadTexture(

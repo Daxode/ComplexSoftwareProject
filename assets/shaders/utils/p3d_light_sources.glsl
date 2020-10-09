@@ -25,7 +25,7 @@ uniform struct p3d_LightSourceParameters {
 
   // Transforms view-space coordinates to shadow map coordinates
   mat4 shadowViewMatrix;
-} p3d_LightSource[4];
+} p3d_LightSource[3];
 
 // The sum of all active ambient light colors.
 uniform struct {
