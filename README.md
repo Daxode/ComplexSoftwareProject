@@ -9,8 +9,14 @@ to restore wasted planets through automation.
     <td>Interpolation but early planet gen.. without noise as to test compute craters generation</td>
    </tr> 
    <tr>
-      <td><p align="center"><img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/5b8cfb6746418105cc9b91f4c1fc8151.gif" alt="alt text" height="350"> </p></td>
-      <td><p align="center"><img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/c2893ef6f0903c874dac8e6c1319b855.gif" alt="alt text" height="350"> </p></td>
+      <td><p align="center"><img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/EarlyGameFootage/Screenshots/CubeMarchNoiseWOInterp.gif" alt="alt text" height="350"> </p></td>
+      <td><p align="center"><img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/EarlyGameFootage/Screenshots/CubeMarchSphereCratered.gif" alt="alt text" height="350"> </p></td>
+  </tr>
+  <tr>
+    <td>With Cube March Materials and a shader that can cast shadows</td>
+  </tr>
+  <tr>
+    <td><p align="center"><img src="https://github.com/Daxode/ComplexSoftwareProject/blob/master/docs/EarlyGameFootage/Screenshots/InitialCubeMarchMatPlusShadowAbleShader.gif" alt="alt text" height="350"> </p></td>
   </tr>
 </table>
 
