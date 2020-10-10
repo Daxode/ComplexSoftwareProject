@@ -81,7 +81,7 @@ void main() {
 
   for (int i = 0; i < p3d_LightSource.length(); i++) {
     float shadowScale = 1;
-    shadowScale = textureProj(p3d_LightSource[i].shadowMap, shadow_uv[i]);
+    //shadowScale = textureProj(p3d_LightSource[i].shadowMap, shadow_uv[i]);
     //shadowScale = textureProjSoft(p3d_LightSource[i].shadowMap, shadow_uv[i], 0.0001, 0.001);
     vec3 lightDir = p3d_LightSource[i].position.xyz;
     if (p3d_LightSource[i].position.w != 0) {

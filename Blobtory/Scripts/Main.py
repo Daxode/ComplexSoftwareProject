@@ -22,6 +22,7 @@ class Main(ShowBase):
         self.scene: SceneBuilder = SceneBuilder(self.winCreator)
 
 
+loadPrcFileData('', 'framebuffer-srgb #t')
 loadPrcFileData('', 'framebuffer-multisample 0')
 loadPrcFileData('', 'multisamples 1')
 loadPrcFileData('', 'sync-video false')
