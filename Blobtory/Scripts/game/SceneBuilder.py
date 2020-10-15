@@ -1,4 +1,4 @@
-from direct.interval.LerpInterval import LerpPosInterval
+from direct.interval.LerpInterval import LerpPosInterval, Shader
 from direct.interval.MetaInterval import Sequence
 from panda3d.core import AmbientLight, DirectionalLight, PTAFloat
 
@@ -20,6 +20,12 @@ class SceneBuilder:
         sphere = self.base.loader.loadModel("assets/models/icosphere")
         sphere.reparentTo(self.base.render)
         sphere.setScale(100)
+
+        sphere.setShader(Shader.load(Shader.SL_GLSL,
+                       vertex="assets/shaders/defaults/default.vert",
+                       fragment="assets/shaders/defaults/default.frag"))
+        sphere.setTexture(self.base.loader.loadTexture("assets/textures/ramps/rampToonLight.png"))
+
         startInterval = LerpPosInterval(sphere, 1, (0, -200, 600), (0, 200, 600), blendType='easeInOut')
         endInterval = LerpPosInterval(sphere, 1, (0, 200, 600), (0, -200, 600), blendType='easeInOut')
         Sequence(startInterval, endInterval).loop()

@@ -21,8 +21,8 @@ void main() {
   if (p3d_LightSource[0].position.w != 0) lightDir -= viewspacePos;
   lightDir = normalize(-lightDir);
 
-  float lambertian = max(dot(lightDir, normal), 0.0);
+  float lambertian = (dot(lightDir, normal)+1)*0.5;
   lambertian = texture(p3d_Texture0, vec2(lambertian, 0.5)).x;
 
-  outputColor = vec4(lambertian)*vec4(1, 0.5, 0.5, 1);
+  outputColor = vec4(lambertian)*vec4(1, 0.5, 0.5, 1)+vec4(0.1,0.05,0.05,1);
 }
