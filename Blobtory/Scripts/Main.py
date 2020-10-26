@@ -21,6 +21,8 @@ class Main(ShowBase):
         self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
         self.scene: SceneBuilder = SceneBuilder(self.winCreator)
 
+        # self.loader.loadModel("assets/models/icosphere").reparentTo(self.render)
+
 
 loadPrcFileData('', 'framebuffer-srgb #t')
 loadPrcFileData('', 'framebuffer-multisample 0')

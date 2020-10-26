@@ -12,6 +12,7 @@ layout(rgba32f) uniform readonly image3D vertexBufferEdge;
 uniform writeonly iimageBuffer triangleBuffer;
 uniform writeonly imageBuffer normalBuffer;
 uniform float isoLevel;
+uniform bool isWater;
 uniform ivec3 size;
 
 
@@ -70,8 +71,9 @@ void main() {
 
         vec3 normal = normalize(cross(v2-v0, v1-v0));
         //vec3 normal = normalize(v2+v0+v1);
-        int type = int(distance(vec3(512), v1)/45);
-        //if(type > 6) if(dot(normalize(vec3(512)-v1), normal)<0.8) type = 5;
+        int type = int(distance(vec3(512), v1)/51);
+        if (isWater) type = 13;
+        // if(type > 7) if(dot(normalize(vec3(512)-v1), normal)<0.5) type = 6;
         imageStore(normalBuffer, int(triangleIDIndex/3), vec4(normal, type));
 
         i+=3;

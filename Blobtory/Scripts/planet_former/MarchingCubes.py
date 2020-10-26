@@ -1,4 +1,5 @@
 import math
+from copy import copy, deepcopy
 
 from panda3d.core import Texture, Shader, NodePath, LVecBase3i, ShaderAttrib, GeomEnums, GeomNode, \
     GeomVertexFormat, GeomVertexData, GeomTriangles, Geom, OmniBoundingVolume, Material, LColor, SamplerState, \
@@ -29,7 +30,7 @@ class MarchingCubes:
 
     def EdgeGenerator(self) -> Texture:
         if self.edgeVertexBuffer is None:
-            self.edgeVertexBuffer = Texture("edge vertex buffer")
+            self.edgeVertexBuffer = deepcopy(Texture("edge vertex buffer"))
             self.edgeVertexBuffer.setup_3d_texture(self.size[0]*3, self.size[1], self.size[2],
                                                    Texture.T_float, Texture.F_rgba32)
         else:
@@ -53,21 +54,21 @@ class MarchingCubes:
 
     def MarchCube(self):
         if self.atomic is None:
-            self.atomic = Texture("atomic int")
+            self.atomic = copy(Texture("atomic int"))
             self.atomic.setupBufferTexture(1, Texture.T_int, Texture.F_r32i, GeomEnums.UH_dynamic)
 
         if self.triangleBuffer is None:
-            self.triangleBuffer = Texture("Cube march triangle Buffer")
+            self.triangleBuffer = deepcopy(Texture("Cube march triangle Buffer"))
             self.triangleBuffer.setupBufferTexture((self.size[0]-1)*(self.size[1]-1)*(self.size[2]-1)*4*3,
                                                    Texture.T_int, Texture.F_rgba32, GeomEnums.UH_dynamic)
-            self.normalBuffer = Texture("Cube march normal Buffer")
+            self.normalBuffer = deepcopy(Texture("Cube march normal Buffer"))
             self.normalBuffer.setupBufferTexture((self.size[0] - 1) * (self.size[1] - 1) * (self.size[2] - 1) * 4,
                                                    Texture.T_float, Texture.F_rgba32, GeomEnums.UH_dynamic)
         else:
             self.triangleBuffer.setClearColor(-1)
 
         if self.triangulationBuffer is None:
-            self.triangulationBuffer = Texture("Triangulation buffer")
+            self.triangulationBuffer = deepcopy(Texture("Triangulation buffer"))
             self.triangulationBuffer.setup_2d_texture(16, 256, Texture.T_int, Texture.F_r32i)
             self.triangulationBuffer.set_ram_image(MarchTable.TRIANGULATION.tobytes())
         else:
@@ -77,6 +78,7 @@ class MarchingCubes:
             shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/cubemarcher.glsl")
             self.cubeMarchBufferGeneratorNode = NodePath("Cube march triangle Generator")
             self.cubeMarchBufferGeneratorNode.set_shader(shader)
+            self.cubeMarchBufferGeneratorNode.set_shader_input("isWater", self.cubeformer.isWater)
             self.cubeMarchBufferGeneratorNode.set_shader_input("isoLevel", 0.5)
             self.cubeMarchBufferGeneratorNode.set_shader_input("size", self.size)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triagIndexBuffer", self.atomic)

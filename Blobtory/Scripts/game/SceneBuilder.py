@@ -39,6 +39,7 @@ class SceneBuilder:
 
     def IncreaseSize(self, planetGen: PlanetGenerator, a):
         planetGen.cubeformer.mouseTime.setData(PTAFloat([10, 0, 0, planetGen.cubeformer.mouseTime.getElement(3)+a]))
+        planetGen.cubeformerNav.mouseTime.setData(PTAFloat([10, 0, 0, planetGen.cubeformer.mouseTime.getElement(3) + a]))
         planetGen.RegenPlanet()
 
     def SetupLighting(self):

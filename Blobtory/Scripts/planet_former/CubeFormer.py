@@ -1,4 +1,5 @@
 import math
+from copy import copy, deepcopy
 
 from panda3d.core import Texture, NodePath, Shader, LVecBase3i, ShaderAttrib, PTAFloat, LVecBase3f
 from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
@@ -10,6 +11,7 @@ class CubeFormer:
     __cubeBufferCreatorComputeNode: NodePath = None
     offset = PTAFloat([0])
     radius = PTAFloat([0])
+    isWater = False
 
     def __init__(self, winCreator: WindowCreator, width: int, length: int, height: int, spacing: float):
         self.winCreator = winCreator
@@ -21,7 +23,7 @@ class CubeFormer:
 
     def GenerateCube(self) -> Texture:
         if self.vertexBuffer is None:
-            self.vertexBuffer = Texture("vertex buffer")
+            self.vertexBuffer = deepcopy(Texture("vertex buffer"))
             self.vertexBuffer.setup_3d_texture(self.size[0], self.size[1], self.size[2], Texture.T_float, Texture.F_rgba32)
 
         if self.__cubeBufferCreatorComputeNode is None:
