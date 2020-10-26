@@ -70,7 +70,7 @@ void main() {
 
         vec3 normal = normalize(cross(v2-v0, v1-v0));
         //vec3 normal = normalize(v2+v0+v1);
-        int type = int(distance(vec3(512), v1)/55);
+        int type = int(distance(vec3(512), v1)/45);
         //if(type > 6) if(dot(normalize(vec3(512)-v1), normal)<0.8) type = 5;
         imageStore(normalBuffer, int(triangleIDIndex/3), vec4(normal, type));
 

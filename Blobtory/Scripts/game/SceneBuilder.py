@@ -31,9 +31,15 @@ class SceneBuilder:
         Sequence(startInterval, endInterval).loop()
 
     def SetupPlanets(self):
-        planetGen: PlanetGenerator = PlanetGenerator(self.winCreator, 128, 500)
-        planetGen.cubeformer.mouseTime.setData(PTAFloat([10, 0, 0, 1]))
-        self.base.accept("a", planetGen.RegenPlanet)
+        planetGen: PlanetGenerator = PlanetGenerator(self.winCreator, 128, 450)
+        self.base.accept("d", self.IncreaseSize, [planetGen, 1.5])
+        self.base.accept("d-repeat", self.IncreaseSize, [planetGen, 1.5])
+        self.base.accept("a", self.IncreaseSize, [planetGen, -1.5])
+        self.base.accept("a-repeat", self.IncreaseSize, [planetGen, -1.5])
+
+    def IncreaseSize(self, planetGen: PlanetGenerator, a):
+        planetGen.cubeformer.mouseTime.setData(PTAFloat([10, 0, 0, planetGen.cubeformer.mouseTime.getElement(3)+a]))
+        planetGen.RegenPlanet()
 
     def SetupLighting(self):
         # Add ambient lighting

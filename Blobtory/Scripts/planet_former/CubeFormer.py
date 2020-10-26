@@ -16,7 +16,7 @@ class CubeFormer:
         self.size = LVecBase3i(width, length, height)
         self.spacing = spacing
         self.vertexCount = width*length*height
-        self.mouseTime = PTAFloat([0, 0, 0, 0])
+        self.mouseTime: PTAFloat = PTAFloat([0, 0, 0, 0])
 
     def GenerateCube(self) -> Texture:
         if self.vertexBuffer is None:

@@ -8,7 +8,7 @@ uniform float radius;
 uniform float offset;
 uniform vec3 midPoint;
 uniform vec4 mouseTime;
-const int craterCount = 30;
+const int craterCount = 300;
 
 layout(rgba32f, binding = 0) uniform image3D vertexBufferWAlpha;
 
@@ -38,34 +38,30 @@ void main() {
     if (mouseTime.x == 0)  mouseX = 0.1;
 
     float lengthFromCenter = length(movedPoint);
-//    float phi = atan(movedPoint.y/movedPoint.x);
-//    float theta = acos(movedPoint.z/r)+mouseTime.y;
-//    vec3 polarCoord = vec3(r, phi, theta);
 
-
-//    point.w = (snoise(polarCoord.yz/(mouseX*10))*radius - r);
-
-    float noiseOuter = 1-abs(fractalNoise(normalize(movedPoint)*1)+1)*mouseTime.w*100;
+    float noiseOuter = (1-abs(fractalNoise(normalize(movedPoint)*1)+1))*mouseTime.w;
     float planetRadius = radius+noiseOuter;
-    point.w = smoothstep(0, 1, (planetRadius - lengthFromCenter)/10);
+    point.w = smoothstep(0, 1, (planetRadius - lengthFromCenter)/100);
 
 
-    float cometOffset = 0.9;
-    float cometDiff = 0.01;
-    float sizeMatters = 0.4;
+    float cometOffset = 0.8;
+    float cometDiff = 50.5;
+    float sizeMatters = 0.1;
     for (int i = 0; i < craterCount; i++) {
         float theta = rand((offset+i))*2*PI;
         float phi = rand((offset+i+200))*2*PI;
 
-        float cometSize = rand((offset+i))*200+50;
+        float cometSize = rand((offset+i))*50+100;
 
         vec3 cartCraterNormal = vec3(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
         vec3 cartCraterPosCenter = (planetRadius*cometOffset-cometDiff+cometSize*sizeMatters)*cartCraterNormal;
         vec3 cartCraterPosOffset = (planetRadius*cometOffset+cometSize*sizeMatters)*cartCraterNormal;
 
-        point.w += smoothstep(0,1, max(0, cometSize-distance(movedPoint, cartCraterPosCenter)));
-        point.w -= smoothstep(0,1, max(0, cometSize-cometDiff-distance(movedPoint, cartCraterPosOffset)))*5;
+        point.w += smoothstep(0,1, max(0, (cometSize-distance(movedPoint, cartCraterPosCenter))/100));
+        point.w -= smoothstep(0,1, max(0, (cometSize-cometDiff-distance(movedPoint, cartCraterPosOffset))/100))*5;
     }
+
+    //point.w = dot(sin(movedPoint.xyz*0.05)*0.3, vec3(1));
 
     imageStore(vertexBufferWAlpha, ivec3(gl_GlobalInvocationID.xyz), point);
 }

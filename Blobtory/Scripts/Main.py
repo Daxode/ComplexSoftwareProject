@@ -9,7 +9,7 @@ from Blobtory.Scripts.game.SceneBuilder import SceneBuilder
 # so stuff doesn't get out of control
 #
 # Author:  Daniel Kierkegaard Andersen (dax@daxode.dk)
-# Version: 2020-09-22
+# Version: 2020-10-24
 #
 # Copyright (c) 2020 Daniel Kierkegaard Andersen. All rights reserved.
 # https://github.com/Daxode/ComplexSoftwareProject
