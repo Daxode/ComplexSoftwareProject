@@ -17,6 +17,7 @@ class CubeFormer:
         self.spacing = spacing
         self.vertexCount = width*length*height
         self.mouseTime: PTAFloat = PTAFloat([0, 0, 0, 0])
+        self.planetCenters: PTAFloat = PTAFloat([0, 0, 0, 0])
 
     def GenerateCube(self) -> Texture:
         if self.vertexBuffer is None:
@@ -42,7 +43,7 @@ class CubeFormer:
             shader = Shader.load_compute(Shader.SL_GLSL, "assets/shaders/compute/alphaNoiseSphere.glsl")
             self.__alphaNoiseSphereComputeNode = NodePath("alphaNoiseSphere Compute Node")
             self.__alphaNoiseSphereComputeNode.set_shader(shader)
-            self.__alphaNoiseSphereComputeNode.set_shader_input("midPoint", LVecBase3f(
+            self.__alphaNoiseSphereComputeNode.set_shader_input("center", LVecBase3f(
                 self.size.getX()*self.spacing,
                 self.size.getY()*self.spacing,
                 self.size.getZ()*self.spacing)*0.5)
