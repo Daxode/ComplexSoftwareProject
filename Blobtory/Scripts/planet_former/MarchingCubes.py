@@ -25,7 +25,6 @@ class MarchingCubes:
         self.cubeformer = cubeformer
         self.winCreator = cubeformer.winCreator
         self.size = cubeformer.size
-        self.cubeVertexBuffer = cubeformer.vertexBuffer
         self.edgeVertexCount = self.cubeformer.vertexCount*3
 
     def EdgeGenerator(self) -> Texture:
@@ -42,7 +41,7 @@ class MarchingCubes:
             self.edgeBufferGeneratorNode.set_shader(shader)
             self.edgeBufferGeneratorNode.set_shader_input("isoLevel", 0.5)
             self.edgeBufferGeneratorNode.set_shader_input("size", self.size)
-            self.edgeBufferGeneratorNode.set_shader_input("vertexBufferWAlphaCube", self.cubeVertexBuffer)
+            self.edgeBufferGeneratorNode.set_shader_input("vertexBufferWAlphaCube", self.cubeformer.vertexBuffer)
             self.edgeBufferGeneratorNode.set_shader_input("vertexBufferEdge", self.edgeVertexBuffer)
 
         yass = LVecBase3i(math.ceil(self.size[0]*3 / 16), math.ceil(self.size[1] / 8), math.ceil(self.size[2] / 8))
@@ -54,7 +53,7 @@ class MarchingCubes:
 
     def MarchCube(self):
         if self.atomic is None:
-            self.atomic = copy(Texture("atomic int"))
+            self.atomic = deepcopy(Texture("atomic int"))
             self.atomic.setupBufferTexture(1, Texture.T_int, Texture.F_r32i, GeomEnums.UH_dynamic)
 
         if self.triangleBuffer is None:
@@ -83,7 +82,7 @@ class MarchingCubes:
             self.cubeMarchBufferGeneratorNode.set_shader_input("size", self.size)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triagIndexBuffer", self.atomic)
 
-            self.cubeMarchBufferGeneratorNode.set_shader_input("vertexBufferWAlphaCube", self.cubeVertexBuffer)
+            self.cubeMarchBufferGeneratorNode.set_shader_input("vertexBufferWAlphaCube", self.cubeformer.vertexBuffer)
             self.cubeMarchBufferGeneratorNode.set_shader_input("vertexBufferEdge", self.edgeVertexBuffer)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triangleBuffer", self.triangleBuffer)
             self.cubeMarchBufferGeneratorNode.set_shader_input("triangulationBuffer", self.triangulationBuffer)
@@ -122,10 +121,10 @@ class MarchingCubes:
             self.winCreator.base.render.find("**/node").removeNode()
 
         self.geomPath = self.winCreator.base.render.attach_new_node(node)
-        self.geomPath.setPos(
-            -self.size.getX()*0.5*self.cubeformer.spacing,
-            -self.size.getY()*0.5*self.cubeformer.spacing,
-            -self.size.getZ()*0.5*self.cubeformer.spacing)
+        # self.geomPath.setPos(
+        #     -self.size.getX()*0.5*self.cubeformer.spacing,
+        #     -self.size.getY()*0.5*self.cubeformer.spacing,
+        #     -self.size.getZ()*0.5*self.cubeformer.spacing)
 
         self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
         self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
@@ -133,7 +132,7 @@ class MarchingCubes:
         self.geomPath.set_shader_input('normalBuffer', self.normalBuffer)
 
         myMaterial = Material()
-        myMaterial.setShininess(0.8)  # Make this material shiny
+        myMaterial.setShininess(0.4)  # Make this material shiny
         self.geomPath.setMaterial(myMaterial)
 
         myMarchCubeMatsTex = self.winCreator.base.loader.loadTexture(

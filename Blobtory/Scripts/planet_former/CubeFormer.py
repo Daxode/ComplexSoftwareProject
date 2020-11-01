@@ -13,7 +13,8 @@ class CubeFormer:
     radius = PTAFloat([0])
     isWater = False
 
-    def __init__(self, winCreator: WindowCreator, width: int, length: int, height: int, spacing: float):
+    def __init__(self, winCreator: WindowCreator, name: str, width: int, length: int, height: int, spacing: float):
+        self.name = name
         self.winCreator = winCreator
         self.size = LVecBase3i(width, length, height)
         self.spacing = spacing
@@ -23,7 +24,7 @@ class CubeFormer:
 
     def GenerateCube(self) -> Texture:
         if self.vertexBuffer is None:
-            self.vertexBuffer = deepcopy(Texture("vertex buffer"))
+            self.vertexBuffer = deepcopy(Texture("vertex buffer"+self.name))
             self.vertexBuffer.setup_3d_texture(self.size[0], self.size[1], self.size[2], Texture.T_float, Texture.F_rgba32)
 
         if self.__cubeBufferCreatorComputeNode is None:

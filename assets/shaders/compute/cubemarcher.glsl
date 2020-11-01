@@ -65,14 +65,14 @@ void main() {
         vec3 v1 = imageLoad(vertexBufferEdge, vertexID.xyz).xyz;
 
         ivec4 globalIndexForC = globalEdgeFromLocal[imageLoad(triangulationBuffer, ivec2(i+2, cubeIndex)).x];
-        vertexID = ivec4(id+globalIndexForC.xyz+(ivec3(size.x, 0, 0)*globalIndexForC.w), cubeIndex);
+        vertexID = ivec4(id+globalIndexForC.xyz+(ivec3(size.x, 0, 0)*globalIndexForC.w), 0);
         imageStore(triangleBuffer, triangleIDIndex+2, vertexID);
         vec3 v2 = imageLoad(vertexBufferEdge, vertexID.xyz).xyz;
 
         vec3 normal = normalize(cross(v2-v0, v1-v0));
         //vec3 normal = normalize(v2+v0+v1);
         int type = int(distance(vec3(512), v1)/51);
-        if (isWater) type = 13;
+        if (isWater) type = 13; //int(sin(dot(normal,vec3(1)))*1+13);
         // if(type > 7) if(dot(normalize(vec3(512)-v1), normal)<0.5) type = 6;
         imageStore(normalBuffer, int(triangleIDIndex/3), vec4(normal, type));
 
