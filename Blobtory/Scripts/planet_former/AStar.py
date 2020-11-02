@@ -14,8 +14,8 @@ def GetDist(pFrom: Tuple[float, float, float, float],
 
 def ReconstructPath(cameFrom: Dict[NodeRef, NodeKey], current: NodeKey):
     totalPath: List[Tuple[float, float, float, float]] = [current.point]
-    for key in cameFrom.keys():
-        current = cameFrom[key]
+    while current in cameFrom.keys():
+        current = cameFrom[current]
         totalPath.insert(0, current.point)
 
     return totalPath
@@ -43,7 +43,6 @@ class AStar:
                       pTo: Tuple[float, float, float, float]
                       ) -> List[Tuple[float, float, float, float]]:
         startNode = self.GetKeyNodeFromPoint(pFrom)
-
         openSet = PriorityQueue()
         openSet.put((0, startNode))
         cameFrom: Dict[NodeRef, NodeKey] = {}

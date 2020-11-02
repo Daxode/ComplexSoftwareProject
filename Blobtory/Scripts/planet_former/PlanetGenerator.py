@@ -63,6 +63,7 @@ class PlanetGenerator:
         self.winCreator.base.accept("r", self.NextPoint)
 
     def NextPoint(self):
+        for i in range(20): next(self.listOfItems)
         examplePointTo: NodeKey = next(self.listOfItems)
 
         self.sphere3.setPos(examplePointTo[0], examplePointTo[1], examplePointTo[2])
