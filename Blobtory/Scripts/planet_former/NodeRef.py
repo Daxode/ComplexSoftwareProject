@@ -14,6 +14,12 @@ class NodeRef:
     def __eq__(self, other):
         return hash(self) == hash(other)
 
+    def __str__(self):
+        return str(self.point)
+
+    def __repr__(self):
+        return str(self.point)
+
 
 class NodeKey:
     point: (float, float, float, float)
@@ -30,3 +36,9 @@ class NodeKey:
 
     def __eq__(self, other):
         return hash(self) == hash(other)
+
+    def __str__(self):
+        return str(self.point)
+
+    def __repr__(self):
+        return str(self.point)

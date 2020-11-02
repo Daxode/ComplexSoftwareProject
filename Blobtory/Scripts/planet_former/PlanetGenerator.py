@@ -17,6 +17,8 @@ from Blobtory.Scripts.planet_former.AStar import AStar
 class PlanetGenerator:
     shouldUpdatePhysicsMeshes = False
     aStarHandler: AStar
+    listOfItems = None
+    examplePointFrom: NodeKey
 
     def __init__(self, winCreator: WindowCreator, gridSize: int, radius: float):
         self.radius = radius
@@ -58,6 +60,18 @@ class PlanetGenerator:
         self.RegenPlanet()
         self.winCreator.base.taskMgr.doMethodLater(1, self.UpdatePhysicsMesh, "Planet Physics Updater")
 
+        self.winCreator.base.accept("r", self.NextPoint)
+
+    def NextPoint(self):
+        examplePointTo: NodeKey = next(self.listOfItems)
+
+        self.sphere3.setPos(examplePointTo[0], examplePointTo[1], examplePointTo[2])
+        PipelineInstancing.RenderThisModelAtVertexes(self.sphere1,
+                                                     self.aStarHandler.GetPathFromTo(
+                                                         self.examplePointFrom.point,
+                                                         examplePointTo.point),
+                                                     self.winCreator)
+
     def RegenPlanet(self):
         self.winCreator.baseData.debuggerPlanetFormer.Inform("Regenerating planet")
         self.cubeformerNav.GenerateNoiseSphere(self.radius)
@@ -72,67 +86,61 @@ class PlanetGenerator:
 
     def UpdatePhysicsMesh(self, task):
         if self.shouldUpdatePhysicsMeshes:
-            # Generate marching
-            self.marchingCubesNav.EdgeGenerator()
-            self.marchingCubesNav.MarchCube()
-
-            # Extract Mesh Data (Tri Indexes and Vertexes)
-            self.winCreator.base.graphicsEngine.extractTextureData(self.marchingCubesNav.edgeVertexBuffer,
-                                                                   self.winCreator.base.win.gsg)
-            ramImageVertex = self.marchingCubesNav.edgeVertexBuffer.getRamImage()
-            output = np.frombuffer(ramImageVertex, dtype=np.float32)
-            output: np.ndarray = output.reshape((self.marchingCubesNav.size[2],
-                                     self.marchingCubesNav.size[1],
-                                     self.marchingCubesNav.size[0]*3, 4))
-
-            self.winCreator.base.graphicsEngine.extractTextureData(self.marchingCubesNav.triangleBuffer,
-                                                                   self.winCreator.base.win.gsg)
-            ramImage = self.marchingCubesNav.triangleBuffer.getRamImage()
-            outputTriangle = memoryview(ramImage).cast("i")
-
-            # Restructure that data to be a node network instead using a dictionary
-            outputR = map(tuple, output.reshape((self.marchingCubesNav.size[0]*3 *
-                                     self.marchingCubesNav.size[1] *
-                                     self.marchingCubesNav.size[2], 4)))
-            nodeDict = dict((NodeKey(el), set([])) for el in outputR)
-            del outputR
-
-            buffer = np.empty(12, dtype=int)
-
-            triagIndexCount = self.marchingCubesNav.vertexCount * 4
-            for count, x in enumerate(outputTriangle):
-                buffer[count % 12] = x
-                if count % 12 == 11:
-                    v1: NodeRef = NodeRef(tuple(output[buffer[2], buffer[1], buffer[0]]))
-                    v2: NodeRef = NodeRef(tuple(output[buffer[6], buffer[5], buffer[4]]))
-                    v3: NodeRef = NodeRef(tuple(output[buffer[10], buffer[9], buffer[8]]))
-
-                    nodeDict[v1].add(v2)
-                    nodeDict[v1].add(v3)
-
-                    nodeDict[v2].add(v1)
-                    nodeDict[v2].add(v3)
-
-                    nodeDict[v3].add(v2)
-                    nodeDict[v3].add(v1)
-
-                if count > triagIndexCount:
-                    break
-            listOfItems = (item[0] for item in nodeDict.items() if len(item[1]) > 0)
-
-            examplePointFrom: NodeKey = next(listOfItems)
-            for i in range(128): next(listOfItems)
-            examplePointTo: NodeKey = next(listOfItems)
-
-            self.sphere2.setPos(examplePointFrom[0], examplePointFrom[1], examplePointFrom[2])
-            self.sphere3.setPos(examplePointTo[0], examplePointTo[1], examplePointTo[2])
-
-            self.aStarHandler = AStar(nodeDict)
-            PipelineInstancing.RenderThisModelAtVertexes(self.sphere1,
-                                                         self.aStarHandler.GetPathFromTo(
-                                                             examplePointFrom.point,
-                                                             examplePointTo.point),
-                                                         self.winCreator)
+            self.GenerateAStarPather()
 
             self.shouldUpdatePhysicsMeshes = False
         return Task.again
+
+    def GenerateAStarPather(self):
+        # Generate marching
+        self.marchingCubesNav.EdgeGenerator()
+        self.marchingCubesNav.MarchCube()
+
+        # Extract Mesh Data (Tri Indexes and Vertexes)
+        self.winCreator.base.graphicsEngine.extractTextureData(self.marchingCubesNav.edgeVertexBuffer,
+                                                               self.winCreator.base.win.gsg)
+        ramImageVertex = self.marchingCubesNav.edgeVertexBuffer.getRamImage()
+        output = np.frombuffer(ramImageVertex, dtype=np.float32)
+        output: np.ndarray = output.reshape((self.marchingCubesNav.size[2],
+                                             self.marchingCubesNav.size[1],
+                                             self.marchingCubesNav.size[0] * 3, 4))
+
+        self.winCreator.base.graphicsEngine.extractTextureData(self.marchingCubesNav.triangleBuffer,
+                                                               self.winCreator.base.win.gsg)
+        ramImage = self.marchingCubesNav.triangleBuffer.getRamImage()
+        outputTriangle = memoryview(ramImage).cast("i")
+
+        # Restructure that data to be a node network instead using a dictionary
+        outputR = map(tuple, output.reshape((self.marchingCubesNav.size[0] * 3 *
+                                             self.marchingCubesNav.size[1] *
+                                             self.marchingCubesNav.size[2], 4)))
+        nodeDict = dict((NodeKey(el), set([])) for el in outputR)
+        del outputR
+
+        buffer = np.empty(12, dtype=int)
+
+        triagIndexCount = self.marchingCubesNav.vertexCount * 4
+        for count, x in enumerate(outputTriangle):
+            buffer[count % 12] = x
+            if count % 12 == 11:
+                v1: NodeRef = NodeRef(tuple(output[buffer[2], buffer[1], buffer[0]]))
+                v2: NodeRef = NodeRef(tuple(output[buffer[6], buffer[5], buffer[4]]))
+                v3: NodeRef = NodeRef(tuple(output[buffer[10], buffer[9], buffer[8]]))
+
+                nodeDict[v1].add(v2)
+                nodeDict[v1].add(v3)
+
+                nodeDict[v2].add(v1)
+                nodeDict[v2].add(v3)
+
+                nodeDict[v3].add(v2)
+                nodeDict[v3].add(v1)
+
+            if count > triagIndexCount:
+                break
+        self.listOfItems = (item[0] for item in nodeDict.items() if len(item[1]) > 0)
+
+        self.examplePointFrom: NodeKey = next(self.listOfItems)
+        self.sphere2.setPos(self.examplePointFrom[0], self.examplePointFrom[1], self.examplePointFrom[2])
+
+        self.aStarHandler = AStar(nodeDict)
