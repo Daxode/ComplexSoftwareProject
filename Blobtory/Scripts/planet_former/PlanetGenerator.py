@@ -3,20 +3,20 @@ import array
 from direct.task import Task
 from panda3d.core import PTAFloat, LVecBase3f
 import numpy as np
-from typing import Dict
-import cv2
+from typing import Dict, Set
 import copy
 
 from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 from Blobtory.Scripts.planet_former.CubeFormer import CubeFormer
 from Blobtory.Scripts.planet_former.MarchingCubes import MarchingCubes
 from Blobtory.Scripts.Pipeline.PipelineInstancing import PipelineInstancing
+from Blobtory.Scripts.planet_former.NodeRef import NodeRef, NodeKey
+from Blobtory.Scripts.planet_former.AStar import AStar
 
 
 class PlanetGenerator:
     shouldUpdatePhysicsMeshes = False
-    nodeDict: Dict = {}
-    listOfItems = None
+    aStarHandler: AStar
 
     def __init__(self, winCreator: WindowCreator, gridSize: int, radius: float):
         self.radius = radius
@@ -25,11 +25,13 @@ class PlanetGenerator:
         # Setup Mesh
         self.cubeformer: CubeFormer = CubeFormer(self.winCreator, "Normal", gridSize, gridSize, gridSize, winCreator.cubeSpacing)
         self.cubeformer.GenerateCube()
+        self.cubeformer.mouseTime.setData(PTAFloat([10, 0, 0, 60.1]))
         self.marchingCubes: MarchingCubes = MarchingCubes(self.cubeformer)
 
         # Setup Navigation Mesh
         self.cubeformerNav: CubeFormer = CubeFormer(self.winCreator, "Navigation", gridSize//8, gridSize//8, gridSize//8, winCreator.cubeSpacing*8)
         self.cubeformerNav.GenerateCube()
+        self.cubeformerNav.mouseTime = self.cubeformer.mouseTime
         self.marchingCubesNav: MarchingCubes = MarchingCubes(self.cubeformerNav)
 
         # Setup Water Mesh
@@ -44,34 +46,17 @@ class PlanetGenerator:
         self.marchingCubesWater.MarchCube()
         self.marchingCubesWater.GenerateMesh()
 
-        self.sphere = self.winCreator.base.loader.loadModel("assets/models/icosphere")
+        self.sphere1 = self.winCreator.base.loader.loadModel("assets/models/icosphere")
         self.sphere2 = self.winCreator.base.loader.loadModel("assets/models/icosphere")
-
-        # sphere = self.winCreator.base.loader.loadModel("assets/models/icosphere")
-        # PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(sphere, self.cubeformer.vertexBuffer,
-        #                                                        self.cubeformer.size, self.winCreator)
-
-        # box = self.winCreator.base.loader.loadModel("box")
-        # PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(box, self.cubeformerNav.vertexBuffer,
-        #                                                          self.cubeformerNav.size, self.winCreator)
-
-        self.RegenPlanet()
-        # self.winCreator.base.taskMgr.setupTaskChain('physics', numThreads=1)
-        self.winCreator.base.taskMgr.doMethodLater(1, self.UpdatePhysicsMesh, "Planet Physics Updater"''', taskChain="physics"''')
-        self.winCreator.base.accept("r", self.TryNavmesh)
-        self.winCreator.base.accept("r-repeat", self.TryNavmesh)
-
-    def TryNavmesh(self):
-        examplePoint = next(self.listOfItems)
-        neighbourPoints = self.nodeDict[examplePoint]
-
         self.sphere2.reparentTo(self.winCreator.base.render)
         self.sphere2.setScale(10)
-        self.sphere2.setPos(examplePoint[0], examplePoint[1], examplePoint[2])
-        print(examplePoint, neighbourPoints)
 
-        # PipelineInstancing.RenderThisModelAtVertexesFrom3DBuffer(sphere, self.marchingCubesNav.edgeVertexBuffer, self.marchingCubesNav.size, self.winCreator)
-        PipelineInstancing.RenderThisModelAtVertexes(self.sphere, list(neighbourPoints), self.winCreator)
+        self.sphere3 = self.winCreator.base.loader.loadModel("assets/models/icosphere")
+        self.sphere3.reparentTo(self.winCreator.base.render)
+        self.sphere3.setScale(10)
+
+        self.RegenPlanet()
+        self.winCreator.base.taskMgr.doMethodLater(1, self.UpdatePhysicsMesh, "Planet Physics Updater")
 
     def RegenPlanet(self):
         self.winCreator.baseData.debuggerPlanetFormer.Inform("Regenerating planet")
@@ -82,7 +67,7 @@ class PlanetGenerator:
     def UpdatePlanet(self):
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
-        #self.marchingCubes.GenerateMesh()
+        self.marchingCubes.GenerateMesh()
         self.shouldUpdatePhysicsMeshes = True
 
     def UpdatePhysicsMesh(self, task):
@@ -90,7 +75,6 @@ class PlanetGenerator:
             # Generate marching
             self.marchingCubesNav.EdgeGenerator()
             self.marchingCubesNav.MarchCube()
-            self.marchingCubesNav.GenerateMesh()
 
             # Extract Mesh Data (Tri Indexes and Vertexes)
             self.winCreator.base.graphicsEngine.extractTextureData(self.marchingCubesNav.edgeVertexBuffer,
@@ -110,7 +94,7 @@ class PlanetGenerator:
             outputR = map(tuple, output.reshape((self.marchingCubesNav.size[0]*3 *
                                      self.marchingCubesNav.size[1] *
                                      self.marchingCubesNav.size[2], 4)))
-            self.nodeDict = dict((el, set([])) for el in outputR)
+            nodeDict = dict((NodeKey(el), set([])) for el in outputR)
             del outputR
 
             buffer = np.empty(12, dtype=int)
@@ -119,23 +103,36 @@ class PlanetGenerator:
             for count, x in enumerate(outputTriangle):
                 buffer[count % 12] = x
                 if count % 12 == 11:
-                    print(output.shape, buffer)
-                    v1 = tuple(output[buffer[2], buffer[1], buffer[0]])
-                    v2 = tuple(output[buffer[6], buffer[5], buffer[4]])
-                    v3 = tuple(output[buffer[10], buffer[9], buffer[8]])
+                    v1: NodeRef = NodeRef(tuple(output[buffer[2], buffer[1], buffer[0]]))
+                    v2: NodeRef = NodeRef(tuple(output[buffer[6], buffer[5], buffer[4]]))
+                    v3: NodeRef = NodeRef(tuple(output[buffer[10], buffer[9], buffer[8]]))
 
-                    self.nodeDict[v1].add(v2)
-                    self.nodeDict[v1].add(v3)
+                    nodeDict[v1].add(v2)
+                    nodeDict[v1].add(v3)
 
-                    self.nodeDict[v2].add(v1)
-                    self.nodeDict[v2].add(v3)
+                    nodeDict[v2].add(v1)
+                    nodeDict[v2].add(v3)
 
-                    self.nodeDict[v3].add(v2)
-                    self.nodeDict[v3].add(v1)
+                    nodeDict[v3].add(v2)
+                    nodeDict[v3].add(v1)
 
                 if count > triagIndexCount:
                     break
-            self.listOfItems = (item[0] for item in self.nodeDict.items() if len(item[1]) > 0)
+            listOfItems = (item[0] for item in nodeDict.items() if len(item[1]) > 0)
+
+            examplePointFrom: NodeKey = next(listOfItems)
+            for i in range(128): next(listOfItems)
+            examplePointTo: NodeKey = next(listOfItems)
+
+            self.sphere2.setPos(examplePointFrom[0], examplePointFrom[1], examplePointFrom[2])
+            self.sphere3.setPos(examplePointTo[0], examplePointTo[1], examplePointTo[2])
+
+            self.aStarHandler = AStar(nodeDict)
+            PipelineInstancing.RenderThisModelAtVertexes(self.sphere1,
+                                                         self.aStarHandler.GetPathFromTo(
+                                                             examplePointFrom.point,
+                                                             examplePointTo.point),
+                                                         self.winCreator)
 
             self.shouldUpdatePhysicsMeshes = False
         return Task.again
