@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 import version
 from Cython.Build import cythonize
 
-setup(
-    name='Nodes Compiling',
-    ext_modules=cythonize("Blobtory/Scripts/planet_former/Nodes.pyx"),
-    zip_safe=False,
-)
+# setup(
+#     name='Nodes Compiling',
+#     ext_modules=cythonize("Blobtory/Scripts/planet_former/Nodes.pyx"),
+#     zip_safe=False,
+# )
 
 # setup(
 #     name='A Star Compiling',
@@ -16,6 +16,8 @@ setup(
 
 setup(
     name="Blobtory",
+    ext_modules=cythonize("Blobtory/Scripts/planet_former/Nodes.pyx"),
+    zip_safe=False,
     version=version.version,
     packages=find_packages(include=['Blobtory', 'Blobtory.*']),
     install_requires=[
