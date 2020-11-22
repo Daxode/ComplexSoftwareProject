@@ -1,3 +1,4 @@
+from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from panda3d.core import QueuedConnectionManager, QueuedConnectionListener, QueuedConnectionReader, ConnectionWriter
 from panda3d.core import PointerToConnection, NetAddress, NetDatagram
@@ -54,4 +55,13 @@ class Server:
         msgID = myIterator.getUint8()
         if msgID == 1:
             messageToPrint = myIterator.getString()
+            if "Go" in messageToPrint:
+                if "Next" in messageToPrint:
+                    print("go next on all clients")
+                    for clientConnection in self.activeConnections:
+                        myPyDatagram = PyDatagram()
+                        myPyDatagram.addUint8(1)
+                        myPyDatagram.addString("Go Next")
+                        self.cWriter.send(myPyDatagram, clientConnection)
+
             print(messageToPrint)

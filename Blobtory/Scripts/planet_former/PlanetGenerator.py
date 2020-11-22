@@ -61,8 +61,6 @@ class PlanetGenerator:
         self.RegenPlanet()
         self.winCreator.base.taskMgr.doMethodLater(1, self.UpdatePhysicsMesh, "Planet Physics Updater")
 
-        self.winCreator.base.accept("r", self.NextPoint)
-
     def NextPoint(self):
         for i in range(20): next(self.listOfItems)
         examplePointTo: NodeKey = next(self.listOfItems)

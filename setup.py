@@ -17,7 +17,7 @@ from Cython.Build import cythonize
 setup(
     name="Blobtory",
     ext_modules=cythonize("Blobtory/Scripts/planet_former/Nodes.pyx"),
-    zip_safe=False,
+    # zip_safe=False,
     version=version.version,
     packages=find_packages(include=['Blobtory', 'Blobtory.*']),
     install_requires=[

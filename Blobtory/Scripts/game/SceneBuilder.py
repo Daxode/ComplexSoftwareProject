@@ -7,6 +7,8 @@ from Blobtory.Scripts.planet_former.PlanetGenerator import PlanetGenerator
 
 
 class SceneBuilder:
+    planetGen: PlanetGenerator
+
     def __init__(self, winCreator: WindowCreator):
         self.winCreator = winCreator
         self.base = winCreator.base
@@ -31,11 +33,11 @@ class SceneBuilder:
         Sequence(startInterval, endInterval).loop()
 
     def SetupPlanets(self):
-        planetGen: PlanetGenerator = PlanetGenerator(self.winCreator, 128, 450)
-        self.base.accept("d", self.IncreaseSize, [planetGen, 1.5])
-        self.base.accept("d-repeat", self.IncreaseSize, [planetGen, 1.5])
-        self.base.accept("a", self.IncreaseSize, [planetGen, -1.5])
-        self.base.accept("a-repeat", self.IncreaseSize, [planetGen, -1.5])
+        self.planetGen = PlanetGenerator(self.winCreator, 128, 450)
+        self.base.accept("d", self.IncreaseSize, [self.planetGen, 1.5])
+        self.base.accept("d-repeat", self.IncreaseSize, [self.planetGen, 1.5])
+        self.base.accept("a", self.IncreaseSize, [self.planetGen, -1.5])
+        self.base.accept("a-repeat", self.IncreaseSize, [self.planetGen, -1.5])
 
     def IncreaseSize(self, planetGen: PlanetGenerator, a):
         planetGen.cubeformer.mouseTime.setData(PTAFloat([10, 0, 0, planetGen.cubeformer.mouseTime.getElement(3)+a]))
