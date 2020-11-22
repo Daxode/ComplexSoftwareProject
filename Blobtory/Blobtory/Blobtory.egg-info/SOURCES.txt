@@ -1,0 +1,6 @@
+README.md
+setup.py
+Blobtory.egg-info/PKG-INFO
+Blobtory.egg-info/SOURCES.txt
+Blobtory.egg-info/dependency_links.txt
+Blobtory.egg-info/top_level.txt

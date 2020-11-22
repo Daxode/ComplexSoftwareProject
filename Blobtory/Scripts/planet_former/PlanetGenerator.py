@@ -83,7 +83,7 @@ class PlanetGenerator:
     def UpdatePlanet(self):
         self.marchingCubes.EdgeGenerator()
         self.marchingCubes.MarchCube()
-        # self.marchingCubes.GenerateMesh()
+        self.marchingCubes.GenerateMesh()
         self.shouldUpdatePhysicsMeshes = True
 
     def UpdatePhysicsMesh(self, task):
@@ -97,7 +97,7 @@ class PlanetGenerator:
         # Generate marching
         self.marchingCubesNav.EdgeGenerator()
         self.marchingCubesNav.MarchCube()
-        self.marchingCubesNav.GenerateMesh()
+        # self.marchingCubesNav.GenerateMesh()
 
         # Extract Mesh Data (Tri Indexes and Vertexes)
         self.winCreator.base.graphicsEngine.extractTextureData(self.marchingCubesNav.edgeVertexBuffer,

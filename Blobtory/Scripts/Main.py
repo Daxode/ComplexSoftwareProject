@@ -1,9 +1,11 @@
 from panda3d.core import loadPrcFile, loadPrcFileData
+from panda3d.core import PointerToConnection, NetAddress, NetDatagram
+
 from direct.showbase.ShowBase import ShowBase
 
 from Blobtory.Scripts.Pipeline.WindowCreator import WindowCreator
 from Blobtory.Scripts.game.SceneBuilder import SceneBuilder
-
+from Blobtory.Scripts.Server import Server, Client
 # Description:
 # This is the main program, and should thus be kept clean,
 # so stuff doesn't get out of control
@@ -16,12 +18,21 @@ from Blobtory.Scripts.game.SceneBuilder import SceneBuilder
 
 
 class Main(ShowBase):
+    server: Server.Server
+    client: Client.Client
+
     def __init__(self):
         super().__init__()
         self.winCreator = WindowCreator(self, enableRP=False, isFullscreen=False)
         self.scene: SceneBuilder = SceneBuilder(self.winCreator)
+        self.accept("c", self.ConnectClient)
+        self.accept("v", self.StartServer)
 
-        # self.loader.loadModel("assets/models/icosphere").reparentTo(self.render)
+    def StartServer(self):
+        self.server: Server = Server.Server(self.winCreator)
+
+    def ConnectClient(self):
+        self.client = Client.Client(self.winCreator)
 
 
 loadPrcFileData('', 'framebuffer-srgb #t')
