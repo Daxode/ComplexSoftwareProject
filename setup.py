@@ -1,5 +1,18 @@
 from setuptools import setup, find_packages
 import version
+from Cython.Build import cythonize
+
+setup(
+    name='Nodes Compiling',
+    ext_modules=cythonize("Blobtory/Scripts/planet_former/Nodes.pyx"),
+    zip_safe=False,
+)
+
+# setup(
+#     name='A Star Compiling',
+#     ext_modules=cythonize("Blobtory/Scripts/planet_former/AStarC.pyx", "Blobtory/Scripts/planet_former/Nodes.pyx"),
+#     zip_safe=False,
+# )
 
 setup(
     name="Blobtory",
@@ -9,9 +22,10 @@ setup(
         'panda3d>=1.10.7',
         'numpy>=1.19.2',
         'setuptools>=50.3.0',
-        'multipledispatch>=0.6.0'
-        'pip>=20.2.3'
-        'six>=1.15.0'
+        'multipledispatch>=0.6.0',
+        'pip>=20.2.3',
+        'six>=1.15.0',
+        'cython'
     ],
     options={
         "build_apps": {

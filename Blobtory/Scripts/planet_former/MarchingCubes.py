@@ -121,10 +121,10 @@ class MarchingCubes:
             self.winCreator.base.render.find("**/node").removeNode()
 
         self.geomPath = self.winCreator.base.render.attach_new_node(node)
-        self.geomPath.setPos(
-            -self.size.getX()*0.5*self.cubeformer.spacing,
-            -self.size.getY()*0.5*self.cubeformer.spacing,
-            -self.size.getZ()*0.5*self.cubeformer.spacing)
+        # self.geomPath.setPos(
+        #     -self.size.getX()*0.5*self.cubeformer.spacing,
+        #     -self.size.getY()*0.5*self.cubeformer.spacing,
+        #     -self.size.getZ()*0.5*self.cubeformer.spacing)
 
         self.winCreator.pipelineSwitcher.AddModelWithShaderGeneralName(self.geomPath, "assets/shaders/planets/planet")
         self.geomPath.set_shader_input('vertexBufferEdge', self.edgeVertexBuffer)
